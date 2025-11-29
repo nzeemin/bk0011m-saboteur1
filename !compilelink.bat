@@ -18,9 +18,31 @@ echo 	.ASCII /REV.%REVISION% %DATESTAMP%/ > VERSIO.MAC
 @if exist S1CORE.MAC.raw del S1CORE.MAC.raw
 @if exist S1CORE.raw del S1CORE.raw
 @if exist S1CORE.LZS del S1CORE.LZS
+@if exist S1TILE.MAC.raw del S1TILE.MAC.raw
+@if exist S1TILE.raw del S1TILE.raw
+@if exist S1TILE.LZS del S1TILE.LZS
 @if exist S1BOOT.LST del S1BOOT.LST
 @if exist S1BOOT.MAC.bin del S1BOOT.MAC.bin
 @if exist SABOT1.BIN del SABOT1.BIN
+
+tools\BKTurbo8_x64.exe -ik --raw -s0100000 -lS1TILE.lst CO S1TILE.MAC >S1TILE.out
+@if exist S1TILE.MAC.raw rename S1TILE.MAC.raw S1TILE.raw
+@if exist _errors.txt (
+  @echo %ESCchar%[91mFAILED S1TILE, see _errors.txt%ESCchar%[0m
+  @exit /b
+)
+>nul findstr "—сылки на неопределЄнные метки!" S1TILE.out && (
+  @echo %ESCchar%[91mUNDEFINED SYMBOLS, see S1TILE.out%ESCchar%[0m
+  @exit /b
+)
+dir /-c S1TILE.raw|findstr /R /C:"S1TILE.raw"
+
+tools\lzsa3.exe S1TILE.raw S1TILE.LZS
+dir /-c S1TILE.LZS|findstr /R /C:"S1TILE.LZS"
+call :FileSize S1TILE.LZS
+set "tilelzsize=%fsize%"
+rem Reuse VERSIO.MAC to pass parameters into S1BOOT.MAC
+echo S1TZSZ = %tilelzsize%. >> VERSIO.MAC
 
 tools\BKTurbo8_x64.exe -ik --raw -s001600 -lS1CORE.lst CO S1CORE.MAC >S1CORE.out
 @if exist S1CORE.MAC.raw rename S1CORE.MAC.raw S1CORE.raw
@@ -52,7 +74,6 @@ tools\BKTurbo8_x64.exe -ik -s001000 -lS1BOOT.lst CO S1BOOT.MAC >S1BOOT.out
   @exit /b
 )
 dir /-c SABOT1.BIN|findstr /R /C:"SABOT1.BIN"
-echo.
 
 echo %ESCchar%[92mSUCCESS%ESCchar%[0m
 exit

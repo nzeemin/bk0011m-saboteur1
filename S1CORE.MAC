@@ -20,9 +20,7 @@ MMODE0 = ^B0001110000000000	; 5:4  -  системный
 MMOD34 = ^B0011110000000000	; 3:4  -  для загрузки
 MMODE1 = ^B0011100000000000	; 3:1  -  основной
 MMODE5 = ^B0001100000000000	; 5:1  -  для рисования на экране
-MMOD36 = ^B0011111100000000	; 3:6  -  для BCHRS+OCHRS
-MMOD32 = ^B0011101000000000	; 3:2  -  для NCHRS
-MMOD37 = ^B0011110100000000	; 3:7  -  для S2GCHR
+MMOD56 = ^B0001111100000000	; 5:6  -  для рисования на экране тайлами
 
 ; Значения регистра управления палитрами
 ;          ST..____........
@@ -522,9 +520,9 @@ DRNRJC:	MOV	NRJ, R2			; 0..14.
 	ADD	#<SCRTOP+<1000*21.>+6*2>, R2	; screen address
 	MOV	NRJLO, R1
 	MOV	#16., R4
-	MOV	R2, @#176640
-10$:	MOV	R1, @#176642
-	ADD	#120, @#176640		; next line
+	;MOV	R2, @#176640 ;TODO
+10$:	;MOV	R1, @#176642
+	;ADD	#120, @#176640		; next line
 	SOB	R4, 10$
 	RETURN
 
@@ -532,26 +530,19 @@ DRNRJC:	MOV	NRJ, R2			; 0..14.
 ; R3 = address on the screen; R0 = item number 0..9.
 DRITEM:	ASL	R0
 L74D3:	MOV	LB5B0(R0), R2		; !!MUT-ARG!! get item address from the table
-	MOV	#176640, R5
-	MOV	R3, (R5)		; set UKNC indirect address
 	MOV	#24., R1
-L74E4:	CLR	R3			; <
-	BISB	(R2)+, R3
-	MOV	R3, @#176642		; | copy pixels
-	INC	(R5)
-	CLR	R3
-	BISB	(R2)+, R3
-	MOV	R3, @#176642		; | copy pixels
-	INC	(R5)
-	CLR	R3
-	BISB	(R2)+, R3
-	MOV	R3, @#176642		; | copy pixels
-	INC	(R5)
-	CLR	R3
-	BISB	(R2)+, R3
-	MOV	R3, @#176642		; | copy pixels
-	ADD	#<120-3>, (R5)		; |  next line
+	MOV	#MMODE5, @#177716	; Включаем режим памяти 5
+L74E4:	MOVB	(R2)+, R5
+	MOV	PXCONH(R5), (R3)+	; copy to screen
+	MOVB	(R2)+, R5
+	MOV	PXCONH(R5), (R3)+	; copy to screen
+	MOVB	(R2)+, R5
+	MOV	PXCONH(R5), (R3)+	; copy to screen
+	MOVB	(R2)+, R5
+	MOV	PXCONH(R5), (R3)	; copy to screen
+	ADD	#<100-6>, R3		; next line
 	SOB	R1, L74E4		; repeat
+	MOV	#MMODE1, @#177716	; Включаем режим памяти 1
 	RETURN
 
 ; Process a dog
@@ -853,8 +844,8 @@ LA4A2:	CMPB	#144, TLSCR0(R2)	; $64, in Tile screen 0
 	BNE	LA4C0			; no => skip draw on this tile
 	MOVB	#1, TLSCR1(R2)		; set "need update" marker in Tile screen 1
 	MOV	#73567, R5		; $7777
-	MOV	R3, @#176640		; set UKNC indirect address
-	XOR	R5, @#176642		; write to screen
+	;MOV	R3, @#176640 ;TODO	; set UKNC indirect address
+	;XOR	R5, @#176642		; write to screen
 LA4C0:	CMPB	#377, TLSCR2(R2)	; $FF, in Tile screen 2
 	BEQ	LA4CF			; yes =>
 	MOV	#4, R1			; Ninja hit
@@ -1247,14 +1238,15 @@ LAD1D:	MOV	#MMODE1, @#177716	; Включаем режим памяти 1
 ;------------------------------------------------------------------------------
 
 L7238:	.WORD	0			; offset in all tilemaps
-SCRADR:	.WORD	SCRTOP+1200+1		; current screen address
+SCRADR:	.WORD	SCRTOP+1000+2		; current screen address
 
 ; 8. pixel bytes, 2. attribute bytes
 TILBUF:	.BLKB	10.
 
 ; Draw tile map on the screen
-DRALL:	MOV	#17., R1		; 17. rows
-	MOV	#<SCRTOP+1200+1>, SCRADR	; screen address
+DRALL:	MOV	#MMOD56, @#177716	; Включаем режим памяти 5:6
+	MOV	#17., R1		; 17. rows
+	MOV	#<SCRTOP+1000+2>, SCRADR	; screen address
 	MOV	#TLSCR1, R3		; start address in Tile screen 1
 	CLR	L7238			; offset = 0
 ; Loop start
@@ -1266,15 +1258,17 @@ LB16F:	PUSH	R4			; save columns counter
 	BNE	DRTILE			; not zero => do the tile rendering
 ; Next column
 LB2A9:	INC	SCRADR			; screen address +1
+	INC	SCRADR
 	INC	L7238			; next offset in tilemaps
 	POP	R3			; restore address in Tile screen 1
 	INC	R3			; next address in Tile screen 1
 	POP	R4			; restore columns counter
 	SOB	R4, LB16F		; continue loop by columns
 ; Next tile row
-	ADD	#<1200-30.>, SCRADR	; screen address to next row
+	ADD	#<1000-30.*2>, SCRADR	; screen address to next row
 	POP	R1			; restore rows counter
 	SOB	R1, LB16D		; continue loop by rows
+	MOV	#MMODE1, @#177716	; Включаем режим памяти 1
 	RETURN
 
 ; Do the tile rendering
@@ -1416,7 +1410,23 @@ LB263:	MOV	L7238, R3		; get offset
 30$:
 ; Mark prepared Tile Buffer record to draw on the screen
 LB293:	MOV	#TILBUF, R3
-	;TODO
+	MOV	SCRADR, R5
+	MOVB	(R3)+, R0		; 0
+	MOV	PXCONH(R0), (R5)	; copy to screen
+	MOVB	(R3)+, R0		; 1
+	MOV	PXCONH(R0), 100(R5)	; copy to screen
+	MOVB	(R3)+, R0		; 2
+	MOV	PXCONH(R0), 200(R5)	; copy to screen
+	MOVB	(R3)+, R0		; 3
+	MOV	PXCONH(R0), 300(R5)	; copy to screen
+	MOVB	(R3)+, R0		; 4
+	MOV	PXCONH(R0), 400(R5)	; copy to screen
+	MOVB	(R3)+, R0		; 5
+	MOV	PXCONH(R0), 500(R5)	; copy to screen
+	MOVB	(R3)+, R0		; 6
+	MOV	PXCONH(R0), 600(R5)	; copy to screen
+	MOVB	(R3)+, R0		; 7
+	MOV	PXCONH(R0), 700(R5)	; copy to screen
 ;
 	JMP	LB2A9			; continue the loop
 
@@ -1448,10 +1458,10 @@ LB34B:	MOVB	(R1), R5
 LB350:	MOV	#<SCRIND+27.>, R3	; screen address for NEAR item
 	MOV	#24., R1		; 24. rows
 	MOV	#177400, R0		; value for XOR
-10$:	MOV	R3, @#176640
+10$:	;MOV	R3, @#176640 ;TODO
 	MOV	#4, R4
-20$:	XOR	R0, @#176642
-	INC	@#176640
+20$:	;XOR	R0, @#176642
+	;INC	@#176640
 	SOB	R4, 20$
 	ADD	#120, R3		; next line
 	SOB	R1, 10$
@@ -2162,12 +2172,12 @@ LBA5F:	MOV	#3, R4			; !!MUT-ARG!! height
 LBA61:	PUSH	R3
 	PUSH	R2
 LBA5D:	MOV	#3, R1			; !!MUT-ARG!! width
-10$:	MOV	R3, @#176640		; set UKNC indirect address
+10$:	;MOV	R3, @#176640 ;TODO	; set UKNC indirect address
 	MOV	#8., R5
 20$:	CLR	R0
 	BISB	(R2)+, R0		; get pixels
-	MOV	R0, @#176642		; write pixels to UKNC screen
-	ADD	#120, @#176640		; next line
+	;MOV	R0, @#176642		; write pixels to UKNC screen
+	;ADD	#120, @#176640		; next line
 	SOB	R5, 20$
 	INC	R3			; next column
 	SOB	R1, 10$			; continue loop by horz
@@ -2207,8 +2217,8 @@ LBBD4:	CALL	LBBDF			; Read input
 LBBDC:	JMP	LC226			; no FIRE => Ninja standing
 
 ; Procedure: Read Input
-LBBDF:
-	;MOV	@#PPUKEY, R0 ;TODO
+LBBDF:	;TODO
+	CLR	R0
 	MOV	R0, INPUTB
 	RETURN
 
@@ -2281,11 +2291,11 @@ LBC7E:	MOV	#<LD486+8.>, R2		; head tile address
 LBC98:	;CMPB	#210., (R3)
 	;BEQ	LBC7E
 ; Check for suicide key combination, LBC9D
-	CALL	LBBDF			; Read Input
-	BIT	#PKEYST, R0		; check for STOP key
-	BEQ	LBCB6			; not pressed => skip suicide
-	MOV	#LBEEF, LBEB4		; "SEPUKU" / "MISSION ABORTED"
-	JMP	LBE5A			; => Ninja sit, and then fall and DIE
+	;CALL	LBBDF ;TODO		; Read Input
+	;BIT	#PKEYST, R0		; check for STOP key
+	;BEQ	LBCB6			; not pressed => skip suicide
+	;MOV	#LBEEF, LBEB4		; "SEPUKU" / "MISSION ABORTED"
+	;JMP	LBE5A			; => Ninja sit, and then fall and DIE
 LBCB6:	CALL	LC5A3			; Check for falling
 	BNE	LBCBC
 	JMP	LC643			; => Ninja falling
@@ -2523,17 +2533,16 @@ LBE80:
 ; Movement handler: Game Over
 LBEB3:	MOV	#LBF12, R3		; !!MUT-ARG!! two-line message address
 LBEB4 = LBEB3 + 2
-	MOV	#<SCREEN+<1200*3.>+12.>, R2
+	MOV	#<SCRTOP+<1000*3.>+8.*2>, R2
 	MOV	#15., R1
 	CALL	PRSTR			; Print string 1st line
-	MOV	#<SCREEN+<1200*5.>+10.>, R2
+	MOV	#<SCRTOP+<1000*5.>+6.*2>, R2
 	MOV	#20., R1
 	CALL	PRSTR			; Print string 1st line
 ;
 	;CALL	STOPPU			; Remove PPU procedure
 	CALL	LF9B9			; Pause, then wait for any key pressed
 ;
-
 	JMP	LBC0D			; => Title picture and music, then go to Main menu
 
 ; UP pressed (continued, see BDE2)
@@ -2588,24 +2597,24 @@ LBFD5:	MOV	#10., R1
 	CALL	INCPAY			; Increase PAY value by 5000.
 	CALL	CLSRNM			; Clear the screen with Blue color
 	MOV	#LC062, R3		; Messages address
-	MOV	#<SCREEN+<1200*4.>+13.>, R2
+	MOV	#<SCRTOP+<1000*4.>+13.*2>, R2
 	MOV	#14., R1
 	CALL	PRSTR			; Print string "DISK RETRIEVED"
-	MOV	#<SCREEN+<1200*9.>+12.>, R2
+	MOV	#<SCRTOP+<1000*9.>+12.*2>, R2
 	MOV	#18., R1
 	CALL	PRSTR			; Print string "DISK BONUS: $05000"
-	MOV	#<SCREEN+<1200*11.>+9.>, R2
+	MOV	#<SCRTOP+<1000*11.>+9.*2>, R2
 	MOV	#7, R1
 	CALL	PRSTR			; Print string "LEVEL X"
-	MOV	#<SCREEN+<1200*20.>+6.>, R2
+	MOV	#<SCRTOP+<1000*20.>+6.*2>, R2
 	MOV	#13., R1
 	CALL	PRSTR			; Print string "TOTAL PAY : $"
 	MOV	#LC075, R3		; Messages address
-	MOV	#<SCREEN+<1200*11.>+17.>, R2
+	MOV	#<SCRTOP+<1000*11.>+17.*2>, R2
 	MOV	#13., R1
 	CALL	PRSTR			; Print string "BONUS: $05000"
 	MOV	#LE388, R3		; Message address: level bonus
-	MOV	#<SCREEN+<1200*11.>+25.>, R2
+	MOV	#<SCRTOP+<1000*11.>+25.*2>, R2
 	MOV	#3., R1
 	CALL	PRSTR			; Print string
 	MOVB	<LE388+3>, R1		; get level bonus value
@@ -2626,10 +2635,10 @@ LC094:	DECB	L7343			; decrease counter
 	MOV	#<SCRTOP+1200+7>, R2	; to
 	MOV	#120., R1		; lines count
 10$:	MOV	#17., R4		; horz tiles count
-20$:	MOV	R3, @#176640		; from address
-	MOV	@#176642, R0		; get word
-	MOV	R2, @#176640		; to address
-	MOV	R0, @#176642		; write word
+20$:	;MOV	R3, @#176640 ;TODO	; from address
+	;MOV	@#176642, R0		; get word
+	;MOV	R2, @#176640		; to address
+	;MOV	R0, @#176642		; write word
 	INC	R3
 	INC	R2
 	SOB	R4, 20$			; loop horz by tiles
@@ -4083,9 +4092,9 @@ SIZER = . - STARTR
 
 ;.INCLUDE /S1TILE.MAC/
 LD600 = 100000
-LE700 = LD600 + 4352.
-LF0F0 = LE700 + 2544.
-LF700 = LE700 + 4096.
+LE700 = 104410
+LF0F0 = 111370
+LF700 = 114410
 
 ENDD:
 

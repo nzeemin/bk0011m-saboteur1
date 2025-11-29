@@ -9,6 +9,7 @@ del x-bkbtl\ANDOS.IMG
 copy "x-bkemugid\Img\ANDOS_.IMG " "x-bkbtl\ANDOS.IMG"
 bkdecmd a x-bkbtl/ANDOS.IMG SABOT1.BIN
 bkdecmd a x-bkbtl/ANDOS.IMG S1CORE.LZS
+bkdecmd a x-bkbtl/ANDOS.IMG S1TILE.LZS
 
 cd x-bkbtl
 start BKBTL.exe
