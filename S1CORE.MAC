@@ -5,28 +5,28 @@
 ; !!MUT-ARG!! - the command argument is mutable
 
 ;------------------------------------------------------------------------------
-; Распределение памяти
-; 000000-040000 16K - код
+; п═п╟я│п©я─п╣п╢п╣п╩п╣п╫п╦п╣ п©п╟п╪я▐я┌п╦
+; 000000-040000 16K - п╨п╬п╢
 ; 040000-100000 16K
-;   стр.5 экран, при рисовании на экране
-;   стр.3 комнаты, спрайты и другие данные
+;   я│я┌я─.5 я█п╨я─п╟п╫, п©я─п╦ я─п╦я│п╬п╡п╟п╫п╦п╦ п╫п╟ я█п╨я─п╟п╫п╣
+;   я│я┌я─.3 п╨п╬п╪п╫п╟я┌я▀, я│п©я─п╟п╧я┌я▀ п╦ п╢я─я┐пЁп╦п╣ п╢п╟п╫п╫я▀п╣
 ; 100000-140000 16K
-;   стр.1 тайлы
+;   я│я┌я─.1 я┌п╟п╧п╩я▀
 ;------------------------------------------------------------------------------
 
-; Режимы для регистра управления памятью
-;          .___1___...00.00	Стр.	Назначение
-MMODE0 = ^B0001110000000000	; 5:4  -  системный
-MMOD34 = ^B0011110000000000	; 3:4  -  для загрузки
-MMODE1 = ^B0011100000000000	; 3:1  -  основной
-MMODE5 = ^B0001100000000000	; 5:1  -  для рисования на экране
-MMOD36 = ^B0011111100000000	; 3:6  -  для BCHRS+OCHRS
-MMOD32 = ^B0011101000000000	; 3:2  -  для NCHRS
-MMOD37 = ^B0011110100000000	; 3:7  -  для S2GCHR
+; п═п╣п╤п╦п╪я▀ п╢п╩я▐ я─п╣пЁп╦я│я┌я─п╟ я┐п©я─п╟п╡п╩п╣п╫п╦я▐ п©п╟п╪я▐я┌я▄я▌
+;          .___1___...00.00	п║я┌я─.	п²п╟п╥п╫п╟я┤п╣п╫п╦п╣
+MMODE0 = ^B0001110000000000	; 5:4  -  я│п╦я│я┌п╣п╪п╫я▀п╧
+MMOD34 = ^B0011110000000000	; 3:4  -  п╢п╩я▐ п╥п╟пЁя─я┐п╥п╨п╦
+MMODE1 = ^B0011100000000000	; 3:1  -  п╬я│п╫п╬п╡п╫п╬п╧
+MMODE5 = ^B0001100000000000	; 5:1  -  п╢п╩я▐ я─п╦я│п╬п╡п╟п╫п╦я▐ п╫п╟ я█п╨я─п╟п╫п╣
+MMOD36 = ^B0011111100000000	; 3:6  -  п╢п╩я▐ BCHRS+OCHRS
+MMOD32 = ^B0011101000000000	; 3:2  -  п╢п╩я▐ NCHRS
+MMOD37 = ^B0011110100000000	; 3:7  -  п╢п╩я▐ S2GCHR
 
-; Значения регистра управления палитрами
+; п≈п╫п╟я┤п╣п╫п╦я▐ я─п╣пЁп╦я│я┌я─п╟ я┐п©я─п╟п╡п╩п╣п╫п╦я▐ п©п╟п╩п╦я┌я─п╟п╪п╦
 ;          ST..____........
-PMODEG = ^B0000111000000000	; Экран стр.5, таймер отключен, палитра 14
+PMODEG = ^B0000111000000000	; п╜п╨я─п╟п╫ я│я┌я─.5, я┌п╟п╧п╪п╣я─ п╬я┌п╨п╩я▌я┤п╣п╫, п©п╟п╩п╦я┌я─п╟ 14
 
 SCREEN = 040000			; Screen start
 SCRTOP = SCREEN + <512.*2>	; Where the game screen starts
@@ -53,7 +53,7 @@ TIMERI = 200.		; Fast timer reset value, see TIMECN
 ;	.=001600
 ; Coming here from S1BOOT code
 ; Initialization
-; Уже включен основной режим памяти MMODE1
+; пёп╤п╣ п╡п╨п╩я▌я┤п╣п╫ п╬я│п╫п╬п╡п╫п╬п╧ я─п╣п╤п╦п╪ п©п╟п╪я▐я┌п╦ MMODE1
 K01100:	MTPS	#000340			; Disable interrupts
 	MOV	SP, OSTACK		; Save initial SP value
 	MOV	#000004, R0
@@ -61,20 +61,20 @@ K01100:	MTPS	#000340			; Disable interrupts
 	MOV	#340, (R0)
 ; Prepare PXCONV table, used to convert pixels BYTE -> BK WORD
 	MOV	#L33124, R2
-	MOV	#-128., R3		; R3 бежит от -128. до +127.
-1$:	CLR	R5			; в R5 будет готовое слово
-	MOV	#8., R4			; в R4 счётчик по разрядам
+	MOV	#-128., R3		; R3 п╠п╣п╤п╦я┌ п╬я┌ -128. п╢п╬ +127.
+1$:	CLR	R5			; п╡ R5 п╠я┐п╢п╣я┌ пЁп╬я┌п╬п╡п╬п╣ я│п╩п╬п╡п╬
+	MOV	#8., R4			; п╡ R4 я│я┤я▒я┌я┤п╦п╨ п©п╬ я─п╟п╥я─я▐п╢п╟п╪
 	MOV	R3, R1
-2$:	ASR	R1			; 0-й бит идёт в C
+2$:	ASR	R1			; 0-п╧ п╠п╦я┌ п╦п╢я▒я┌ п╡ C
 	BCC	5$
-	ROL	R5			; забираем 1 из C
+	ROL	R5			; п╥п╟п╠п╦я─п╟п╣п╪ 1 п╦п╥ C
 	ROL	R5
 	BR	8$
-5$:	ROL	R5			; забираем 0 из C
+5$:	ROL	R5			; п╥п╟п╠п╦я─п╟п╣п╪ 0 п╦п╥ C
 	SEC
 	ROL	R5
 8$:	SOB	R4, 2$			; repeat
-	MOV	R5, (R2)+		; записываем результат
+	MOV	R5, (R2)+		; п╥п╟п©п╦я│я▀п╡п╟п╣п╪ я─п╣п╥я┐п╩я▄я┌п╟я┌
 	INC	R3
 	CMP	R3, #128.
 	BLT	1$
@@ -116,8 +116,14 @@ WAITUP:	CALL	READKEY			; KEYB Read a key
 	RETURN
 
 ; Procedure: Clear screen with Blue color, for Menu screen
-CLSRNM:
-	;TODO
+CLSRNM:	MOV	#52525, R0
+	MOV	#SCREEN, R2
+	MOV	#16.*224., R4
+	MOV	#MMODE5, @#177716	; п▓п╨п╩я▌я┤п╟п╣п╪ я─п╣п╤п╦п╪ п©п╟п╪я▐я┌п╦ 5
+10$:	MOV	R0, (R2)+
+	MOV	R0, (R2)+
+	SOB	R4, 10$
+	MOV	#MMODE1, @#177716	; п▓п╨п╩я▌я┤п╟п╣п╪ я─п╣п╤п╦п╪ п©п╟п╪я▐я┌п╦ 1
 	RETURN
 
 PAUSE:
@@ -411,7 +417,8 @@ LBD2F:	.ASCII	/BOMB/			; "BOMB" message
 TITLE:	.ASCII	/SABOTEUR 1 BK11M/
 VERSIO:
 .INCLUDE /VERSIO.MAC/
-	.ASCII	/P  PALETTE/
+	.ASCII / /
+SPALET:	.ASCII	/P  PALETTE/
 LDF27:	.ASCII	/S  START MISSION/
 	.ASCII	/X  EXIT/
 LE1FE:	.ASCII	/1-9 SELECT LEVEL/
@@ -463,7 +470,7 @@ L62A2:	MOVB	R0, (R2)+		; store repeated byte in buffer
 	SOB	R1, L62A2		; repeat
 	BR	L628F
 ; Buffer is ready, copy to screen
-L62A9:	MOV	#MMODE5, @#177716	; Включаем режим памяти 5
+L62A9:	MOV	#MMODE5, @#177716	; п▓п╨п╩я▌я┤п╟п╣п╪ я─п╣п╤п╦п╪ п©п╟п╪я▐я┌п╦ 5
 	MOV	#SCRTOP, R3		; Screen start address
 	MOV	#TLSCR0, R2		; Tile screens address, used as a buffer
 	MOV	#12., R4		; Number of columns = 12.
@@ -479,21 +486,22 @@ L62B4:	MOVB	(R2)+, R0
 	INC	R3			; next column
 	INC	R3
 	SOB	R4, L62B1		; continue loop for columns
-	MOV	#MMODE1, @#177716	; Включаем режим памяти 1
+	MOV	#MMODE1, @#177716	; п▓п╨п╩я▌я┤п╟п╣п╪ я─п╣п╤п╦п╪ п©п╟п╪я▐я┌п╦ 1
 	RETURN
 
 ;------------------------------------------------------------------------------
 
 ; Initial Energy fill
-L7472:	MOV	#<SCRTOP+<1000*21.>+6>, R2	; screen address
+L7472:	MOV	#MMODE5, @#177716	; п▓п╨п╩я▌я┤п╟п╣п╪ я─п╣п╤п╦п╪ п©п╟п╪я▐я┌п╦ 5
+	MOV	#<SCRTOP+<1000*21.>+6*2>, R2	; screen address
 	MOV	#15., R1
-10$:	MOV	R2, @#176640
-	MOV	#16., R4
-20$:	MOV	#377, @#176642
-	ADD	#120, @#176640		; next line
+10$:	MOV	#16., R4
+20$:	MOV	#177777, (R2)
+	ADD	#100, R2		; next line
 	SOB	R4, 20$
-	INC	R2
+	ADD	#176002, R2		; next column
 	SOB	R1, 10$
+	MOV	#MMODE1, @#177716	; п▓п╨п╩я▌я┤п╟п╣п╪ я─п╣п╤п╦п╪ п©п╟п╪я▐я┌п╦ 1
 	MOV	#14., NRJ		; set Energy = MAX
 	CLR	NRJLO
 	RETURN
@@ -511,7 +519,7 @@ L749E:	TST	NRJLO
 
 ; Draw Energy column
 DRNRJC:	MOV	NRJ, R2			; 0..14.
-	ADD	#<SCRTOP+<1000*21.>+6>, R2	; screen address
+	ADD	#<SCRTOP+<1000*21.>+6*2>, R2	; screen address
 	MOV	NRJLO, R1
 	MOV	#16., R4
 	MOV	R2, @#176640
@@ -529,22 +537,18 @@ L74D3:	MOV	LB5B0(R0), R2		; !!MUT-ARG!! get item address from the table
 	MOV	#24., R1
 L74E4:	CLR	R3			; <
 	BISB	(R2)+, R3
-	;SWAB	R3 ;DEBUG Color adjustment
 	MOV	R3, @#176642		; | copy pixels
 	INC	(R5)
 	CLR	R3
 	BISB	(R2)+, R3
-	;SWAB	R3 ;DEBUG Color adjustment
 	MOV	R3, @#176642		; | copy pixels
 	INC	(R5)
 	CLR	R3
 	BISB	(R2)+, R3
-	;SWAB	R3 ;DEBUG Color adjustment
 	MOV	R3, @#176642		; | copy pixels
 	INC	(R5)
 	CLR	R3
 	BISB	(R2)+, R3
-	;SWAB	R3 ;DEBUG Color adjustment
 	MOV	R3, @#176642		; | copy pixels
 	ADD	#<120-3>, (R5)		; |  next line
 	SOB	R1, L74E4		; repeat
@@ -1163,8 +1167,8 @@ LAC6E:	SOB	R1, LAC5C
 	RETURN
 
 ; Draw game screen frames and indicator text
-DRINDS:
-	MOV	#SCRTOP, @#176640	; Screen start address
+DRINDS:	MOV	#MMODE5, @#177716	; п▓п╨п╩я▌я┤п╟п╣п╪ я─п╣п╤п╦п╪ п©п╟п╪я▐я┌п╦ 5
+	MOV	#SCRTOP, R3		; Screen start address
 	MOV	#LAD65, R2		; Game screen frames/indicators RLE encoded sequence
 	CLR	R5			; counter up to 32.
 10$:	CLR	R0
@@ -1189,34 +1193,33 @@ DRINDS:
 	ADD	#LAE02, R2		; Indicator tiles address
 27$:	MOV	#8., R4
 30$:	;CLR	R0
-	MOV	(R2)+, R0
-	MOV	R0, @#176642		; Write to UKNC VRAM
-	ADD	#120, @#176640		; next line
+	MOV	(R2)+, (R3)		; copy to screen
+	ADD	#100, R3		; next line
 	SOB	R4, 30$
-	SUB	#<1200-1>, @#176640	; next column
+	SUB	#<1000-2>, R3		; next column
 	INC	R5
 	BIC	#177740, R5		; keep 5 lower bits = 0..31.
 	BNE	40$
-	ADD	#<1200-40>, @#176640	; next row
+	ADD	#<1000-64.>, R3	; next row
 40$:	SUB	#16., R2
 	SOB	R1, 27$
 	POP	R2
 	BR	10$
-LAD1D:
-	MOV	#<SCRIND+7.>, R2
+LAD1D:	MOV	#MMODE1, @#177716	; п▓п╨п╩я▌я┤п╟п╣п╪ я─п╣п╤п╦п╪ п©п╟п╪я▐я┌п╦ 1
+	MOV	#<SCRIND+7.*2>, R2
 	MOV	#13., R1
 	MOV	#LAD4A, R3		; Indicator messages start address
 	CALL	PRSTR			; Print string "PAY : $ 00000"
-	MOV	#<SCRIND+1200+23.>, R2	; screen address for timer value
+	MOV	#<SCRIND+1000+23.*2>, R2	; screen address for timer value
 	MOV	#2, R1
 	CALL	PRSTR			; Print string "99"
-	MOV	#<SCRIND+3600+1.>, R2
+	MOV	#<SCRIND+3000+1.*2>, R2
 	MOV	#4, R1
 	CALL	PRSTR			; Print string "HELD"
-	MOV	#<SCRIND+3600+22.>, R2
+	MOV	#<SCRIND+3000+22.*2>, R2
 	MOV	#4, R1
 	CALL	PRSTR			; Print string "TIME"
-	MOV	#<SCRIND+3600+27.>, R2
+	MOV	#<SCRIND+3000+27.*2>, R2
 	MOV	#4, R1
 	CALL	PRSTR			; Print string "NEAR"
 	RETURN
@@ -1246,11 +1249,8 @@ LAD1D:
 L7238:	.WORD	0			; offset in all tilemaps
 SCRADR:	.WORD	SCRTOP+1200+1		; current screen address
 
-; Tile buffer: size = TLBUFS * 12.
-; Each record: 2. bytes screen address, 8. pixel bytes, 2. attribute bytes
-TILBUF:	.BLKB	10.*12.
-TLBUFE:		; Tile buffer end
-TLBUFA:	.WORD	TLBUFE-10.		; Current address in the Tile Buffer
+; 8. pixel bytes, 2. attribute bytes
+TILBUF:	.BLKB	10.
 
 ; Draw tile map on the screen
 DRALL:	MOV	#17., R1		; 17. rows
@@ -1280,16 +1280,6 @@ LB2A9:	INC	SCRADR			; screen address +1
 ; Do the tile rendering
 DRTILE:
 	CLRB	(R3)			; clear "need to update" flag
-; Select a record in the Tile Buffer
-	MOV	TLBUFA, R3		; get current address in Tile Buffer
-	ADD	#10., R3		; to next record
-	CMP	R3, #TLBUFE		; end of Tile Buffer?
-	BLO	10$
-	MOV	#TILBUF, R3
-10$:	TST	(R3)			; is it free?
-	BNE	10$			; wait for PPU to finish work
-	TST	(R3)+			; skip screen address word
-	MOV	R3, TLBUFA		; update current address
 ; Process Tile screen 0 - background tile
 	MOV	L7238, R3		; get offset
 	MOVB	TLSCR0(R3), R0		; get tile from Tile screen 0
@@ -1302,7 +1292,7 @@ DRTILE:
 	ASL	R3			; * 8.
 	ADD	R0, R3			; * 9.
 	ADD	#LF700, R3		; + Background tiles base address
-	MOV	TLBUFA, R2		; buffer address
+	MOV	#TILBUF, R2		; buffer address
 	;.REPT	9.			; copy 8. pixel bytes + attr byte
 	MOVB	(R3)+, (R2)+
 	MOVB	(R3)+, (R2)+
@@ -1327,7 +1317,7 @@ LB1A3:	MOV	L7238, R3		; get offset
 	ADD	#LE700, R0		; + Ninja tiles base address
 	MOV	R0, R3			; now HL = tile data address
 	MOV	#8., R1			; 8 bytes
-	MOV	TLBUFA, R2		; tile buffer address
+	MOV	#TILBUF, R2		; tile buffer address
 LB1E4:	MOVB	(R2), R0		; get byte from the buffer
 	MOVB	(R3)+, R5		; get mask byte
 	TSTB	NJADIR			; check direction
@@ -1355,7 +1345,7 @@ LB1FC:	MOV	L7238, R3		; get offset
 	ADD	#LF0F0, R0		; + Dog tiles base address
 	MOV	R0, R3			; now HL = tile data address
 	MOV	#8., R1
-	MOV	TLBUFA, R2		; tile buffer address
+	MOV	#TILBUF, R2		; tile buffer address
 LB218:	MOVB	(R2), R0		; get byte from the buffer
 	MOVB	(R3)+, R5		; get mask byte
 	TSTB	DOGDIR			; check Dog direction
@@ -1382,7 +1372,7 @@ LB230:	MOV	L7238, R3		; get offset
 	ADD	#LE700, R0		; + Guard tiles base address
 	MOV	R0, R3			; now HL = tile data address
 	MOV	#8., R1
-	MOV	TLBUFA, R2		; tile buffer address
+	MOV	#TILBUF, R2		; tile buffer address
 LB24B:	MOVB	(R2), R0		; get byte from the buffer
 	MOVB	(R3)+, R5		; get mask byte
 	TSTB	GARDDI			; check direction
@@ -1412,7 +1402,7 @@ LB263:	MOV	L7238, R3		; get offset
 	ASL	R3			; * 16.
 	ADD	R0, R3			; * 17.
 	ADD	#LD600, R3		; + front tiles base address
-	MOV	TLBUFA, R2		; buffer address
+	MOV	#TILBUF, R2		; buffer address
 	MOV	#8., R1
 10$:	MOVB	(R2), R0		; get byte from the buffer
 	BICB	(R3)+, R0		; apply the mask
@@ -1425,8 +1415,8 @@ LB263:	MOV	L7238, R3		; get offset
 	MOVB	R0, (R2)		; save attribute byte
 30$:
 ; Mark prepared Tile Buffer record to draw on the screen
-LB293:	MOV	TLBUFA, R3
-	MOV	SCRADR, -2(R3)		; write screen address - mark record to draw
+LB293:	MOV	#TILBUF, R3
+	;TODO
 ;
 	JMP	LB2A9			; continue the loop
 
@@ -1601,12 +1591,12 @@ LB4E3:	INCB	(R3)
 LB4ED:	SOB	R1, INCPAY
 	MOV	#LAD52, R3		; Pay value text address
 	MOV	#5, R1			; five digits
-	MOV	#<SCRTOP+<1000*19.>+15.>, R2	; Screen address
+	MOV	#<SCRTOP+<1000*19.>+15.*2>, R2	; Screen address
 	;JMP	PRSTR			; => Print string, and RET
 
 ; Print string on the screen
 ; Input: R1 = length, R2 = screen address, R3 = string address
-PRSTR:	MOV	#MMODE5, @#177716	; Включаем режим памяти 5
+PRSTR:	MOV	#MMODE5, @#177716	; п▓п╨п╩я▌я┤п╟п╣п╪ я─п╣п╤п╦п╪ п©п╟п╪я▐я┌п╦ 5
 PRSTR1:	CLR	R0
 	BISB	(R3)+, R0		; get symbol byte
 	ASL	R0
@@ -1620,7 +1610,7 @@ PRSTR2:	MOVB	(R0)+, R5
 	SOB	R4, PRSTR2
 	ADD	#177002, R2		; one column right
 	SOB	R1, PRSTR1
-	MOV	#MMODE1, @#177716	; Включаем режим памяти 1
+	MOV	#MMODE1, @#177716	; п▓п╨п╩я▌я┤п╟п╣п╪ я─п╣п╤п╦п╪ п©п╟п╪я▐я┌п╦ 1
 	RETURN
 
 ; Movement handler for initial room (B8CE handler)
@@ -1857,7 +1847,7 @@ LB7B6:	MOV	#TIMODE, R3		; Time mode address
 ; Set up BOMB ticking mode
 	MOVB	#2, (R3)		; set Time mode = BOMB ticking mode
 	MOV	#LBD2F, R3		; "BOMB"
-	MOV	#<SCRIND+3600+22.>, R2	; screen address under timer value
+	MOV	#<SCRIND+3000+22.*2>, R2	; screen address under timer value
 	MOV	#4, R1
 	CALL	PRSTR			; Print string "BOMB"
 LB7CA:	MOV	#34471, R3		; !!MUT-ARG!! "99" bomb timer initial value
@@ -1899,7 +1889,7 @@ LB891:	MOV	#LB84F, R3		; NEAR item address
 ; NEAR item changed
 	MOVB	R1, (R3)		; set NEAR item
 	MOV	R1, R0			; NEAR item to draw
-	MOV	#<SCRIND+27.>, R3	; screen address for NEAR item
+	MOV	#<SCRIND+27.*2>, R3	; screen address for NEAR item
 	CALL	DRITEM			; Draw NEAR/HELD item
 LB8B0:	MOV	#LB850, R3		; HELD tile address
 	CLR	R0
@@ -1912,7 +1902,7 @@ LB8B0:	MOV	#LB850, R3		; HELD tile address
 	SUB	#306, R0		; $C6
 	ASR	R0
 LB8C2:	MOVB	R0, R0			; HELD item to draw
-	MOV	#<SCRIND+1>, R3		; screen address for HELD item
+	MOV	#<SCRIND+1*2>, R3	; screen address for HELD item
 	CALL	DRITEM			; Draw NEAR/HELD item
 	;DI
 LB8C9:	CLR	LA39E
@@ -2176,7 +2166,6 @@ LBA5D:	MOV	#3, R1			; !!MUT-ARG!! width
 	MOV	#8., R5
 20$:	CLR	R0
 	BISB	(R2)+, R0		; get pixels
-	;SWAB	R0 ;DEBUG color adjustment
 	MOV	R0, @#176642		; write pixels to UKNC screen
 	ADD	#120, @#176640		; next line
 	SOB	R5, 20$
@@ -2249,7 +2238,7 @@ RNDSED:	.WORD	123456	; Pseudo-random seed
 
 LBC0D:
 ; Clear the screen
-	;CALL	CLSRNM			; Clear screen with Blue color
+	CALL	CLSRNM			; Clear screen with Blue color
 ; Prepare screen background for title picture
 	;TODO: Prepare screen background
 
@@ -3248,11 +3237,12 @@ LDF60:	CALL	WAITUP			; clear keyboard buffer
 	;MOV	#VERSIO, R3
 	MOV	#<SCRTOP+<1000*2.>+13.*2>, R2
 	CALL	PRSTR			; Print string - version
-	MOV	#10., R1
-	MOV	#<SCRTOP+<1000*6.>+14.*2>, R2
-	CALL	PRSTR			; Print string "P  PALETTE"
+	;MOV	#10., R1
+	;MOV	#SPALET, R3
+	;MOV	#<SCRTOP+<1000*6.>+14.*2>, R2
+	;CALL	PRSTR			; Print string "P  PALETTE"
 	MOV	#16., R1
-	;MOV	#LDF27, R3
+	MOV	#LDF27, R3
 	MOV	#<SCRTOP+<1000*15.>+14.*2>, R2
 	CALL	PRSTR			; Print string "S  START MISSION"
 	MOV	#7., R1
@@ -3277,11 +3267,11 @@ LDF8E:	MOV	#LC082, R3		; "LEVEL X"
 	CMPB	R0, #140
 	BLO	20$			; upper/lower?
 	SUB	#040, R0		; to upper
-20$:	CMPB	R0, #120		; 'P' ?
-	BNE	22$
+20$:	;CMPB	R0, #120		; 'P' ?
+	;BNE	22$
 	;INC	@#PALNO			; Next palette
 	;CALL	STPAL			; Apply the palette
-	BR	10$			; continue menu loop
+	;BR	10$			; continue menu loop
 22$:	CMPB	R0, #123		; 'S' ?
 	BNE	24$
 	CALL	LEVSEL			; apply level variables
@@ -3419,16 +3409,16 @@ TLSCR4:	.BLKB	510.
 ; Tile screen 5 30x17 tiles, 510 bytes - front
 TLSCR5:	.BLKB	510.
 
-; Таблица под расширение байта в слово для вывода на экран, 512. bytes
+; п╒п╟п╠п╩п╦я├п╟ п©п╬п╢ я─п╟я│я┬п╦я─п╣п╫п╦п╣ п╠п╟п╧я┌п╟ п╡ я│п╩п╬п╡п╬ п╢п╩я▐ п╡я▀п╡п╬п╢п╟ п╫п╟ я█п╨я─п╟п╫, 512. bytes
 L33124:	.BLKW	256.
-PXCONH = L33124 + <128.*2.>	; Середина таблицы конвертации
+PXCONH = L33124 + <128.*2.>	; п║п╣я─п╣п╢п╦п╫п╟ я┌п╟п╠п╩п╦я├я▀ п╨п╬п╫п╡п╣я─я┌п╟я├п╦п╦
 
 .INCLUDE /S1FONT.MAC/
 
 .INCLUDE /S1INDS.MAC/
 
 ;------------------------------------------------------------------------------
-; Блок кода и данных под экраном, 040000-100000
+; п▒п╩п╬п╨ п╨п╬п╢п╟ п╦ п╢п╟п╫п╫я▀я┘ п©п╬п╢ я█п╨я─п╟п╫п╬п╪, 040000-100000
 
 	.ORG	040000
 
