@@ -177,8 +177,7 @@ GARDDI:	.BYTE	1	; Guard direction
 
 NRJ:	.BYTE	19.	; Energy 0..14.
 	.EVEN
-NRJLO:	.BYTE	1	; Energy lower, running bit 0,1..377
-	.EVEN
+NRJLO:	.WORD	177777	; Energy lower, running bit 0,1..377
 
 NJAFAL:	.BYTE	0	; Ninja falling count, to decrease Energy on hit
 	.EVEN
@@ -508,10 +507,12 @@ L7472:	MOV	#MMODE5, @#177716	; Включаем режим памяти 5
 L749E:	TST	NRJLO
 	BNE	10$
 	DECB	NRJ
-	MOV	#377, NRJLO
+	MOV	#177777, NRJLO
 	BR	20$
 10$:	CLC
-	RORB	NRJLO
+	ROR	NRJLO
+	CLC
+	ROR	NRJLO
 20$:	;CALL	DRNRJC			; Draw Energy column
 	;RETURN
 
@@ -520,9 +521,8 @@ DRNRJC:	MOV	NRJ, R2			; 0..14.
 	ADD	#<SCRTOP+<1000*21.>+6*2>, R2	; screen address
 	MOV	NRJLO, R1
 	MOV	#16., R4
-	;MOV	R2, @#176640 ;TODO
-10$:	;MOV	R1, @#176642
-	;ADD	#120, @#176640		; next line
+10$:	MOV	R1, (R2)
+	ADD	#100, R2		; next line
 	SOB	R4, 10$
 	RETURN
 
@@ -533,12 +533,16 @@ L74D3:	MOV	LB5B0(R0), R2		; !!MUT-ARG!! get item address from the table
 	MOV	#24., R1
 	MOV	#MMODE5, @#177716	; Включаем режим памяти 5
 L74E4:	MOVB	(R2)+, R5
+	ASL	R5
 	MOV	PXCONH(R5), (R3)+	; copy to screen
 	MOVB	(R2)+, R5
+	ASL	R5
 	MOV	PXCONH(R5), (R3)+	; copy to screen
 	MOVB	(R2)+, R5
+	ASL	R5
 	MOV	PXCONH(R5), (R3)+	; copy to screen
 	MOVB	(R2)+, R5
+	ASL	R5
 	MOV	PXCONH(R5), (R3)	; copy to screen
 	ADD	#<100-6>, R3		; next line
 	SOB	R1, L74E4		; repeat
@@ -1412,20 +1416,28 @@ LB263:	MOV	L7238, R3		; get offset
 LB293:	MOV	#TILBUF, R3
 	MOV	SCRADR, R5
 	MOVB	(R3)+, R0		; 0
+	ASL	R0
 	MOV	PXCONH(R0), (R5)	; copy to screen
 	MOVB	(R3)+, R0		; 1
+	ASL	R0
 	MOV	PXCONH(R0), 100(R5)	; copy to screen
 	MOVB	(R3)+, R0		; 2
+	ASL	R0
 	MOV	PXCONH(R0), 200(R5)	; copy to screen
 	MOVB	(R3)+, R0		; 3
+	ASL	R0
 	MOV	PXCONH(R0), 300(R5)	; copy to screen
 	MOVB	(R3)+, R0		; 4
+	ASL	R0
 	MOV	PXCONH(R0), 400(R5)	; copy to screen
 	MOVB	(R3)+, R0		; 5
+	ASL	R0
 	MOV	PXCONH(R0), 500(R5)	; copy to screen
 	MOVB	(R3)+, R0		; 6
+	ASL	R0
 	MOV	PXCONH(R0), 600(R5)	; copy to screen
 	MOVB	(R3)+, R0		; 7
+	ASL	R0
 	MOV	PXCONH(R0), 700(R5)	; copy to screen
 ;
 	JMP	LB2A9			; continue the loop
@@ -1615,6 +1627,7 @@ PRSTR1:	CLR	R0
 	ADD	#<FONT-400>, R0		; + font base address
 	MOV	#8., R4
 PRSTR2:	MOVB	(R0)+, R5
+	ASL	R5
 	MOV	PXCONH(R5), (R2)	; copy to screen
 	ADD	#100, R2		; next screen line
 	SOB	R4, PRSTR2
@@ -1842,7 +1855,7 @@ LB77B:
 	CMPB	#057, (R3)		; $2F = '0' - 1
 	BNE	LB7A4
 	JMP	LBE71
-LB7A4:	MOV	#<SCRIND+1200+23.>, R2	; screen address for timer value
+LB7A4:	MOV	#<SCRIND+1000+23.*2>, R2	; screen address for timer value
 	MOV	#LAD57, R3		; Indicator Time value address
 	MOV	#2, R1			; Two digits
 	CALL	PRSTR			; Print string
@@ -1920,7 +1933,7 @@ LB8CD:	JMP	@#LBEB3			; !!MUT-ARG!! => run handler
 LB8CE = LB8CD + 2	; Movement handler address
 
 ; Increase Energy a bit
-LB83C:	CMPB	#377, NRJLO
+LB83C:	CMP	#177777, NRJLO
 	BNE	10$
 	CMPB	#14., NRJ		; Energy at MAX?
 	BEQ	99$			; yes => return
@@ -1928,7 +1941,9 @@ LB83C:	CMPB	#377, NRJLO
 	INCB	NRJ
 	BR	20$
 10$:	SEC
-	ROLB	NRJLO
+	ROL	NRJLO
+	SEC
+	ROL	NRJLO
 20$:	CALL	DRNRJC			; Draw Energy column
 99$:	RETURN
 
@@ -2166,7 +2181,7 @@ LBBA7:	CLR	(R4)			; delete the object
 ; Procedure: Draw Explosion image on the screen and make some noise
 LBA52:	;TODO: Sound
 	DECB	LBAB2			; decrease Explosion counter
-LBA57:	MOV	#<SCRTOP+1200+1>, R3	; !!MUT-ARG!! address on the screen
+LBA57:	MOV	#<SCRTOP+1000+2>, R3	; !!MUT-ARG!! address on the screen
 LBA5A:	MOV	#LABE5, R2		; !!MUT-ARG!! Explosion image address
 LBA5F:	MOV	#3, R4			; !!MUT-ARG!! height
 LBA61:	PUSH	R3
@@ -2184,7 +2199,7 @@ LBA5D:	MOV	#3, R1			; !!MUT-ARG!! width
 	POP	R2
 	POP	R3
 	ADD	#24., R2
-	ADD	#1200, R3
+	ADD	#1000, R3
 	SOB	R4, LBA61		; continue loop by lines
 	;TODO: Sound off
 	RETURN
@@ -2217,10 +2232,45 @@ LBBD4:	CALL	LBBDF			; Read input
 LBBDC:	JMP	LC226			; no FIRE => Ninja standing
 
 ; Procedure: Read Input
-LBBDF:	;TODO
-	CLR	R0
+LBBDF:	PUSH	R3
+	PUSH	R1
+; If we have a key pressed, go through key mapping table
+	TSTB	@#177660	;БК	; do we have an unprocessed key?
+	BPL	K41276		;БК	; no => jump
+	MOVB	@#177662, R0	;БК	; get the key
+	MOV	#K41305, R3
+	MOV	#9., R1
+K41256:	CMPB	(R3)+, R0		; <  matches the key?
+	BNE	K41270			; |  no => jump
+	INC	R3			; |
+	MOVB	(R3), R0		; |  get the result byte
+	BR	K41300			; |  break the loop
+K41270:	ADD	#000002, R3		; |  to next key probe
+	SOB	R1, K41256		; repeat
+K41276:	CLR	R0			; not found - result is empty
+K41300:	POP	R1
+	POP	R3
 	MOV	R0, INPUTB
 	RETURN
+;
+; BK Joystick - port 177714
+;  7   6   5   4   3   2   1   0
+;  B  Fr2  Fr  A   Lt  Dn  Rt  Up
+;
+; Game controls
+;  7   6   5   4   3   2   1   0
+;              Fr  Up  Dn  Lt  Rt
+; Key mappings
+K41305:	.BYTE	070, 001, 010		; '8' - up
+	.BYTE	062, 004, 004		; '2' - down
+	.BYTE	064, 010, 002		; '4' - left
+	.BYTE	066, 002, 001		; '6' - right
+	.BYTE	065, 140, 020		; '5' - fire
+	.BYTE	061, 000, 012		; '1' - up + left
+	.BYTE	063, 000, 011		; '3' - up + right
+	.BYTE	067, 000, 024		; '7' - down + fire
+	.BYTE	071, 000, 024		; '9' - down + fire
+	.EVEN
 
 ; Procedure: Get pseudo-random number, result in R3
 ; Uses: R0, R2, R3
@@ -2631,8 +2681,8 @@ LC056:	MOV	#LBF12, LBEB4		; "ESCAPE" / "MISSION SUCCESSFUL"
 ; Scrolling block of 17x15 tiles, scroll 4 lines up
 LC094:	DECB	L7343			; decrease counter
 	BEQ	LBFD5			; => zero => Escaped; final messages, then Game Over
-	MOV	#<SCRTOP+1200+500+7>, R3	; from
-	MOV	#<SCRTOP+1200+7>, R2	; to
+	MOV	#<SCRTOP+1000+400+7*2>, R3	; from
+	MOV	#<SCRTOP+1000+7*2>, R2	; to
 	MOV	#120., R1		; lines count
 10$:	MOV	#17., R4		; horz tiles count
 20$:	;MOV	R3, @#176640 ;TODO	; from address
