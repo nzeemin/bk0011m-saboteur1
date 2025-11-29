@@ -1,0 +1,2630 @@
+; Start of S1ROOM.MAC
+	.EVEN
+
+RM791E:	; Room 791E
+;NOTE: Initialization procedure replaced with room token
+	.WORD	LB446		; Room procedure
+	.WORD	LB724		; Initialization; was C64C
+	.WORD	0		; Room to Left
+	.WORD	RM79C6		; Room to Right
+	.WORD	0		; Room to Up
+	.WORD	0		; Room to Down
+	.BYTE	015		; Fill entire screen with 0D
+	.BYTE	012, 007, 012, 351,000	; Rect 7x10 tiles with FF at 6679
+	.BYTE	004, 027, 365, 340,001	; Fill horz 23 tiles with F5 at 6770
+	.BYTE	004, 027, 013, 136,013	; Fill horz 23 tiles with 0B at 70EE
+	.BYTE	003, 014, 027, 003, 174,013	; Rect 23x3 tiles with 0C at 710C
+	.BYTE	004, 023, 366, 332,000	; Fill horz 19 tiles with F6 at 666A
+	.BYTE	047, 014, 371,000	; Fill vert 8 tiles with 0C at 6689
+	.BYTE	047, 014, 376,000	; Fill vert 8 tiles with 0C at 668E
+	.BYTE	047, 014, 003,001	; Fill vert 8 tiles with 0C at 6693
+	.BYTE	053, 362, 133,000	; Fill vert 12 tiles with F2 at 65EB
+	.BYTE	035, 201,000	; Block 4x3 tiles from 7194 to 6611
+	.BYTE	035, 205,000	; Block 4x3 tiles from 7194 to 6615
+	.BYTE	035, 211,000	; Block 4x3 tiles from 7194 to 6619
+	.BYTE	035, 215,000	; Block 4x3 tiles from 7194 to 661D
+	.BYTE	035, 221,000	; Block 4x3 tiles from 7194 to 6621
+	.BYTE	042, 022, 225,000	; Fill vert 3 tiles with 12 at 6625
+	.BYTE	100+49., 021,001, 334, 000	; Block 17x1 tiles from C65A to 666C
+	.BYTE	000		; End of sequence
+	.EVEN
+RM79C6:	; Room 79C6
+	.WORD	LB452		; Room procedure
+	.WORD	LB42E		; Initialization
+	.WORD	RM791E		; Room to Left
+	.WORD	RM7A17		; Room to Right
+	.WORD	0		; Room to Up
+	.WORD	0		; Room to Down
+	.BYTE	015		; Fill entire screen with 0D
+	.BYTE	012, 036, 012, 322,000	; Rect 30x10 tiles with FF at 6662
+	.BYTE	003, 002, 025, 006, 065,001	; Rect 21x6 tiles with 02 at 66C5
+	.BYTE	004, 025, 003, 027,001	; Fill horz 21 tiles with 03 at 66A7
+	.BYTE	200, 002, 011, 334,000	; Block 2 tiles from 71B9 to 666C copy 9 times
+	.BYTE	003, 000, 010, 006, 064,000	; Rect 8x6 tiles with 00 at 65C4
+	.BYTE	014, 012, 024,000	; Fill horz 10 tiles with FF at 65A4
+	.BYTE	022, 150,012	; Block 2x4 tiles from 71BB to 6FF8
+	.BYTE	013, 051,012	; Put tile 2A at 6FB9
+	.BYTE	044, 053, 107,012	; Fill vert 5 tiles with 2B at 6FD7
+	.BYTE	034, 255,013	; Block 6x2 tiles from 7188 to 713D
+	.BYTE	016, 361, 334,000	; Put tile F1 at 666C
+	.BYTE	016, 360, 335,000	; Put tile F0 at 666D
+	.BYTE	017, 023,377	; End of sequence + initialization
+	.EVEN
+RM7A17:	; Room 7A17
+	.WORD	LB483		; Room procedure
+	.WORD	LA142		; Initialization
+	.WORD	RM79C6		; Room to Left
+	.WORD	RM7B90		; Room to Right
+	.WORD	RM8238		; Room to Up
+	.WORD	0		; Room to Down
+	.BYTE	002		; Fill entire screen with 02
+	.BYTE	010, 377, 006, 075,001	; Triangle with FF, count=6 at 66CD
+	.BYTE	014, 022, 340,001	; Fill horz 18 tiles with FF at 6770
+	.BYTE	012, 014, 010, 040,001	; Rect 12x8 tiles with FF at 66B0
+	.BYTE	003, 000, 004, 006, 036,000	; Rect 4x6 tiles with 00 at 65AE
+	.BYTE	014, 013, 360,000	; Fill horz 11 tiles with FF at 6680
+	.BYTE	014, 005, 322,000	; Fill horz 5 tiles with FF at 6662
+	.BYTE	044, 053, 066,012	; Fill vert 5 tiles with 2B at 6FC6
+	.BYTE	013, 030,012	; Put tile 2A at 6FA8
+	.BYTE	014, 005, 000,000	; Fill horz 5 tiles with FF at 6590
+	.BYTE	014, 014, 012,000	; Fill horz 12 tiles with FF at 659A
+	.BYTE	200, 002, 010, 010,000	; Block 2 tiles from 71B9 to 6598 copy 8 times
+	.BYTE	025, 017,013	; Block 4x7 tiles from 798E to 709F
+	.BYTE	025, 270,012	; Block 4x7 tiles from 798E to 7048
+	.BYTE	025, 233,012	; Block 4x7 tiles from 798E to 702B
+	.BYTE	017, 377,205	; End of sequence + initialization
+	.EVEN
+RM7A75:	; Room 7A75
+	.WORD	LB41F		; Room procedure
+	.WORD	LB422		; Initialization
+	.WORD	0		; Room to Left
+	.WORD	0		; Room to Right
+	.WORD	RM7BD2		; Room to Up
+	.WORD	RM7A9E		; Room to Down
+	.BYTE	005		; Fill entire screen with FF
+	.BYTE	004, 022, 003, 177,000	; Fill horz 18 tiles with 03 at 660F
+	.BYTE	003, 002, 022, 005, 235,000	; Rect 18x5 tiles with 02 at 662D
+	.BYTE	200, 002, 021, 010,000	; Block 2 tiles from 71B9 to 6598 copy 17 times
+	.BYTE	016, 361, 064,001	; Put tile F1 at 66C4
+	.BYTE	016, 360, 065,001	; Put tile F0 at 66C5
+	.BYTE	000		; End of sequence
+	.EVEN
+RM7A9E:	; Room 7A9E
+	.WORD	LB41F		; Room procedure
+	.WORD	LB422		; Initialization
+	.WORD	0		; Room to Left
+	.WORD	RM7ACD		; Room to Right
+	.WORD	RM7A75		; Room to Up
+	.WORD	0		; Room to Down
+	.BYTE	005		; Fill entire screen with FF
+	.BYTE	004, 034, 003, 362,000	; Fill horz 28 tiles with 03 at 6682
+	.BYTE	003, 002, 034, 006, 020,001	; Rect 28x6 tiles with 02 at 66A0
+	.BYTE	200, 002, 017, 010,000	; Block 2 tiles from 71B9 to 6598 copy 15 times
+	.BYTE	034, 205,013	; Block 6x2 tiles from 7188 to 7115
+	.BYTE	034, 220,013	; Block 6x2 tiles from 7188 to 7120
+	.BYTE	000		; End of sequence
+	.EVEN
+RM7ACD:	; Room 7ACD
+	.WORD	LB41F		; Room procedure
+	.WORD	LB422		; Initialization
+	.WORD	RM7A9E		; Room to Left
+	.WORD	RM7AF8		; Room to Right
+	.WORD	RM7B56		; Room to Up
+	.WORD	0		; Room to Down
+	.BYTE	005		; Fill entire screen with FF
+	.BYTE	003, 002, 036, 006, 360,000	; Rect 30x6 tiles with 02 at 6680
+	.BYTE	004, 032, 003, 326,000	; Fill horz 26 tiles with 03 at 6666
+	.BYTE	004, 004, 003, 360,000	; Fill horz 4 tiles with 03 at 6680
+	.BYTE	004, 012, 002, 244,001	; Fill horz 10 tiles with 02 at 6734
+	.BYTE	200, 002, 016, 022,000	; Block 2 tiles from 71B9 to 65A2 copy 14 times
+	.BYTE	000		; End of sequence
+	.EVEN
+RM7AF8:	; Room 7AF8
+	.WORD	LB41F		; Room procedure
+	.WORD	LB422		; Initialization
+	.WORD	RM7ACD		; Room to Left
+	.WORD	0		; Room to Right
+	.WORD	RM7C6D		; Room to Up
+	.WORD	0		; Room to Down
+	.BYTE	005		; Fill entire screen with FF
+	.BYTE	003, 002, 034, 010, 360,000	; Rect 28x8 tiles with 02 at 6680
+	.BYTE	004, 015, 003, 366,000	; Fill horz 13 tiles with 03 at 6686
+	.BYTE	200, 002, 017, 010,000	; Block 2 tiles from 71B9 to 6598 copy 15 times
+	.BYTE	004, 006, 003, 322,000	; Fill horz 6 tiles with 03 at 6662
+	.BYTE	014, 011, 003,001	; Fill horz 9 tiles with FF at 6693
+	.BYTE	004, 011, 003, 041,001	; Fill horz 9 tiles with 03 at 66B1
+	.BYTE	034, 254,013	; Block 6x2 tiles from 7188 to 713C
+	.BYTE	014, 002, 244,001	; Fill horz 2 tiles with FF at 6734
+	.BYTE	014, 016, 302,001	; Fill horz 14 tiles with FF at 6752
+	.BYTE	016, 376, 363,001	; Put tile FE at 6783
+	.BYTE	016, 376, 372,001	; Put tile FE at 678A
+	.BYTE	103, 001, 002, 306,001	; Block 1x2 tiles from 7B4F to 6756
+	.BYTE	103, 001, 002, 316,001	; Block 1x2 tiles from 7B4F to 675E
+	.BYTE	000		; End of sequence
+	.EVEN
+RM7B56:	; Room 7B56
+	.WORD	LB41F		; Room procedure
+	.WORD	LB422		; Initialization
+	.WORD	0		; Room to Left
+	.WORD	0		; Room to Right
+	.WORD	RM7D5A		; Room to Up
+	.WORD	RM7ACD		; Room to Down
+	.BYTE	005		; Fill entire screen with FF
+	.BYTE	003, 002, 010, 006, 230,000	; Rect 8x6 tiles with 02 at 6628
+	.BYTE	003, 002, 012, 005, 243,000	; Rect 10x5 tiles with 02 at 6633
+	.BYTE	004, 010, 003, 172,000	; Fill horz 8 tiles with 03 at 660A
+	.BYTE	004, 012, 003, 205,000	; Fill horz 10 tiles with 03 at 6615
+	.BYTE	200, 002, 013, 004,000	; Block 2 tiles from 71B9 to 6594 copy 11 times
+	.BYTE	200, 002, 021, 022,000	; Block 2 tiles from 71B9 to 65A2 copy 17 times
+	.BYTE	202, 002, 001, 076,001	; Block 2 tiles from 7984 to 66CE copy 1 times
+	.BYTE	000		; End of sequence
+	.EVEN
+RM7B90:	; Room 7B90
+	.WORD	LB41F		; Room procedure
+	.WORD	LB422		; Initialization
+	.WORD	RM7A17		; Room to Left
+	.WORD	RM7BD2		; Room to Right
+	.WORD	0		; Room to Up
+	.WORD	0		; Room to Down
+	.BYTE	001		; Fill entire screen with 01
+	.BYTE	003, 002, 005, 011, 000,000	; Rect 5x9 tiles with 02 at 6590
+	.BYTE	014, 006, 002,000	; Fill horz 6 tiles with FF at 6592
+	.BYTE	013, 031,012	; Put tile 2A at 6FA9
+	.BYTE	046, 053, 067,012	; Fill vert 7 tiles with 2B at 6FC7
+	.BYTE	012, 017, 010, 016,001	; Rect 15x8 tiles with FF at 669E
+	.BYTE	012, 017, 003, 263,001	; Rect 15x3 tiles with FF at 6743
+	.BYTE	007, 377, 004, 073,001	; Triangle with FF, count=4 at 66CB
+	.BYTE	026, 330,012	; Block 4x7 tiles from 79AA to 7068
+	.BYTE	026, 232,012	; Block 4x7 tiles from 79AA to 702A
+	.BYTE	000		; End of sequence
+	.EVEN
+RM7BD2:	; Room 7BD2
+	.WORD	LB41F		; Room procedure
+	.WORD	LB422		; Initialization
+	.WORD	RM7B90		; Room to Left
+	.WORD	RM7D5A		; Room to Right
+	.WORD	RM8162		; Room to Up
+	.WORD	RM7A75		; Room to Down
+	.BYTE	001		; Fill entire screen with 01
+	.BYTE	012, 024, 003, 244,001	; Rect 20x3 tiles with FF at 6734
+	.BYTE	014, 012, 364,001	; Fill horz 10 tiles with FF at 6784
+	.BYTE	016, 377, 326,001	; Put tile FF at 6766
+	.BYTE	027, 045,013	; Block 3x4 tiles from 7C0C to 70B5
+	.BYTE	030, 224,013	; Block 3x3 tiles from 7C18 to 7124
+	.BYTE	206, 002, 016, 016,000	; Block 2 tiles from 7C2A to 659E copy 14 times
+	.BYTE	102, 002, 003, 254,001	; Block 2x3 tiles from 7984 to 673C
+	.BYTE	000		; End of sequence
+	.EVEN
+RM7C2E:	; Room 7C2E
+	.WORD	LB458		; Room procedure
+	.WORD	LA1A6		; Initialization
+	.WORD	RM7D5A		; Room to Left
+	.WORD	0		; Room to Right
+	.WORD	RM7DA9		; Room to Up
+	.WORD	RM7C6D		; Room to Down
+	.BYTE	001		; Fill entire screen with 01
+	.BYTE	012, 036, 004, 206,001	; Rect 30x4 tiles with FF at 6716
+	.BYTE	012, 005, 006, 000,000	; Rect 5x6 tiles with FF at 6590
+	.BYTE	012, 003, 015, 033,000	; Rect 3x13 tiles with FF at 65AB
+	.BYTE	013, 253,012	; Put tile 2A at 703B
+	.BYTE	045, 053, 311,012	; Fill vert 6 tiles with 2B at 7059
+	.BYTE	206, 002, 015, 005,000	; Block 2 tiles from 7C2A to 6595 copy 13 times
+	.BYTE	102, 002, 004, 216,001	; Block 2x4 tiles from 7984 to 671E
+	.BYTE	102, 002, 004, 232,001	; Block 2x4 tiles from 7984 to 672A
+	.BYTE	017, 020,004	; End of sequence + initialization
+	.EVEN
+RM7C6D:	; Room 7C6D
+	.WORD	LB41F		; Room procedure
+	.WORD	LB422		; Initialization
+	.WORD	0		; Room to Left
+	.WORD	RM7FC4		; Room to Right
+	.WORD	RM7C2E		; Room to Up
+	.WORD	RM7AF8		; Room to Down
+	.BYTE	005		; Fill entire screen with FF
+	.BYTE	200, 002, 021, 010,000	; Block 2 tiles from 71B9 to 6598 copy 17 times
+	.BYTE	003, 002, 016, 006, 000,001	; Rect 14x6 tiles with 02 at 6690
+	.BYTE	004, 011, 003, 342,000	; Fill horz 9 tiles with 03 at 6672
+	.BYTE	004, 005, 003, 011,001	; Fill horz 5 tiles with 03 at 6699
+	.BYTE	200, 002, 016, 024,000	; Block 2 tiles from 71B9 to 65A4 copy 14 times
+	.BYTE	000		; End of sequence
+	.EVEN
+RM7C9C:	; Room 7C9C
+	.WORD	LC6A5		; Room procedure
+	.WORD	L791B		; Initialization
+	.WORD	RM947C		; Room to Left
+	.WORD	RM93DF		; Room to Right
+	.WORD	0		; Room to Up
+	.WORD	0		; Room to Down
+	.BYTE	005		; Fill entire screen with FF
+	.BYTE	004, 036, 003, 322,000	; Fill horz 30 tiles with 03 at 6662
+	.BYTE	003, 002, 036, 007, 360,000	; Rect 30x7 tiles with 02 at 6680
+	.BYTE	003, 042, 004, 002, 033,001	; Rect 4x2 tiles with 22 at 66AB
+	.BYTE	003, 041, 036, 002, 206,001	; Rect 30x2 tiles with 21 at 6716
+	.BYTE	113, 006, 007, 362,012	; Block 6x7 tiles from 7D0D to 7082
+	.BYTE	112, 005, 001, 303,001	; Block 5x1 tiles from 7D08 to 6753
+	.BYTE	112, 005, 001, 322,001	; Block 5x1 tiles from 7D08 to 6762
+	.BYTE	111, 005, 007, 367,000	; Block 5x7 tiles from 7CE5 to 6687
+	.BYTE	114, 005, 007, 002,001	; Block 5x7 tiles from 7D37 to 6692
+	.BYTE	000		; End of sequence
+	.EVEN
+RM7D5A:	; Room 7D5A
+	.WORD	LB483		; Room procedure
+	.WORD	LA14A		; Initialization
+	.WORD	RM7BD2		; Room to Left
+	.WORD	RM7C2E		; Room to Right
+	.WORD	RM7F85		; Room to Up (extra room)
+	.WORD	RM7B56		; Room to Down
+	.BYTE	001		; Fill entire screen with 01
+	.BYTE	012, 036, 006, 000,000	; Rect 30x6 tiles with FF at 6590
+	.BYTE	206, 002, 020, 013,000	; Block 2 tiles from 7C2A to 659B copy 16 times
+;REMOVED.BYTE	004, 002, 352, 241,000	; Fill horz 2 tiles with EA at 6631 - blocks way up
+	.BYTE	014, 036, 340,001	; Fill horz 30 tiles with FF at 6770
+	.BYTE	012, 006, 003, 236,001	; Rect 6x3 tiles with FF at 672E
+	.BYTE	010, 377, 002, 273,001	; Triangle with FF, count=2 at 674B
+	.BYTE	202, 002, 001, 344,001	; Block 2 tiles from 7984 to 6774 copy 1 times
+	.BYTE	202, 002, 001, 362,001	; Block 2 tiles from 7984 to 6782 copy 1 times
+	.BYTE	013, 306,012	; Put tile 2A at 7056
+	.BYTE	045, 053, 344,012	; Fill vert 6 tiles with 2B at 7074
+	.BYTE	025, 031,013	; Block 4x7 tiles from 798E to 70A9
+	.BYTE	017, 377,200	; End of sequence + initialization
+	.EVEN
+RM7DA9:	; Room 7DA9
+	.WORD	L7918		; Room procedure
+	.WORD	LA0E8		; Initialization
+	.WORD	0		; Room to Left
+	.WORD	RM7E8C		; Room to Right
+	.WORD	RM7E05		; Room to Up
+	.WORD	RM7C2E		; Room to Down
+	.BYTE	001		; Fill entire screen with 01
+	.BYTE	014, 036, 340,001	; Fill horz 30 tiles with FF at 6770
+	.BYTE	014, 036, 000,000	; Fill horz 30 tiles with FF at 6590
+	.BYTE	012, 003, 003, 036,000	; Rect 3x3 tiles with FF at 65AE
+	.BYTE	053, 353, 171,000	; Fill vert 12 tiles with EB at 6609
+	.BYTE	027, 140,013	; Block 3x4 tiles from 7C0C to 70F0
+	.BYTE	207, 002, 001, 345,001	; Block 2 tiles from 7C2C to 6775 copy 1 times
+	.BYTE	210, 002, 020, 011,000	; Block 2 tiles from 7C9A to 6599 copy 16 times
+	.BYTE	210, 002, 020, 014,000	; Block 2 tiles from 7C9A to 659C copy 16 times
+	.BYTE	210, 002, 020, 017,000	; Block 2 tiles from 7C9A to 659F copy 16 times
+	.BYTE	030, 222,013	; Block 3x3 tiles from 7C18 to 7122
+	.BYTE	027, 161,013	; Block 3x4 tiles from 7C0C to 7101
+	.BYTE	027, 166,013	; Block 3x4 tiles from 7C0C to 7106
+	.BYTE	017, 377,025	; End of sequence + initialization
+	.EVEN
+RM7E05:	; Room 7E05
+	.WORD	LB452		; Room procedure
+	.WORD	LA35C		; Initialization
+	.WORD	0		; Room to Left
+	.WORD	RM80A7		; Room to Right
+	.WORD	RM83ED		; Room to Up
+	.WORD	RM7DA9		; Room to Down
+	.BYTE	014, 036, 340,001	; Fill horz 30 tiles with FF at 6770
+	.BYTE	207, 002, 001, 351,001	; Block 2 tiles from 7C2C to 6779 copy 1 times
+	.BYTE	207, 002, 001, 354,001	; Block 2 tiles from 7C2C to 677C copy 1 times
+	.BYTE	207, 002, 001, 357,001	; Block 2 tiles from 7C2C to 677F copy 1 times
+	.BYTE	201, 002, 020, 011,000	; Block 2 tiles from 7348 to 6599 copy 16 times
+	.BYTE	053, 353, 171,000	; Fill vert 12 tiles with EB at 6609
+	.BYTE	020, 045,013	; Block 3x3 tiles from 7C21 to 70B5
+	.BYTE	020, 176,013	; Block 3x3 tiles from 7C21 to 710E
+	.BYTE	020, 201,013	; Block 3x3 tiles from 7C21 to 7111
+	.BYTE	027, 163,013	; Block 3x4 tiles from 7C0C to 7103
+	.BYTE	023, 217,013	; Block 4x3 tiles from 7E7B to 711F
+	.BYTE	037, 264,013	; Block 3x1 tiles from 7E87 to 7144
+	.BYTE	031, 321,013	; Block 2x1 tiles from 7E8A to 7161
+	.BYTE	031, 324,013	; Block 2x1 tiles from 7E8A to 7164
+	.BYTE	014, 005, 000,000	; Fill horz 5 tiles with FF at 6590
+	.BYTE	012, 003, 003, 036,000	; Rect 3x3 tiles with FF at 65AE
+	.BYTE	017, 012,377	; End of sequence + initialization
+	.EVEN
+RM7E8C:	; Room 7E8C
+	.WORD	L7918		; Room procedure
+	.WORD	LA0ED		; Initialization
+	.WORD	RM7DA9		; Room to Left
+	.WORD	RM7EF2		; Room to Right
+	.WORD	0		; Room to Up
+	.WORD	RM7F48		; Room to Down
+	.BYTE	001		; Fill entire screen with 01
+	.BYTE	014, 036, 000,000	; Fill horz 30 tiles with FF at 6590
+	.BYTE	014, 036, 340,001	; Fill horz 30 tiles with FF at 6770
+	.BYTE	207, 002, 001, 342,001	; Block 2 tiles from 7C2C to 6772 copy 1 times
+	.BYTE	207, 002, 001, 364,001	; Block 2 tiles from 7C2C to 6784 copy 1 times
+	.BYTE	030, 174,013	; Block 3x3 tiles from 7C18 to 710C
+	.BYTE	027, 142,013	; Block 3x4 tiles from 7C0C to 70F2
+	.BYTE	023, 201,013	; Block 4x3 tiles from 7E7B to 7111
+	.BYTE	023, 205,013	; Block 4x3 tiles from 7E7B to 7115
+	.BYTE	023, 056,013	; Block 4x3 tiles from 7E7B to 70BE
+	.BYTE	021, 052,013	; Block 3x3 tiles from 71A0 to 70BA
+	.BYTE	021, 213,013	; Block 3x3 tiles from 71A0 to 711B
+	.BYTE	030, 222,013	; Block 3x3 tiles from 7C18 to 7122
+	.BYTE	027, 166,013	; Block 3x4 tiles from 7C0C to 7106
+	.BYTE	017, 377,024	; End of sequence + initialization
+	.EVEN
+RM7EF2:	; Room 7EF2
+	.WORD	LB47A		; Room procedure
+	.WORD	LA154		; Initialization
+	.WORD	RM7E8C		; Room to Left
+	.WORD	0		; Room to Right
+	.WORD	0		; Room to Up
+	.WORD	0		; Room to Down
+	.BYTE	001		; Fill entire screen with 01
+	.BYTE	014, 036, 000,000	; Fill horz 30 tiles with FF at 6590
+	.BYTE	014, 036, 340,001	; Fill horz 30 tiles with FF at 6770
+	.BYTE	056, 353, 072,000	; Fill vert 15 tiles with EB at 65CA
+	.BYTE	023, 323,012	; Block 4x3 tiles from 7E7B to 7063
+	.BYTE	023, 052,013	; Block 4x3 tiles from 7E7B to 70BA
+	.BYTE	023, 207,013	; Block 4x3 tiles from 7E7B to 7117
+	.BYTE	021, 060,013	; Block 3x3 tiles from 71A0 to 70C0
+	.BYTE	021, 176,013	; Block 3x3 tiles from 71A0 to 710E
+	.BYTE	021, 202,013	; Block 3x3 tiles from 71A0 to 7112
+	.BYTE	021, 214,013	; Block 3x3 tiles from 71A0 to 711C
+	.BYTE	021, 223,013	; Block 3x3 tiles from 71A0 to 7123
+	.BYTE	017, 022,203	; End of sequence + initialization
+	.EVEN
+RM7F48:	; Room 7F48
+	.WORD	LB483		; Room procedure
+	.WORD	LA14F		; Initialization
+	.WORD	0		; Room to Left
+	.WORD	RM7F9C		; Room to Right
+	.WORD	RM7E8C		; Room to Up
+	.WORD	RM7FC4		; Room to Down
+	.BYTE	005		; Fill entire screen with FF
+	.BYTE	003, 001, 010, 014, 042,000	; Rect 8x12 tiles with 01 at 65B2
+	.BYTE	003, 001, 022, 007, 336,000	; Rect 18x7 tiles with 01 at 666E
+	.BYTE	004, 004, 001, 216,001	; Fill horz 4 tiles with 01 at 671E
+	.BYTE	007, 001, 005, 110,000	; Triangle with 01, count=5 at 65D8
+	.BYTE	210, 002, 015, 002,000	; Block 2 tiles from 7C9A to 6592 copy 13 times
+	.BYTE	210, 002, 016, 024,000	; Block 2 tiles from 7C9A to 65A4 copy 14 times
+L7F7A:	.BYTE	016, 344, 316,000	; Put tile E4 at 665E - trigger "A", token $0E/$28
+	.BYTE	030, 117,013	; Block 3x3 tiles from 7C18 to 70DF
+	.BYTE	103, 001, 003, 262,001	; Block 1x3 tiles from 7B4F to 6742
+	.BYTE	103, 001, 003, 273,001	; Block 1x3 tiles from 7B4F to 674B
+	.BYTE	102, 002, 003, 256,001	; Block 2x3 tiles from 7984 to 673E
+	.BYTE	017, 377,201	; End of sequence + initialization
+	.EVEN
+RM7F9C:	; Room 7F9C
+	.WORD	LB458		; Room procedure
+	.WORD	LA1B5		; Initialization
+	.WORD	RM7F48		; Room to Left
+	.WORD	0		; Room to Right
+	.WORD	0		; Room to Up
+	.WORD	RM8008		; Room to Down
+	.BYTE	005		; Fill entire screen with FF
+	.BYTE	003, 001, 033, 007, 322,000	; Rect 27x7 tiles with 01 at 6662
+	.BYTE	016, 344, 266,000	; Put tile E4 at 6646
+	.BYTE	102, 002, 003, 250,001	; Block 2x3 tiles from 7984 to 6738
+	.BYTE	102, 002, 003, 270,001	; Block 2x3 tiles from 7984 to 6748
+	.BYTE	017, 017,003	; End of sequence + initialization
+	.EVEN
+RM7FC4:	; Room 7FC4
+	.WORD	LB41F		; Room procedure
+	.WORD	LB422		; Initialization
+	.WORD	RM7C6D		; Room to Left
+	.WORD	RM8008		; Room to Right
+	.WORD	RM7F48		; Room to Up
+	.WORD	0		; Room to Down
+	.BYTE	005		; Fill entire screen with FF
+	.BYTE	003, 002, 015, 006, 360,000	; Rect 13x6 tiles with 02 at 6680
+	.BYTE	004, 004, 003, 360,000	; Fill horz 4 tiles with 03 at 6680
+	.BYTE	004, 011, 003, 326,000	; Fill horz 9 tiles with 03 at 6666
+	.BYTE	200, 002, 016, 012,000	; Block 2 tiles from 71B9 to 659A copy 14 times
+	.BYTE	060, 375, 016,000	; Fill vert 17 tiles with FD at 659E
+	.BYTE	004, 016, 003, 246,000	; Fill horz 14 tiles with 03 at 6636
+	.BYTE	003, 002, 016, 005, 304,000	; Rect 14x5 tiles with 02 at 6654
+	.BYTE	103, 001, 006, 141,001	; Block 1x6 tiles from 7B4F to 66F1
+	.BYTE	104, 001, 005, 027,000	; Block 1x5 tiles from 7B51 to 65A7
+	.BYTE	000		; End of sequence
+	.EVEN
+RM8008:	; Room 8008
+	.WORD	LB41F		; Room procedure
+	.WORD	LB422		; Initialization
+	.WORD	RM7FC4		; Room to Left
+	.WORD	0		; Room to Right
+	.WORD	RM7F9C		; Room to Up
+	.WORD	RM8076		; Room to Down
+	.BYTE	005		; Fill entire screen with FF
+	.BYTE	004, 015, 003, 226,000	; Fill horz 13 tiles with 03 at 6626
+	.BYTE	004, 013, 003, 246,000	; Fill horz 11 tiles with 03 at 6636
+	.BYTE	003, 002, 015, 005, 264,000	; Rect 13x5 tiles with 02 at 6644
+	.BYTE	003, 002, 013, 006, 304,000	; Rect 11x6 tiles with 02 at 6654
+	.BYTE	004, 012, 002, 115,001	; Fill horz 10 tiles with 02 at 66DD
+	.BYTE	200, 002, 014, 004,000	; Block 2 tiles from 71B9 to 6594 copy 12 times
+	.BYTE	200, 002, 014, 024,000	; Block 2 tiles from 71B9 to 65A4 copy 12 times
+	.BYTE	102, 002, 005, 157,001	; Block 2x5 tiles from 7984 to 66FF
+	.BYTE	102, 002, 005, 174,001	; Block 2x5 tiles from 7984 to 670C
+	.BYTE	103, 001, 005, 162,001	; Block 1x5 tiles from 7B4F to 6702
+	.BYTE	103, 001, 005, 172,001	; Block 1x5 tiles from 7B4F to 670A
+	.BYTE	103, 001, 005, 201,001	; Block 1x5 tiles from 7B4F to 6711
+	.BYTE	104, 001, 005, 022,000	; Block 1x5 tiles from 7B51 to 65A2
+	.BYTE	104, 001, 005, 031,000	; Block 1x5 tiles from 7B51 to 65A9
+	.BYTE	060, 375, 016,000	; Fill vert 17 tiles with FD at 659E
+	.BYTE	000		; End of sequence
+	.EVEN
+RM8076:	; Room 8076
+	.WORD	LB41F		; Room procedure
+	.WORD	LB422		; Initialization
+	.WORD	0		; Room to Left
+	.WORD	0		; Room to Right
+	.WORD	RM8008		; Room to Up
+	.WORD	RM8384		; Room to Down
+	.BYTE	005		; Fill entire screen with FF
+	.BYTE	060, 375, 012,000	; Fill vert 17 tiles with FD at 659A
+	.BYTE	060, 375, 016,000	; Fill vert 17 tiles with FD at 659E
+	.BYTE	060, 375, 022,000	; Fill vert 17 tiles with FD at 65A2
+	.BYTE	060, 375, 031,000	; Fill vert 17 tiles with FD at 65A9
+	.BYTE	200, 002, 021, 007,000	; Block 2 tiles from 71B9 to 6597 copy 17 times
+	.BYTE	200, 002, 021, 024,000	; Block 2 tiles from 71B9 to 65A4 copy 17 times
+	.BYTE	000		; End of sequence
+	.EVEN
+RM80A7:	; Room 80A7
+	.WORD	LB458		; Room procedure
+	.WORD	LA1CB		; Initialization
+	.WORD	RM7E05		; Room to Left
+	.WORD	RM80F6		; Room to Right
+	.WORD	0		; Room to Up
+	.WORD	0		; Room to Down
+	.BYTE	014, 036, 000,000	; Fill horz 30 tiles with FF at 6590
+	.BYTE	014, 036, 340,001	; Fill horz 30 tiles with FF at 6770
+	.BYTE	027, 140,013	; Block 3x4 tiles from 7C0C to 70F0
+	.BYTE	020, 203,013	; Block 3x3 tiles from 7C21 to 7113
+	.BYTE	021, 207,013	; Block 3x3 tiles from 71A0 to 7117
+	.BYTE	023, 214,013	; Block 4x3 tiles from 7E7B to 711C
+	.BYTE	020, 063,013	; Block 3x3 tiles from 7C21 to 70C3
+	.BYTE	020, 071,013	; Block 3x3 tiles from 7C21 to 70C9
+	.BYTE	020, 222,013	; Block 3x3 tiles from 7C21 to 7122
+	.BYTE	020, 225,013	; Block 3x3 tiles from 7C21 to 7125
+	.BYTE	017, 015,001	; End of sequence + initialization
+	.EVEN
+RM80F6:	; Room 80F6
+	.WORD	LB452		; Room procedure
+	.WORD	LA38E		; Initialization
+	.WORD	RM80A7		; Room to Left
+	.WORD	0		; Room to Right
+	.WORD	0		; Room to Up
+	.WORD	0		; Room to Down
+	.BYTE	014, 036, 340,001	; Fill horz 30 tiles with FF at 6770
+	.BYTE	012, 002, 020, 034,000	; Rect 2x16 tiles with FF at 65AC
+	.BYTE	022, 141,013	; Block 2x4 tiles from 71BB to 70F1
+	.BYTE	020, 052,013	; Block 3x3 tiles from 7C21 to 70BA
+	.BYTE	020, 202,013	; Block 3x3 tiles from 7C21 to 7112
+	.BYTE	020, 205,013	; Block 3x3 tiles from 7C21 to 7115
+	.BYTE	020, 337,012	; Block 3x3 tiles from 7C21 to 706F
+	.BYTE	020, 067,013	; Block 3x3 tiles from 7C21 to 70C7
+	.BYTE	020, 073,013	; Block 3x3 tiles from 7C21 to 70CB
+	.BYTE	020, 217,013	; Block 3x3 tiles from 7C21 to 711F
+	.BYTE	020, 222,013	; Block 3x3 tiles from 7C21 to 7122
+	.BYTE	020, 225,013	; Block 3x3 tiles from 7C21 to 7125
+	.BYTE	023, 212,013	; Block 4x3 tiles from 7E7B to 711A
+	.BYTE	031, 305,013	; Block 2x1 tiles from 7E8A to 7155
+	.BYTE	017, 010,377	; End of sequence + initialization
+	.EVEN
+RM8162:	; Room 8162
+	.WORD	LB458		; Room procedure
+	.WORD	LA1C0		; Initialization
+	.WORD	RM81E5		; Room to Left
+	.WORD	0		; Room to Right
+	.WORD	RM8321		; Room to Up
+	.WORD	RM7BD2		; Room to Down
+	.BYTE	003, 001, 034, 010, 360,000	; Rect 28x8 tiles with 01 at 6680
+	.BYTE	014, 034, 322,000	; Fill horz 28 tiles with FF at 6662
+	.BYTE	014, 036, 340,001	; Fill horz 30 tiles with FF at 6770
+	.BYTE	014, 015, 000,000	; Fill horz 13 tiles with FF at 6590
+	.BYTE	014, 007, 027,000	; Fill horz 7 tiles with FF at 65A7
+	.BYTE	215, 002, 017, 072,000	; Block 2 tiles from 81E3 to 65CA copy 15 times
+	.BYTE	201, 002, 007, 020,000	; Block 2 tiles from 7348 to 65A0 copy 7 times
+	.BYTE	022, 127,012	; Block 2x4 tiles from 71BB to 6FE7
+	.BYTE	027, 137,013	; Block 3x4 tiles from 7C0C to 70EF
+	.BYTE	030, 200,013	; Block 3x3 tiles from 7C18 to 7110
+	.BYTE	030, 215,013	; Block 3x3 tiles from 7C18 to 711D
+	.BYTE	027, 164,013	; Block 3x4 tiles from 7C0C to 7104
+	.BYTE	030, 225,013	; Block 3x3 tiles from 7C18 to 7125
+	.BYTE	013, 030,012	; Put tile 2A at 6FA8
+	.BYTE	044, 053, 066,012	; Fill vert 5 tiles with 2B at 6FC6
+	.BYTE	013, 037,012	; Put tile 2A at 6FAF
+	.BYTE	044, 053, 075,012	; Fill vert 5 tiles with 2B at 6FCD
+	.BYTE	013, 054,012	; Put tile 2A at 6FBC
+	.BYTE	044, 053, 112,012	; Fill vert 5 tiles with 2B at 6FDA
+	.BYTE	207, 002, 001, 356,001	; Block 2 tiles from 7C2C to 677E copy 1 times
+	.BYTE	017, 016,001	; End of sequence + initialization
+	.EVEN
+RM81E5:	; Room 81E5
+	.WORD	LB452		; Room procedure
+	.WORD	LA353		; Initialization
+	.WORD	RM8238		; Room to Left
+	.WORD	RM8162		; Room to Right
+	.WORD	0		; Room to Up
+	.WORD	0		; Room to Down
+	.BYTE	012, 036, 011, 360,000	; Rect 30x9 tiles with FF at 6680
+	.BYTE	003, 001, 034, 007, 020,001	; Rect 28x7 tiles with 01 at 66A0
+	.BYTE	004, 005, 000, 360,000	; Fill horz 5 tiles with 00 at 6680
+	.BYTE	014, 006, 016,001	; Fill horz 6 tiles with FF at 669E
+	.BYTE	014, 014, 000,000	; Fill horz 12 tiles with FF at 6590
+	.BYTE	014, 013, 023,000	; Fill horz 11 tiles with FF at 65A3
+	.BYTE	006, 377, 002, 036,000	; Triangle with FF, count=2 at 65AE
+	.BYTE	013, 034,012	; Put tile 2A at 6FAC
+	.BYTE	013, 050,012	; Put tile 2A at 6FB8
+	.BYTE	045, 053, 072,012	; Fill vert 6 tiles with 2B at 6FCA
+	.BYTE	044, 053, 106,012	; Fill vert 5 tiles with 2B at 6FD6
+	.BYTE	004, 012, 001, 004,001	; Fill horz 10 tiles with 01 at 6694
+	.BYTE	004, 030, 001, 024,001	; Fill horz 24 tiles with 01 at 66A4
+	.BYTE	014, 013, 345,000	; Fill horz 11 tiles with FF at 6675
+	.BYTE	017, 013,377	; End of sequence + initialization
+	.EVEN
+RM8238:	; Room 8238
+	.WORD	LB41F		; Room procedure
+	.WORD	LB422		; Initialization
+	.WORD	0		; Room to Left
+	.WORD	RM81E5		; Room to Right
+	.WORD	RM8279		; Room to Up
+	.WORD	RM7A17		; Room to Down
+	.BYTE	005		; Fill entire screen with FF
+	.BYTE	003, 000, 034, 006, 134,000	; Rect 28x6 tiles with 00 at 65EC
+	.BYTE	004, 016, 000, 020,001	; Fill horz 14 tiles with 00 at 66A0
+	.BYTE	200, 002, 021, 010,000	; Block 2 tiles from 71B9 to 6598 copy 17 times
+	.BYTE	201, 002, 007, 142,000	; Block 2 tiles from 7348 to 65F2 copy 7 times
+	.BYTE	102, 002, 001, 064,001	; Block 2x1 tiles from 7984 to 66C4
+	.BYTE	013, 124,012	; Put tile 2A at 6FE4
+	.BYTE	013, 150,012	; Put tile 2A at 6FF8
+	.BYTE	045, 053, 162,012	; Fill vert 6 tiles with 2B at 7002
+	.BYTE	044, 053, 206,012	; Fill vert 5 tiles with 2B at 7016
+	.BYTE	000		; End of sequence
+	.EVEN
+RM8279:	; Room 8279
+	.WORD	LB41F		; Room procedure
+	.WORD	LB422		; Initialization
+	.WORD	0		; Room to Left
+	.WORD	RM82DD		; Room to Right
+	.WORD	0		; Room to Up
+	.WORD	RM8238		; Room to Down
+	.BYTE	215, 002, 021, 000,000	; Block 2 tiles from 81E3 to 6590 copy 17 times
+	.BYTE	007, 377, 004, 056,001	; Triangle with FF, count=4 at 66BE
+	.BYTE	014, 017, 244,001	; Fill horz 15 tiles with FF at 6734
+	.BYTE	014, 025, 302,001	; Fill horz 21 tiles with FF at 6752
+	.BYTE	014, 036, 340,001	; Fill horz 30 tiles with FF at 6770
+	.BYTE	020, 025,013	; Block 3x3 tiles from 7C21 to 70A5
+	.BYTE	020, 067,013	; Block 3x3 tiles from 7C21 to 70C7
+	.BYTE	020, 113,013	; Block 3x3 tiles from 7C21 to 70DB
+	.BYTE	020, 155,013	; Block 3x3 tiles from 7C21 to 70FD
+	.BYTE	020, 160,013	; Block 3x3 tiles from 7C21 to 7100
+	.BYTE	020, 221,013	; Block 3x3 tiles from 7C21 to 7121
+	.BYTE	020, 224,013	; Block 3x3 tiles from 7C21 to 7124
+	.BYTE	102, 002, 003, 254,001	; Block 2x3 tiles from 7984 to 673C
+	.BYTE	016, 000, 056,001	; Put tile 00 at 66BE
+	.BYTE	000		; End of sequence
+	.EVEN
+RM82DD:	; Room 82DD
+	.WORD	LB41F		; Room procedure
+	.WORD	LB422		; Initialization
+	.WORD	RM8279		; Room to Left
+	.WORD	RM8321		; Room to Right
+	.WORD	0		; Room to Up
+	.WORD	RM81E5		; Room to Down
+	.BYTE	014, 015, 340,001	; Fill horz 13 tiles with FF at 6770
+	.BYTE	014, 007, 310,001	; Fill horz 7 tiles with FF at 6758
+	.BYTE	014, 006, 324,001	; Fill horz 6 tiles with FF at 6764
+	.BYTE	014, 014, 362,001	; Fill horz 12 tiles with FF at 6782
+	.BYTE	020, 174,013	; Block 3x3 tiles from 7C21 to 710C
+	.BYTE	020, 177,013	; Block 3x3 tiles from 7C21 to 710F
+	.BYTE	020, 145,013	; Block 3x3 tiles from 7C21 to 70F5
+	.BYTE	021, 162,013	; Block 3x3 tiles from 71A0 to 7102
+	.BYTE	023, 225,013	; Block 4x3 tiles from 7E7B to 7125
+	.BYTE	000		; End of sequence
+	.EVEN
+RM8321:	; Room 8321
+	.WORD	LB41F		; Room procedure
+	.WORD	LB422		; Initialization
+	.WORD	RM82DD		; Room to Left
+	.WORD	0		; Room to Right
+	.WORD	RM844E		; Room to Up
+	.WORD	RM8162		; Room to Down
+	.BYTE	014, 036, 340,001	; Fill horz 30 tiles with FF at 6770
+	.BYTE	102, 002, 001, 360,001	; Block 2x1 tiles from 7984 to 6780
+	.BYTE	012, 003, 004, 033,000	; Rect 3x4 tiles with FF at 65AB
+	.BYTE	053, 353, 224,000	; Fill vert 12 tiles with EB at 6624
+	.BYTE	023, 176,013	; Block 4x3 tiles from 7E7B to 710E
+	.BYTE	023, 046,013	; Block 4x3 tiles from 7E7B to 70B6
+	.BYTE	021, 203,013	; Block 3x3 tiles from 71A0 to 7113
+	.BYTE	020, 210,013	; Block 3x3 tiles from 7C21 to 7118
+	.BYTE	021, 217,013	; Block 3x3 tiles from 71A0 to 711F
+	.BYTE	021, 224,013	; Block 3x3 tiles from 71A0 to 7124
+	.BYTE	031, 317,013	; Block 2x1 tiles from 7E8A to 715F
+	.BYTE	023, 067,013	; Block 4x3 tiles from 7E7B to 70C7
+	.BYTE	201, 002, 020, 020,000	; Block 2 tiles from 7348 to 65A0 copy 16 times
+	.BYTE	000		; End of sequence
+	.EVEN
+RM8384:	; Room 8384
+	.WORD	LB41F		; Room procedure
+	.WORD	LB422		; Initialization
+	.WORD	0		; Room to Left
+	.WORD	0		; Room to Right
+	.WORD	RM8076		; Room to Up
+	.WORD	RM9376		; Room to Down
+	.BYTE	005		; Fill entire screen with FF
+	.BYTE	003, 002, 017, 007, 230,000	; Rect 15x7 tiles with 02 at 6628
+	.BYTE	004, 017, 003, 172,000	; Fill horz 15 tiles with 03 at 660A
+	.BYTE	003, 002, 006, 007, 254,000	; Rect 6x7 tiles with 02 at 663C
+	.BYTE	004, 006, 003, 216,000	; Fill horz 6 tiles with 03 at 661E
+	.BYTE	200, 002, 014, 007,000	; Block 2 tiles from 71B9 to 6597 copy 12 times
+	.BYTE	200, 002, 021, 024,000	; Block 2 tiles from 71B9 to 65A4 copy 17 times
+	.BYTE	102, 002, 005, 154,001	; Block 2x5 tiles from 7984 to 66FC
+	.BYTE	102, 002, 001, 174,001	; Block 2x1 tiles from 7984 to 670C
+	.BYTE	060, 375, 022,000	; Fill vert 17 tiles with FD at 65A2
+	.BYTE	105, 001, 004, 012,000	; Block 1x4 tiles from 7B52 to 659A
+	.BYTE	105, 001, 004, 016,000	; Block 1x4 tiles from 7B52 to 659E
+	.BYTE	105, 001, 004, 031,000	; Block 1x4 tiles from 7B52 to 65A9
+	.BYTE	103, 001, 005, 162,001	; Block 1x5 tiles from 7B4F to 6702
+	.BYTE	103, 001, 005, 201,001	; Block 1x5 tiles from 7B4F to 6711
+	.BYTE	000		; End of sequence
+	.EVEN
+RM83ED:	; Room 83ED
+	.WORD	LB452		; Room procedure
+	.WORD	LA361		; Initialization
+	.WORD	0		; Room to Left
+	.WORD	RM920A		; Room to Right
+	.WORD	RM913F		; Room to Up
+	.WORD	RM7E05		; Room to Down
+	.BYTE	014, 036, 340,001	; Fill horz 30 tiles with FF at 6770
+	.BYTE	201, 002, 020, 011,000	; Block 2 tiles from 7348 to 6599 copy 16 times
+	.BYTE	102, 002, 001, 351,001	; Block 2x1 tiles from 7984 to 6779
+	.BYTE	012, 003, 004, 000,000	; Rect 3x4 tiles with FF at 6590
+	.BYTE	014, 002, 003,000	; Fill horz 2 tiles with FF at 6593
+	.BYTE	053, 353, 171,000	; Fill vert 12 tiles with EB at 6609
+	.BYTE	027, 142,013	; Block 3x4 tiles from 7C0C to 70F2
+	.BYTE	021, 176,013	; Block 3x3 tiles from 71A0 to 710E
+	.BYTE	031, 276,013	; Block 2x1 tiles from 7E8A to 714E
+	.BYTE	023, 064,013	; Block 4x3 tiles from 7E7B to 70C4
+	.BYTE	023, 213,013	; Block 4x3 tiles from 7E7B to 711B
+	.BYTE	027, 166,013	; Block 3x4 tiles from 7C0C to 7106
+	.BYTE	023, 221,013	; Block 4x3 tiles from 7E7B to 7121
+	.BYTE	017, 011,377	; End of sequence + initialization
+	.EVEN
+RM844E:	; Room 844E
+	.WORD	LB452		; Room procedure
+	.WORD	LA37F		; Initialization
+	.WORD	RM84A8		; Room to Left
+	.WORD	0		; Room to Right
+	.WORD	0		; Room to Up
+	.WORD	RM8321		; Room to Down
+	.BYTE	014, 036, 340,001	; Fill horz 30 tiles with FF at 6770
+	.BYTE	014, 006, 302,001	; Fill horz 6 tiles with FF at 6752
+	.BYTE	012, 003, 004, 033,000	; Rect 3x4 tiles with FF at 65AB
+	.BYTE	053, 353, 224,000	; Fill vert 12 tiles with EB at 6624
+	.BYTE	102, 002, 001, 360,001	; Block 2x1 tiles from 7984 to 6780
+	.BYTE	021, 140,013	; Block 3x3 tiles from 71A0 to 70F0
+	.BYTE	021, 202,013	; Block 3x3 tiles from 71A0 to 7112
+	.BYTE	020, 056,013	; Block 3x3 tiles from 7C21 to 70BE
+	.BYTE	020, 206,013	; Block 3x3 tiles from 7C21 to 7116
+	.BYTE	020, 211,013	; Block 3x3 tiles from 7C21 to 7119
+	.BYTE	023, 217,013	; Block 4x3 tiles from 7E7B to 711F
+	.BYTE	116, 003, 004, 167,013	; Block 3x4 tiles from 849C to 7107
+	.BYTE	017, 002,377	; End of sequence + initialization
+	.EVEN
+RM84A8:	; Room 84A8
+;NOTE: Crane sprite copying moved into room sequence
+	.WORD	LB41F		; Room procedure
+	.WORD	LB422		; Initialization; was F973
+	.WORD	RM84EE		; Room to Left
+	.WORD	RM844E		; Room to Right
+	.WORD	0		; Room to Up
+	.WORD	RM82DD		; Room to Down
+	.BYTE	012, 015, 002, 302,001	; Rect 13x2 tiles with FF at 6752
+	.BYTE	012, 014, 002, 324,001	; Rect 12x2 tiles with FF at 6764
+	.BYTE	014, 003, 054,000	; Fill horz 3 tiles with FF at 65BC
+	.BYTE	014, 015, 012,000	; Fill horz 13 tiles with FF at 659A
+	.BYTE	020, 140,013	; Block 3x3 tiles from 7C21 to 70F0
+	.BYTE	020, 007,013	; Block 3x3 tiles from 7C21 to 7097
+	.BYTE	023, 164,013	; Block 4x3 tiles from 7E7B to 7104
+	.BYTE	117, 005, 003, 142,013	; Block 5x3 tiles from 84DF to 70F2
+	.BYTE	100+48., 003,006, 112, 000	; Crane block 3x6 tiles from F98F to 65DA
+	.BYTE	000		; End of sequence
+	.EVEN
+RM84EE:	; Room 84EE
+	.WORD	L7918		; Room procedure
+	.WORD	LA10B		; Initialization
+	.WORD	0		; Room to Left
+	.WORD	RM84A8		; Room to Right
+	.WORD	RM8526		; Room to Up
+	.WORD	0		; Room to Down
+	.BYTE	012, 002, 017, 000,000	; Rect 2x15 tiles with FF at 6590
+	.BYTE	012, 036, 002, 302,001	; Rect 30x2 tiles with FF at 6752
+	.BYTE	201, 002, 017, 010,000	; Block 2 tiles from 7348 to 6598 copy 15 times
+	.BYTE	020, 140,013	; Block 3x3 tiles from 7C21 to 70F0
+	.BYTE	020, 143,013	; Block 3x3 tiles from 7C21 to 70F3
+	.BYTE	020, 275,012	; Block 3x3 tiles from 7C21 to 704D
+	.BYTE	020, 026,013	; Block 3x3 tiles from 7C21 to 70A6
+	.BYTE	020, 031,013	; Block 3x3 tiles from 7C21 to 70A9
+	.BYTE	020, 156,013	; Block 3x3 tiles from 7C21 to 70FE
+	.BYTE	020, 161,013	; Block 3x3 tiles from 7C21 to 7101
+	.BYTE	020, 164,013	; Block 3x3 tiles from 7C21 to 7104
+	.BYTE	017, 377,016	; End of sequence + initialization
+	.EVEN
+RM8526:	; Room 8526
+	.WORD	LB483		; Room procedure
+	.WORD	LA179		; Initialization
+	.WORD	0		; Room to Left
+	.WORD	RM858F		; Room to Right
+	.WORD	RM8608		; Room to Up
+	.WORD	RM84EE		; Room to Down
+	.BYTE	215, 002, 020, 000,000	; Block 2 tiles from 81E3 to 6590 copy 16 times
+	.BYTE	201, 002, 020, 010,000	; Block 2 tiles from 7348 to 6598 copy 16 times
+	.BYTE	014, 036, 340,001	; Fill horz 30 tiles with FF at 6770
+	.BYTE	102, 002, 001, 350,001	; Block 2x1 tiles from 7984 to 6778
+	.BYTE	020, 044,013	; Block 3x3 tiles from 7C21 to 70B4
+	.BYTE	020, 177,013	; Block 3x3 tiles from 7C21 to 710F
+	.BYTE	020, 226,013	; Block 3x3 tiles from 7C21 to 7126
+	.BYTE	120, 002, 002, 250,013	; Block 2x2 tiles from 8577 to 7138
+	.BYTE	116, 003, 004, 160,013	; Block 3x4 tiles from 849C to 7100
+	.BYTE	120, 002, 002, 256,013	; Block 2x2 tiles from 8577 to 713E
+	.BYTE	120, 002, 002, 261,013	; Block 2x2 tiles from 8577 to 7141
+	.BYTE	014, 006, 017,000	; Fill horz 6 tiles with FF at 659F
+	.BYTE	017, 377,205	; End of sequence + initialization
+	.EVEN
+RM858F:	; Room 858F
+	.WORD	L7918		; Room procedure
+	.WORD	LA106		; Initialization
+	.WORD	RM8526		; Room to Left
+	.WORD	RM85BD		; Room to Right
+	.WORD	0		; Room to Up
+	.WORD	0		; Room to Down
+	.BYTE	014, 036, 340,001	; Fill horz 30 tiles with FF at 6770
+	.BYTE	121, 005, 004, 142,013	; Block 5x4 tiles from 857B to 70F2
+	.BYTE	121, 005, 004, 151,013	; Block 5x4 tiles from 857B to 70F9
+	.BYTE	031, 276,013	; Block 2x1 tiles from 7E8A to 714E
+	.BYTE	021, 216,013	; Block 3x3 tiles from 71A0 to 711E
+	.BYTE	017, 377,017	; End of sequence + initialization
+	.EVEN
+RM85BD:	; Room 85BD
+	.WORD	LB41F		; Room procedure
+	.WORD	LB422		; Initialization
+	.WORD	RM858F		; Room to Left
+	.WORD	0		; Room to Right
+	.WORD	RM8689		; Room to Up
+	.WORD	0		; Room to Down
+	.BYTE	014, 036, 340,001	; Fill horz 30 tiles with FF at 6770
+	.BYTE	012, 003, 004, 033,000	; Rect 3x4 tiles with FF at 65AB
+	.BYTE	053, 353, 224,000	; Fill vert 12 tiles with EB at 6624
+	.BYTE	201, 002, 020, 015,000	; Block 2 tiles from 7348 to 659D copy 16 times
+	.BYTE	020, 164,012	; Block 3x3 tiles from 7C21 to 7004
+	.BYTE	020, 315,012	; Block 3x3 tiles from 7C21 to 705D
+	.BYTE	020, 320,012	; Block 3x3 tiles from 7C21 to 7060
+	.BYTE	020, 045,013	; Block 3x3 tiles from 7C21 to 70B5
+	.BYTE	020, 050,013	; Block 3x3 tiles from 7C21 to 70B8
+	.BYTE	020, 053,013	; Block 3x3 tiles from 7C21 to 70BB
+	.BYTE	020, 176,013	; Block 3x3 tiles from 7C21 to 710E
+	.BYTE	020, 201,013	; Block 3x3 tiles from 7C21 to 7111
+	.BYTE	020, 204,013	; Block 3x3 tiles from 7C21 to 7114
+	.BYTE	020, 215,013	; Block 3x3 tiles from 7C21 to 711D
+	.BYTE	020, 221,013	; Block 3x3 tiles from 7C21 to 7121
+	.BYTE	020, 224,013	; Block 3x3 tiles from 7C21 to 7124
+	.BYTE	020, 207,013	; Block 3x3 tiles from 7C21 to 7117
+	.BYTE	000		; End of sequence
+	.EVEN
+RM8608:	; Room 8608
+	.WORD	LB452		; Room procedure
+	.WORD	LA37A		; Initialization
+	.WORD	0		; Room to Left
+	.WORD	RM86FD		; Room to Right
+	.WORD	0		; Room to Up
+	.WORD	RM8526		; Room to Down
+	.BYTE	014, 036, 340,001	; Fill horz 30 tiles with FF at 6770
+	.BYTE	014, 034, 362,000	; Fill horz 28 tiles with FF at 6682
+	.BYTE	014, 014, 344,000	; Fill horz 12 tiles with FF at 6674
+	.BYTE	215, 002, 020, 000,000	; Block 2 tiles from 81E3 to 6590 copy 16 times
+	.BYTE	014, 016, 002,000	; Fill horz 14 tiles with FF at 6592
+	.BYTE	215, 002, 007, 052,001	; Block 2 tiles from 81E3 to 66BA copy 7 times
+	.BYTE	102, 002, 001, 350,001	; Block 2x1 tiles from 7984 to 6778
+	.BYTE	021, 064,012	; Block 3x3 tiles from 71A0 to 6FC4
+	.BYTE	023, 216,012	; Block 4x3 tiles from 7E7B to 701E
+	.BYTE	021, 224,012	; Block 3x3 tiles from 71A0 to 7024
+	.BYTE	020, 230,012	; Block 3x3 tiles from 7C21 to 7028
+	.BYTE	030, 201,012	; Block 3x3 tiles from 7C18 to 7011
+	.BYTE	027, 147,012	; Block 3x4 tiles from 7C0C to 6FF7
+	.BYTE	030, 210,013	; Block 3x3 tiles from 7C18 to 7118
+	.BYTE	020, 045,013	; Block 3x3 tiles from 7C21 to 70B5
+	.BYTE	020, 176,013	; Block 3x3 tiles from 7C21 to 710E
+	.BYTE	020, 201,013	; Block 3x3 tiles from 7C21 to 7111
+	.BYTE	020, 064,013	; Block 3x3 tiles from 7C21 to 70C4
+	.BYTE	020, 070,013	; Block 3x3 tiles from 7C21 to 70C8
+	.BYTE	020, 073,013	; Block 3x3 tiles from 7C21 to 70CB
+	.BYTE	020, 214,013	; Block 3x3 tiles from 7C21 to 711C
+	.BYTE	020, 217,013	; Block 3x3 tiles from 7C21 to 711F
+	.BYTE	020, 222,013	; Block 3x3 tiles from 7C21 to 7122
+	.BYTE	020, 225,013	; Block 3x3 tiles from 7C21 to 7125
+	.BYTE	017, 003,377	; End of sequence + initialization
+	.EVEN
+RM8689:	; Room 8689
+	.WORD	LB41F		; Room procedure
+	.WORD	LB422		; Initialization
+	.WORD	RM86FD		; Room to Left
+	.WORD	0		; Room to Right
+	.WORD	0		; Room to Up
+	.WORD	RM85BD		; Room to Down
+	.BYTE	014, 071, 054,001	; Fill horz 57 tiles with FF at 66BC
+	.BYTE	012, 003, 021, 033,000	; Rect 3x17 tiles with FF at 65AB
+	.BYTE	102, 002, 002, 071,001	; Block 2x2 tiles from 7984 to 66C9
+	.BYTE	201, 002, 005, 165,001	; Block 2 tiles from 7348 to 6705 copy 5 times
+	.BYTE	030, 327,012	; Block 3x3 tiles from 7C18 to 7067
+	.BYTE	122, 004, 002, 221,012	; Block 4x2 tiles from 86F5 to 7021
+	.BYTE	023, 313,012	; Block 4x3 tiles from 7E7B to 705B
+	.BYTE	021, 320,012	; Block 3x3 tiles from 71A0 to 7060
+	.BYTE	037, 006,013	; Block 3x1 tiles from 7E87 to 7096
+	.BYTE	117, 005, 003, 051,012	; Block 5x3 tiles from 84DF to 6FB9
+	.BYTE	021, 202,012	; Block 3x3 tiles from 71A0 to 7012
+	.BYTE	023, 205,012	; Block 4x3 tiles from 7E7B to 7015
+	.BYTE	023, 333,012	; Block 4x3 tiles from 7E7B to 706B
+	.BYTE	023, 337,012	; Block 4x3 tiles from 7E7B to 706F
+	.BYTE	000		; End of sequence
+	.EVEN
+RM86FD:	; Room 86FD
+	.WORD	LB41F		; Room procedure
+	.WORD	LB422		; Initialization
+	.WORD	RM8608		; Room to Left
+	.WORD	RM8689		; Room to Right
+	.WORD	RM8739		; Room to Up
+	.WORD	0		; Room to Down
+	.BYTE	006, 377, 004, 206,001	; Triangle with FF, count=4 at 6716
+	.BYTE	014, 101, 054,001	; Fill horz 65 tiles with FF at 66BC
+	.BYTE	007, 377, 002, 367,000	; Triangle with FF, count=2 at 6687
+	.BYTE	012, 007, 003, 322,000	; Rect 7x3 tiles with FF at 6662
+	.BYTE	201, 002, 007, 003,000	; Block 2 tiles from 7348 to 6593 copy 7 times
+	.BYTE	026, 126,012	; Block 4x7 tiles from 79AA to 6FE6
+	.BYTE	020, 176,012	; Block 3x3 tiles from 7C21 to 700E
+	.BYTE	020, 326,012	; Block 3x3 tiles from 7C21 to 7066
+	.BYTE	020, 331,012	; Block 3x3 tiles from 7C21 to 7069
+	.BYTE	020, 337,012	; Block 3x3 tiles from 7C21 to 706F
+	.BYTE	000		; End of sequence
+	.EVEN
+RM8739:	; Room 8739
+	.WORD	L7918		; Room procedure
+	.WORD	LA101		; Initialization
+	.WORD	RM8799		; Room to Left
+	.WORD	RM8802		; Room to Right
+	.WORD	0		; Room to Up
+	.WORD	RM86FD		; Room to Down
+	.BYTE	050, 072, 004,000	; Fill vert 9 tiles with 3A at 6594
+	.BYTE	050, 072, 016,000	; Fill vert 9 tiles with 3A at 659E
+	.BYTE	050, 072, 021,000	; Fill vert 9 tiles with 3A at 65A1
+	.BYTE	044, 072, 030,000	; Fill vert 5 tiles with 3A at 65A8
+	.BYTE	014, 170, 016,001	; Fill horz 120 tiles with FF at 669E
+	.BYTE	102, 002, 004, 021,001	; Block 2x4 tiles from 7984 to 66A1
+	.BYTE	201, 002, 004, 211,001	; Block 2 tiles from 7348 to 6719 copy 4 times
+	.BYTE	022, 236,012	; Block 2x4 tiles from 71BB to 702E
+	.BYTE	030, 264,012	; Block 3x3 tiles from 7C18 to 7044
+	.BYTE	027, 223,012	; Block 3x4 tiles from 7C0C to 7023
+	.BYTE	027, 243,012	; Block 3x4 tiles from 7C0C to 7033
+	.BYTE	017, 377,020	; End of sequence + initialization
+	.EVEN
+RM8799:	; Room 8799
+	.WORD	LB41F		; Room procedure
+	.WORD	LB422		; Initialization
+	.WORD	0		; Room to Left
+	.WORD	RM8739		; Room to Right
+	.WORD	0		; Room to Up
+	.WORD	0		; Room to Down
+	.BYTE	056, 072, 010,000	; Fill vert 15 tiles with 3A at 6598
+	.BYTE	052, 072, 015,000	; Fill vert 11 tiles with 3A at 659D
+	.BYTE	050, 072, 021,000	; Fill vert 9 tiles with 3A at 65A1
+	.BYTE	050, 072, 024,000	; Fill vert 9 tiles with 3A at 65A4
+	.BYTE	050, 072, 027,000	; Fill vert 9 tiles with 3A at 65A7
+	.BYTE	050, 072, 033,000	; Fill vert 9 tiles with 3A at 65AB
+	.BYTE	215, 002, 017, 000,000	; Block 2 tiles from 81E3 to 6590 copy 15 times
+	.BYTE	012, 020, 002, 302,001	; Rect 16x2 tiles with FF at 6752
+	.BYTE	012, 016, 004, 036,001	; Rect 14x4 tiles with FF at 66AE
+	.BYTE	010, 377, 006, 035,001	; Triangle with FF, count=6 at 66AD
+	.BYTE	006, 377, 004, 226,001	; Triangle with FF, count=4 at 6726
+	.BYTE	004, 010, 372, 076,000	; Fill horz 8 tiles with FA at 65CE
+	.BYTE	021, 350,012	; Block 3x3 tiles from 71A0 to 7078
+	.BYTE	123, 004, 004, 102,013	; Block 4x4 tiles from 8789 to 70D2
+	.BYTE	025, 357,012	; Block 4x7 tiles from 798E to 707F
+	.BYTE	025, 230,012	; Block 4x7 tiles from 798E to 7028
+	.BYTE	000		; End of sequence
+	.EVEN
+RM8802:	; Room 8802
+	.WORD	LB452		; Room procedure
+	.WORD	LA375		; Initialization
+	.WORD	RM8739		; Room to Left
+	.WORD	0		; Room to Right
+	.WORD	RM8834		; Room to Up
+	.WORD	0		; Room to Down
+	.BYTE	050, 072, 015,000	; Fill vert 9 tiles with 3A at 659D
+	.BYTE	047, 072, 022,000	; Fill vert 8 tiles with 3A at 65A2
+	.BYTE	012, 003, 021, 033,000	; Rect 3x17 tiles with FF at 65AB
+	.BYTE	014, 204, 002,001	; Fill horz 132 tiles with FF at 6692
+	.BYTE	020, 262,012	; Block 3x3 tiles from 7C21 to 7042
+	.BYTE	020, 266,012	; Block 3x3 tiles from 7C21 to 7046
+	.BYTE	020, 237,012	; Block 3x3 tiles from 7C21 to 702F
+	.BYTE	201, 002, 010, 027,000	; Block 2 tiles from 7348 to 65A7 copy 8 times
+	.BYTE	017, 004,377	; End of sequence + initialization
+	.EVEN
+RM8834:	; Room 8834
+	.WORD	LB41F		; Room procedure
+	.WORD	LB422		; Initialization
+	.WORD	RM889F		; Room to Left
+	.WORD	RM890E		; Room to Right
+	.WORD	RM8A81		; Room to Up
+	.WORD	RM8802		; Room to Down
+	.BYTE	052, 072, 134,000	; Fill vert 11 tiles with 3A at 65EC
+	.BYTE	055, 072, 007,000	; Fill vert 14 tiles with 3A at 6597
+	.BYTE	057, 072, 015,000	; Fill vert 16 tiles with 3A at 659D
+	.BYTE	060, 072, 022,000	; Fill vert 17 tiles with 3A at 65A2
+	.BYTE	014, 012, 364,001	; Fill horz 10 tiles with FF at 6784
+	.BYTE	201, 002, 020, 027,000	; Block 2 tiles from 7348 to 65A7 copy 16 times
+	.BYTE	016, 072, 314,001	; Put tile 3A at 675C
+	.BYTE	032, 103,001	; Block 2x1 tiles from 889D to 66D3
+	.BYTE	102, 002, 001, 367,001	; Block 2x1 tiles from 7984 to 6787
+	.BYTE	004, 007, 372, 352,001	; Fill horz 7 tiles with FA at 677A
+	.BYTE	124, 001, 002, 316,001	; Block 1x2 tiles from 8898 to 675E
+	.BYTE	004, 014, 372, 244,001	; Fill horz 12 tiles with FA at 6734
+	.BYTE	004, 004, 372, 360,000	; Fill horz 4 tiles with FA at 6680
+	.BYTE	004, 004, 372, 120,001	; Fill horz 4 tiles with FA at 66E0
+	.BYTE	004, 006, 372, 075,001	; Fill horz 6 tiles with FA at 66CD
+	.BYTE	042, 050, 370,011	; Fill vert 3 tiles with 28 at 6F88
+	.BYTE	000		; End of sequence
+	.EVEN
+RM889F:	; Room 889F
+	.WORD	LB41F		; Room procedure
+	.WORD	LB422		; Initialization
+	.WORD	RM8953		; Room to Left
+	.WORD	RM8834		; Room to Right
+	.WORD	RM89B9		; Room to Up
+	.WORD	RM8739		; Room to Down
+	.BYTE	060, 072, 004,000	; Fill vert 17 tiles with 3A at 6594
+	.BYTE	060, 072, 030,000	; Fill vert 17 tiles with 3A at 65A8
+	.BYTE	053, 072, 014,000	; Fill vert 12 tiles with 3A at 659C
+	.BYTE	045, 072, 017,000	; Fill vert 6 tiles with 3A at 659F
+	.BYTE	045, 072, 023,000	; Fill vert 6 tiles with 3A at 65A3
+	.BYTE	043, 072, 224,001	; Fill vert 4 tiles with 3A at 6724
+	.BYTE	045, 072, 133,001	; Fill vert 6 tiles with 3A at 66EB
+	.BYTE	004, 007, 143, 303,000	; Fill horz 7 tiles with 63 at 6653
+	.BYTE	046, 072, 211,000	; Fill vert 7 tiles with 3A at 6619
+	.BYTE	016, 143, 305,000	; Put tile 63 at 6655
+	.BYTE	004, 004, 372, 022,001	; Fill horz 4 tiles with FA at 66A2
+	.BYTE	004, 012, 372, 112,001	; Fill horz 10 tiles with FA at 66DA
+	.BYTE	004, 003, 372, 164,001	; Fill horz 3 tiles with FA at 6704
+L88EB:	.BYTE	004, 013, 372, 317,001	; Fill horz 11 tiles with FA at 675F
+	.BYTE	004, 006, 372, 010,001	; Fill horz 6 tiles with FA at 6698
+	.BYTE	004, 003, 372, 277,001	; Fill horz 3 tiles with FA at 674F
+	.BYTE	004, 006, 372, 332,001	; Fill horz 6 tiles with FA at 676A
+	.BYTE	125, 001, 001, 024,001	; Block 1x1 tiles from 8899 to 66A4
+	.BYTE	124, 001, 004, 062,001	; Block 1x4 tiles from 8898 to 66C2
+	.BYTE	000		; End of sequence
+	.EVEN
+RM890E:	; Room 890E
+	.WORD	LB41F		; Room procedure
+	.WORD	LB422		; Initialization
+	.WORD	RM8834		; Room to Left
+	.WORD	RM8BF0		; Room to Right
+	.WORD	0		; Room to Up
+	.WORD	0		; Room to Down
+	.BYTE	057, 072, 011,000	; Fill vert 16 tiles with 3A at 6599
+	.BYTE	057, 072, 021,000	; Fill vert 16 tiles with 3A at 65A1
+	.BYTE	046, 072, 046,001	; Fill vert 7 tiles with 3A at 66B6
+	.BYTE	014, 036, 340,001	; Fill horz 30 tiles with FF at 6770
+	.BYTE	030, 202,013	; Block 3x3 tiles from 7C18 to 7112
+	.BYTE	004, 005, 143, 211,000	; Fill horz 5 tiles with 63 at 6619
+	.BYTE	004, 003, 372, 036,001	; Fill horz 3 tiles with FA at 66AE
+	.BYTE	004, 007, 372, 007,001	; Fill horz 7 tiles with FA at 6697
+	.BYTE	004, 011, 372, 364,000	; Fill horz 9 tiles with FA at 6684
+	.BYTE	046, 371, 143,000	; Fill vert 7 tiles with F9 at 65F3
+	.BYTE	016, 370, 371,000	; Put tile F8 at 6689
+	.BYTE	000		; End of sequence
+	.EVEN
+RM8953:	; Room 8953
+	.WORD	LB41F		; Room procedure
+	.WORD	LB422		; Initialization
+	.WORD	0		; Room to Left
+	.WORD	RM889F		; Room to Right
+	.WORD	RM89B9		; Room to Up
+	.WORD	RM8799		; Room to Down
+	.BYTE	060, 072, 010,000	; Fill vert 17 tiles with 3A at 6598
+	.BYTE	057, 072, 015,000	; Fill vert 16 tiles with 3A at 659D
+	.BYTE	044, 072, 020,000	; Fill vert 5 tiles with 3A at 65A0
+	.BYTE	050, 072, 023,000	; Fill vert 9 tiles with 3A at 65A3
+	.BYTE	060, 072, 033,000	; Fill vert 17 tiles with 3A at 65AB
+	.BYTE	046, 072, 075,001	; Fill vert 7 tiles with 3A at 66CD
+	.BYTE	046, 072, 100,001	; Fill vert 7 tiles with 3A at 66D0
+	.BYTE	041, 072, 331,001	; Fill vert 2 tiles with 3A at 6769
+	.BYTE	215, 002, 021, 000,000	; Block 2 tiles from 81E3 to 6590 copy 17 times
+	.BYTE	201, 002, 011, 005,000	; Block 2 tiles from 7348 to 6595 copy 9 times
+	.BYTE	004, 005, 143, 243,000	; Fill horz 5 tiles with 63 at 6633
+	.BYTE	004, 007, 372, 020,001	; Fill horz 7 tiles with FA at 66A0
+	.BYTE	004, 010, 372, 304,001	; Fill horz 8 tiles with FA at 6754
+	.BYTE	004, 003, 372, 354,001	; Fill horz 3 tiles with FA at 677C
+	.BYTE	004, 005, 372, 036,001	; Fill horz 5 tiles with FA at 66AE
+	.BYTE	004, 006, 372, 267,001	; Fill horz 6 tiles with FA at 6747
+L89B3:	.BYTE	004, 027, 372, 121,001	; Fill horz 23 tiles with FA at 66E1
+	.BYTE	000		; End of sequence
+	.EVEN
+RM89B9:	; Room 89B9
+	.WORD	LB41F		; Room procedure
+	.WORD	LB422		; Initialization
+	.WORD	0		; Room to Left
+	.WORD	RM8A2D		; Room to Right
+	.WORD	0		; Room to Up
+	.WORD	RM8953		; Room to Down
+	.BYTE	016, 072, 046,001	; Put tile 3A at 66B6
+	.BYTE	016, 072, 232,001	; Put tile 3A at 672A
+	.BYTE	047, 072, 033,001	; Fill vert 8 tiles with 3A at 66AB
+	.BYTE	047, 072, 051,001	; Fill vert 8 tiles with 3A at 66B9
+	.BYTE	041, 072, 322,001	; Fill vert 2 tiles with 3A at 6762
+	.BYTE	041, 072, 325,001	; Fill vert 2 tiles with 3A at 6765
+	.BYTE	006, 377, 013, 000,000	; Triangle with FF, count=11 at 6590
+	.BYTE	014, 023, 013,000	; Fill horz 19 tiles with FF at 659B
+	.BYTE	215, 002, 010, 016,001	; Block 2 tiles from 81E3 to 669E copy 8 times
+	.BYTE	201, 002, 013, 233,000	; Block 2 tiles from 7348 to 662B copy 11 times
+	.BYTE	032, 345,001	; Block 2x1 tiles from 889D to 6775
+L8A00:	.BYTE	004, 013, 372, 347,001	; Fill horz 11 tiles with FA at 6777
+	.BYTE	004, 004, 372, 373,000	; Fill horz 4 tiles with FA at 668B
+	.BYTE	004, 005, 372, 264,001	; Fill horz 5 tiles with FA at 6744
+	.BYTE	004, 010, 372, 006,001	; Fill horz 8 tiles with FA at 6696
+	.BYTE	124, 001, 004, 140,001	; Block 1x4 tiles from 8898 to 66F0
+	.BYTE	124, 001, 003, 104,001	; Block 1x3 tiles from 8898 to 66D4
+	.BYTE	004, 002, 372, 140,001	; Fill horz 2 tiles with FA at 66F0
+	.BYTE	004, 003, 372, 173,001	; Fill horz 3 tiles with FA at 670B
+	.BYTE	000		; End of sequence
+	.EVEN
+RM8A2D:	; Room 8A2D
+	.WORD	LB41F		; Room procedure
+	.WORD	LB422		; Initialization
+	.WORD	RM89B9		; Room to Left
+	.WORD	RM8A81		; Room to Right
+	.WORD	RM8B25		; Room to Up
+	.WORD	RM889F		; Room to Down
+	.BYTE	047, 072, 022,001	; Fill vert 8 tiles with 3A at 66A2
+	.BYTE	047, 072, 035,001	; Fill vert 8 tiles with 3A at 66AD
+	.BYTE	047, 072, 041,001	; Fill vert 8 tiles with 3A at 66B1
+	.BYTE	044, 072, 164,001	; Fill vert 5 tiles with 3A at 6704
+	.BYTE	014, 003, 000,000	; Fill horz 3 tiles with FF at 6590
+L8A52:	.BYTE	004, 017, 372, 360,000	; Fill horz 15 tiles with FA at 6680
+	.BYTE	004, 005, 372, 377,000	; Fill horz 5 tiles with FA at 668F
+	.BYTE	201, 002, 010, 021,000	; Block 2 tiles from 7348 to 65A1 copy 8 times
+	.BYTE	004, 010, 372, 305,001	; Fill horz 8 tiles with FA at 6755
+	.BYTE	004, 005, 372, 122,001	; Fill horz 5 tiles with FA at 66E2
+	.BYTE	004, 004, 372, 366,001	; Fill horz 4 tiles with FA at 6786
+	.BYTE	125, 001, 003, 123,001	; Block 1x3 tiles from 8899 to 66E3
+	.BYTE	124, 001, 003, 255,001	; Block 1x3 tiles from 8898 to 673D
+	.BYTE	000		; End of sequence
+	.EVEN
+RM8A81:	; Room 8A81
+	.WORD	LB41F		; Room procedure
+	.WORD	LB422		; Initialization
+	.WORD	RM8A2D		; Room to Left
+	.WORD	RM8AF4		; Room to Right
+	.WORD	0		; Room to Up
+	.WORD	RM8834		; Room to Down
+	.BYTE	045, 072, 121,001	; Fill vert 6 tiles with 3A at 66E1
+	.BYTE	053, 072, 243,000	; Fill vert 12 tiles with 3A at 6633
+	.BYTE	044, 072, 172,001	; Fill vert 5 tiles with 3A at 670A
+	.BYTE	011, 377, 004, 027,000	; Triangle with FF, count=4 at 65A7
+	.BYTE	006, 377, 004, 030,000	; Triangle with FF, count=4 at 65A8
+	.BYTE	201, 002, 016, 161,000	; Block 2 tiles from 7348 to 6601 copy 14 times
+	.BYTE	032, 141,001	; Block 2x1 tiles from 889D to 66F1
+	.BYTE	032, 273,001	; Block 2x1 tiles from 889D to 674B
+	.BYTE	004, 005, 372, 275,001	; Fill horz 5 tiles with FA at 674D
+	.BYTE	004, 006, 372, 133,001	; Fill horz 6 tiles with FA at 66EB
+	.BYTE	004, 003, 372, 061,001	; Fill horz 3 tiles with FA at 66C1
+	.BYTE	043, 050, 176,013	; Fill vert 4 tiles with 28 at 710E
+	.BYTE	004, 013, 372, 050,000	; Fill horz 11 tiles with FA at 65B8
+	.BYTE	124, 001, 005, 015,000	; Block 1x5 tiles from 8898 to 659D
+	.BYTE	004, 003, 372, 157,001	; Fill horz 3 tiles with FA at 66FF
+	.BYTE	004, 006, 372, 217,001	; Fill horz 6 tiles with FA at 671F
+	.BYTE	125, 001, 004, 216,001	; Block 1x4 tiles from 8899 to 671E
+	.BYTE	124, 001, 002, 122,001	; Block 1x2 tiles from 8898 to 66E2
+	.BYTE	000		; End of sequence
+	.EVEN
+RM8AF4:	; Room 8AF4
+	.WORD	LB41F		; Room procedure
+	.WORD	LB422		; Initialization
+	.WORD	RM8A81		; Room to Left
+	.WORD	RM8C5A		; Room to Right
+	.WORD	RM8BAB		; Room to Up
+	.WORD	RM890E		; Room to Down
+	.BYTE	047, 072, 027,001	; Fill vert 8 tiles with 3A at 66A7
+	.BYTE	047, 072, 037,001	; Fill vert 8 tiles with 3A at 66AF
+	.BYTE	004, 013, 372, 244,001	; Fill horz 11 tiles with FA at 6734
+	.BYTE	004, 023, 372, 370,000	; Fill horz 19 tiles with FA at 6688
+	.BYTE	201, 002, 010, 024,000	; Block 2 tiles from 7348 to 65A4 copy 8 times
+	.BYTE	045, 371, 376,000	; Fill vert 6 tiles with F9 at 668E
+	.BYTE	016, 370, 376,000	; Put tile F8 at 668E
+	.BYTE	000		; End of sequence
+	.EVEN
+RM8B25:	; Room 8B25
+	.WORD	LB483		; Room procedure
+	.WORD	LA174		; Initialization
+	.WORD	0		; Room to Left
+	.WORD	RM8B71		; Room to Right
+	.WORD	0		; Room to Up
+	.WORD	RM8A2D		; Room to Down
+	.BYTE	014, 036, 340,001	; Fill horz 30 tiles with FF at 6770
+	.BYTE	014, 110, 000,000	; Fill horz 72 tiles with FF at 6590
+	.BYTE	201, 002, 016, 115,000	; Block 2 tiles from 7348 to 65DD copy 14 times
+	.BYTE	102, 002, 001, 361,001	; Block 2x1 tiles from 7984 to 6781
+	.BYTE	024, 147,013	; Block 4x4 tiles from 71A9 to 70F7
+	.BYTE	024, 145,013	; Block 4x4 tiles from 71A9 to 70F5
+	.BYTE	024, 140,013	; Block 4x4 tiles from 71A9 to 70F0
+	.BYTE	024, 167,013	; Block 4x4 tiles from 71A9 to 7107
+	.BYTE	006, 377, 013, 132,000	; Triangle with FF, count=11 at 65EA
+	.BYTE	012, 003, 004, 150,001	; Rect 3x4 tiles with FF at 66F8
+	.BYTE	017, 377,204	; End of sequence + initialization
+	.EVEN
+RM8B71:	; Room 8B71
+	.WORD	L7918		; Room procedure
+	.WORD	LA0FC		; Initialization
+	.WORD	RM8B25		; Room to Left
+	.WORD	RM8BAB		; Room to Right
+	.WORD	0		; Room to Up
+	.WORD	0		; Room to Down
+	.BYTE	014, 036, 340,001	; Fill horz 30 tiles with FF at 6770
+	.BYTE	014, 074, 000,000	; Fill horz 60 tiles with FF at 6590
+	.BYTE	024, 137,013	; Block 4x4 tiles from 71A9 to 70EF
+	.BYTE	024, 145,013	; Block 4x4 tiles from 71A9 to 70F5
+	.BYTE	024, 153,013	; Block 4x4 tiles from 71A9 to 70FB
+	.BYTE	024, 160,013	; Block 4x4 tiles from 71A9 to 7100
+	.BYTE	024, 167,013	; Block 4x4 tiles from 71A9 to 7107
+	.BYTE	017, 377,021	; End of sequence + initialization
+	.EVEN
+RM8BAB:	; Room 8BAB
+	.WORD	LB41F		; Room procedure
+	.WORD	LB422		; Initialization
+	.WORD	RM8B71		; Room to Left
+	.WORD	0		; Room to Right
+	.WORD	0		; Room to Up
+	.WORD	RM8AF4		; Room to Down
+	.BYTE	014, 074, 000,000	; Fill horz 60 tiles with FF at 6590
+	.BYTE	012, 002, 016, 130,000	; Rect 2x14 tiles with FF at 65E8
+	.BYTE	014, 011, 340,001	; Fill horz 9 tiles with FF at 6770
+	.BYTE	014, 020, 356,001	; Fill horz 16 tiles with FF at 677E
+	.BYTE	201, 002, 016, 120,000	; Block 2 tiles from 7348 to 65E0 copy 14 times
+	.BYTE	032, 364,001	; Block 2x1 tiles from 889D to 6784
+	.BYTE	021, 213,013	; Block 3x3 tiles from 71A0 to 711B
+	.BYTE	024, 142,013	; Block 4x4 tiles from 71A9 to 70F2
+	.BYTE	024, 166,013	; Block 4x4 tiles from 71A9 to 7106
+	.BYTE	000		; End of sequence
+	.EVEN
+RM8BF0:	; Room 8BF0
+	.WORD	LB41F		; Room procedure
+	.WORD	LB422		; Initialization
+	.WORD	RM890E		; Room to Left
+	.WORD	RM8CC8		; Room to Right
+	.WORD	0		; Room to Up
+	.WORD	RM9005		; Room to Down
+	.BYTE	057, 072, 003,000	; Fill vert 16 tiles with 3A at 6593
+	.BYTE	047, 072, 010,000	; Fill vert 8 tiles with 3A at 6598
+	.BYTE	047, 072, 014,000	; Fill vert 8 tiles with 3A at 659C
+	.BYTE	047, 072, 020,000	; Fill vert 8 tiles with 3A at 65A0
+	.BYTE	047, 072, 023,000	; Fill vert 8 tiles with 3A at 65A3
+	.BYTE	047, 072, 027,000	; Fill vert 8 tiles with 3A at 65A7
+	.BYTE	047, 072, 033,000	; Fill vert 8 tiles with 3A at 65AB
+	.BYTE	014, 036, 340,001	; Fill horz 30 tiles with FF at 6770
+	.BYTE	012, 004, 007, 050,001	; Rect 4x7 tiles with FF at 66B8
+	.BYTE	014, 027, 367,000	; Fill horz 23 tiles with FF at 6687
+	.BYTE	201, 002, 007, 040,001	; Block 2 tiles from 7348 to 66B0 copy 7 times
+	.BYTE	102, 002, 001, 362,001	; Block 2x1 tiles from 7984 to 6782
+	.BYTE	004, 004, 372, 360,000	; Fill horz 4 tiles with FA at 6680
+	.BYTE	016, 371, 005,000	; Put tile F9 at 6595
+	.BYTE	004, 006, 143, 241,000	; Fill horz 6 tiles with 63 at 6631
+	.BYTE	013, 015,013	; Put tile 2A at 709D
+	.BYTE	045, 053, 053,013	; Fill vert 6 tiles with 2B at 70BB
+	.BYTE	016, 377, 371,000	; Put tile FF at 6689
+	.BYTE	000		; End of sequence
+	.EVEN
+RM8C5A:	; Room 8C5A
+	.WORD	LB41F		; Room procedure
+	.WORD	LB422		; Initialization
+	.WORD	RM8AF4		; Room to Left
+	.WORD	RM8D18		; Room to Right
+	.WORD	0		; Room to Up
+	.WORD	RM8BF0		; Room to Down
+	.BYTE	044, 072, 115,001	; Fill vert 5 tiles with 3A at 66DD
+	.BYTE	054, 072, 142,000	; Fill vert 13 tiles with 3A at 65F2
+	.BYTE	056, 072, 110,000	; Fill vert 15 tiles with 3A at 65D8
+	.BYTE	046, 072, 074,001	; Fill vert 7 tiles with 3A at 66CC
+	.BYTE	046, 072, 077,001	; Fill vert 7 tiles with 3A at 66CF
+	.BYTE	054, 072, 217,000	; Fill vert 13 tiles with 3A at 661F
+	.BYTE	054, 072, 223,000	; Fill vert 13 tiles with 3A at 6623
+	.BYTE	011, 377, 003, 026,000	; Triangle with FF, count=3 at 65A6
+	.BYTE	012, 007, 004, 027,000	; Rect 7x4 tiles with FF at 65A7
+	.BYTE	004, 012, 372, 043,000	; Fill horz 10 tiles with FA at 65B3
+	.BYTE	124, 001, 003, 010,000	; Block 1x3 tiles from 8898 to 6598
+	.BYTE	042, 371, 213,001	; Fill vert 3 tiles with F9 at 671B
+	.BYTE	004, 007, 372, 343,001	; Fill horz 7 tiles with FA at 6773
+	.BYTE	016, 370, 345,001	; Put tile F8 at 6775
+L8CAE:	.BYTE	004, 012, 372, 055,001	; Fill horz 10 tiles with FA at 66BD
+	.BYTE	004, 004, 372, 125,001	; Fill horz 4 tiles with FA at 66E5
+	.BYTE	004, 004, 372, 036,001	; Fill horz 4 tiles with FA at 66AE
+	.BYTE	004, 003, 372, 137,001	; Fill horz 3 tiles with FA at 66EF
+	.BYTE	004, 005, 372, 237,001	; Fill horz 5 tiles with FA at 672F
+	.BYTE	000		; End of sequence
+	.EVEN
+RM8CC8:	; Room 8CC8
+	.WORD	LB41F		; Room procedure
+	.WORD	LB422		; Initialization
+	.WORD	RM8BF0		; Room to Left
+	.WORD	RM8E9C		; Room to Right
+	.WORD	0		; Room to Up
+	.WORD	0		; Room to Down
+	.BYTE	053, 072, 006,000	; Fill vert 12 tiles with 3A at 6596
+	.BYTE	057, 072, 016,000	; Fill vert 16 tiles with 3A at 659E
+	.BYTE	057, 072, 023,000	; Fill vert 16 tiles with 3A at 65A3
+	.BYTE	057, 072, 032,000	; Fill vert 16 tiles with 3A at 65AA
+	.BYTE	007, 377, 007, 021,001	; Triangle with FF, count=7 at 66A1
+	.BYTE	014, 036, 340,001	; Fill horz 30 tiles with FF at 6770
+	.BYTE	012, 003, 010, 360,000	; Rect 3x8 tiles with FF at 6680
+	.BYTE	004, 006, 143, 145,000	; Fill horz 6 tiles with 63 at 65F5
+	.BYTE	004, 012, 372, 002,001	; Fill horz 10 tiles with FA at 6692
+	.BYTE	026, 013,013	; Block 4x7 tiles from 79AA to 709B
+	.BYTE	026, 256,012	; Block 4x7 tiles from 79AA to 703E
+	.BYTE	026, 160,012	; Block 4x7 tiles from 79AA to 7000
+	.BYTE	000		; End of sequence
+	.EVEN
+RM8D18:	; Room 8D18
+	.WORD	LB41F		; Room procedure
+	.WORD	LB422		; Initialization
+	.WORD	RM8C5A		; Room to Left
+	.WORD	RM8EE1		; Room to Right
+	.WORD	RM8D5C		; Room to Up
+	.WORD	RM8CC8		; Room to Down
+	.BYTE	042, 072, 252,001	; Fill vert 3 tiles with 3A at 673A
+	.BYTE	042, 072, 262,001	; Fill vert 3 tiles with 3A at 6742
+	.BYTE	042, 072, 276,001	; Fill vert 3 tiles with 3A at 674E
+	.BYTE	060, 072, 023,000	; Fill vert 17 tiles with 3A at 65A3
+	.BYTE	012, 012, 004, 000,000	; Rect 10x4 tiles with FF at 6590
+	.BYTE	201, 002, 015, 012,000	; Block 2 tiles from 7348 to 659A copy 13 times
+L8D45:	.BYTE	004, 022, 372, 206,001	; Fill horz 18 tiles with FA at 6716
+	.BYTE	004, 006, 372, 236,001	; Fill horz 6 tiles with FA at 672E
+	.BYTE	004, 005, 143, 344,000	; Fill horz 5 tiles with 63 at 6674
+	.BYTE	022, 021,013	; Block 2x4 tiles from 71BB to 70A1
+	.BYTE	000		; End of sequence
+	.EVEN
+RM8D5C:	; Room 8D5C
+	.WORD	LB483		; Room procedure
+	.WORD	LA1A1		; Initialization
+	.WORD	RM8DCA		; Room to Left
+	.WORD	0		; Room to Right
+	.WORD	0		; Room to Up
+	.WORD	RM8D18		; Room to Down
+	.BYTE	001		; Fill entire screen with 01
+	.BYTE	014, 076, 000,000	; Fill horz 62 tiles with FF at 6590
+	.BYTE	012, 002, 004, 132,000	; Rect 2x4 tiles with FF at 65EA
+	.BYTE	014, 004, 322,000	; Fill horz 4 tiles with FF at 6662
+	.BYTE	011, 377, 007, 124,000	; Triangle with FF, count=7 at 65E4
+	.BYTE	012, 005, 014, 125,000	; Rect 5x12 tiles with FF at 65E5
+	.BYTE	014, 101, 275,001	; Fill horz 65 tiles with FF at 674D
+	.BYTE	102, 002, 002, 314,001	; Block 2x2 tiles from 7984 to 675C
+	.BYTE	021, 142,013	; Block 3x3 tiles from 71A0 to 70F2
+	.BYTE	021, 023,013	; Block 3x3 tiles from 71A0 to 70A3
+	.BYTE	021, 027,013	; Block 3x3 tiles from 71A0 to 70A7
+	.BYTE	021, 154,013	; Block 3x3 tiles from 71A0 to 70FC
+	.BYTE	021, 157,013	; Block 3x3 tiles from 71A0 to 70FF
+	.BYTE	021, 163,013	; Block 3x3 tiles from 71A0 to 7103
+L8DBB:	.BYTE	016, 377, 324,000	; Put tile FF at 6664 - trigger "C" - token $0E/$26
+	.BYTE	013, 350,012	; Put tile 2A at 7078
+	.BYTE	045, 053, 006,013	; Fill vert 6 tiles with 2B at 7096
+	.BYTE	017, 377,204	; End of sequence + initialization
+	.EVEN
+RM8DCA:	; Room 8DCA
+	.WORD	LB41F		; Room procedure
+	.WORD	LB422		; Initialization
+	.WORD	0		; Room to Left
+	.WORD	RM8D5C		; Room to Right
+	.WORD	0		; Room to Up
+	.WORD	0		; Room to Down
+	.BYTE	001		; Fill entire screen with 01
+	.BYTE	014, 077, 000,000	; Fill horz 63 tiles with FF at 6590
+	.BYTE	012, 002, 015, 132,000	; Rect 2x13 tiles with FF at 65EA
+	.BYTE	014, 045, 331,001	; Fill horz 37 tiles with FF at 6769
+	.BYTE	004, 012, 221, 312,001	; Fill horz 10 tiles with 91 at 675A
+	.BYTE	004, 027, 001, 003,000	; Fill horz 23 tiles with 01 at 6593
+	.BYTE	004, 033, 342, 037,000	; Fill horz 27 tiles with E2 at 65AF
+	.BYTE	016, 377, 126,000	; Put tile FF at 65E6
+	.BYTE	012, 003, 006, 127,000	; Rect 3x6 tiles with FF at 65E7
+	.BYTE	013, 001,013	; Put tile 2A at 7091
+	.BYTE	045, 053, 037,013	; Fill vert 6 tiles with 2B at 70AF
+	.BYTE	126, 004, 007, 323,012	; Block 4x7 tiles from 8E47 to 7063
+	.BYTE	132, 002, 006, 371,000	; Block 2x6 tiles from 8E6C to 6689
+	.BYTE	131, 005, 001, 256,001	; Block 5x1 tiles from 8E67 to 673E
+	.BYTE	127, 001, 002, 166,001	; Block 1x2 tiles from 8E63 to 6706
+	.BYTE	133, 003, 010, 341,000	; Block 3x8 tiles from 8E78 to 6671
+	.BYTE	004, 021, 324, 234,000	; Fill horz 17 tiles with D4 at 662C
+	.BYTE	130, 001, 002, 244,000	; Block 1x2 tiles from 8E65 to 6634
+	.BYTE	134, 003, 004, 306,000	; Block 3x4 tiles from 8E90 to 6656
+	.BYTE	003, 033, 004, 004, 373,000	; Rect 4x4 tiles with 1B at 668B
+	.BYTE	000		; End of sequence
+	.EVEN
+RM8E9C:	; Room 8E9C
+	.WORD	LB41F		; Room procedure
+	.WORD	LB422		; Initialization
+	.WORD	RM8CC8		; Room to Left
+	.WORD	0		; Room to Right
+	.WORD	RM8EE1		; Room to Up
+	.WORD	RM8F20		; Room to Down
+	.BYTE	057, 072, 001,000	; Fill vert 16 tiles with 3A at 6591
+	.BYTE	057, 072, 011,000	; Fill vert 16 tiles with 3A at 6599
+	.BYTE	057, 072, 014,000	; Fill vert 16 tiles with 3A at 659C
+	.BYTE	045, 072, 061,001	; Fill vert 6 tiles with 3A at 66C1
+	.BYTE	046, 072, 077,001	; Fill vert 7 tiles with 3A at 66CF
+	.BYTE	046, 072, 103,001	; Fill vert 7 tiles with 3A at 66D3
+	.BYTE	014, 016, 340,001	; Fill horz 14 tiles with FF at 6770
+	.BYTE	004, 010, 372, 021,001	; Fill horz 8 tiles with FA at 66A1
+	.BYTE	004, 006, 372, 041,001	; Fill horz 6 tiles with FA at 66B1
+	.BYTE	004, 004, 372, 265,001	; Fill horz 4 tiles with FA at 6745
+	.BYTE	012, 002, 021, 034,000	; Rect 2x17 tiles with FF at 65AC
+	.BYTE	000		; End of sequence
+	.EVEN
+RM8EE1:	; Room 8EE1
+	.WORD	LB41F		; Room procedure
+	.WORD	LB422		; Initialization
+	.WORD	RM8D18		; Room to Left
+	.WORD	0		; Room to Right
+	.WORD	0		; Room to Up
+	.WORD	RM8E9C		; Room to Down
+	.BYTE	042, 072, 245,001	; Fill vert 3 tiles with 3A at 6735
+	.BYTE	056, 072, 105,000	; Fill vert 15 tiles with 3A at 65D5
+	.BYTE	016, 072, 354,001	; Put tile 3A at 677C
+	.BYTE	016, 377, 003,000	; Put tile FF at 6593
+	.BYTE	012, 032, 002, 004,000	; Rect 26x2 tiles with FF at 6594
+	.BYTE	012, 002, 017, 130,000	; Rect 2x15 tiles with FF at 65E8
+	.BYTE	011, 377, 007, 127,000	; Triangle with FF, count=7 at 65E7
+	.BYTE	004, 004, 372, 206,001	; Fill horz 4 tiles with FA at 6716
+	.BYTE	004, 007, 372, 313,001	; Fill horz 7 tiles with FA at 675B
+	.BYTE	004, 004, 143, 120,001	; Fill horz 4 tiles with 63 at 66E0
+	.BYTE	000		; End of sequence
+	.EVEN
+RM8F20:	; Room 8F20
+	.WORD	LB41F		; Room procedure
+	.WORD	LB422		; Initialization
+	.WORD	RM8FBD		; Room to Left
+	.WORD	0		; Room to Right
+	.WORD	RM8E9C		; Room to Up
+	.WORD	RM8F84		; Room to Down
+	.BYTE	014, 016, 000,000	; Fill horz 14 tiles with FF at 6590
+L8F31:	.BYTE	016, 377, 006,000	; Put tile FF at 6596 - trigger "B"
+	.BYTE	013, 032,012	; Put tile 2A at 6FAA
+	.BYTE	013, 037,012	; Put tile 2A at 6FAF
+	.BYTE	046, 053, 070,012	; Fill vert 7 tiles with 2B at 6FC8
+	.BYTE	046, 053, 075,012	; Fill vert 7 tiles with 2B at 6FCD
+	.BYTE	012, 002, 011, 034,000	; Rect 2x9 tiles with FF at 65AC
+	.BYTE	012, 036, 010, 016,001	; Rect 30x8 tiles with FF at 669E
+	.BYTE	102, 002, 002, 332,001	; Block 2x2 tiles from 7984 to 676A
+	.BYTE	003, 000, 010, 006, 042,001	; Rect 8x6 tiles with 00 at 66B2
+	.BYTE	011, 000, 005, 041,001	; Triangle with 00, count=5 at 66B1
+	.BYTE	026, 367,012	; Block 4x7 tiles from 79AA to 7087
+	.BYTE	026, 232,012	; Block 4x7 tiles from 79AA to 702A
+	.BYTE	055, 072, 023,000	; Fill vert 14 tiles with 3A at 65A3
+	.BYTE	056, 072, 027,000	; Fill vert 15 tiles with 3A at 65A7
+	.BYTE	004, 005, 372, 007,001	; Fill horz 5 tiles with FA at 6697
+	.BYTE	000		; End of sequence
+	.EVEN
+RM8F84:	; Room 8F84
+	.WORD	L7918		; Room procedure
+	.WORD	LA0F7		; Initialization
+	.WORD	RM9053		; Room to Left
+	.WORD	0		; Room to Right
+	.WORD	RM8F20		; Room to Up
+	.WORD	RM91BA		; Room to Down
+	.BYTE	005		; Fill entire screen with FF
+	.BYTE	003, 000, 034, 010, 226,000	; Rect 28x8 tiles with 00 at 6626
+	.BYTE	010, 000, 004, 065,000	; Triangle with 00, count=4 at 65C5
+	.BYTE	003, 000, 002, 003, 126,000	; Rect 2x3 tiles with 00 at 65E6
+	.BYTE	016, 000, 070,000	; Put tile 00 at 65C8
+	.BYTE	022, 022,013	; Block 2x4 tiles from 71BB to 70A2
+	.BYTE	201, 002, 015, 030,000	; Block 2 tiles from 7348 to 65A8 copy 13 times
+	.BYTE	102, 002, 004, 232,001	; Block 2x4 tiles from 7984 to 672A
+	.BYTE	017, 377,022	; End of sequence + initialization
+	.EVEN
+RM8FBD:	; Room 8FBD
+	.WORD	LB483		; Room procedure
+	.WORD	LA16A		; Initialization
+	.WORD	RM9005		; Room to Left
+	.WORD	RM8F20		; Room to Right
+	.WORD	0		; Room to Up
+	.WORD	RM9053		; Room to Down
+	.BYTE	012, 036, 010, 016,001	; Rect 30x8 tiles with FF at 669E
+	.BYTE	003, 071, 007, 007, 065,001	; Rect 7x7 tiles with 39 at 66C5
+	.BYTE	004, 005, 070, 030,001	; Fill horz 5 tiles with 38 at 66A8
+	.BYTE	014, 006, 000,000	; Fill horz 6 tiles with FF at 6590
+	.BYTE	014, 004, 032,000	; Fill horz 4 tiles with FF at 65AA
+	.BYTE	013, 025,012	; Put tile 2A at 6FA5
+	.BYTE	013, 057,012	; Put tile 2A at 6FBF
+	.BYTE	046, 053, 063,012	; Fill vert 7 tiles with 2B at 6FC3
+	.BYTE	046, 053, 115,012	; Fill vert 7 tiles with 2B at 6FDD
+	.BYTE	022, 217,012	; Block 2x4 tiles from 71BB to 701F
+	.BYTE	022, 241,012	; Block 2x4 tiles from 71BB to 7031
+	.BYTE	017, 377,202	; End of sequence + initialization
+	.EVEN
+RM9005:	; Room 9005
+	.WORD	LB41F		; Room procedure
+	.WORD	LB422		; Initialization
+	.WORD	RM92A7		; Room to Left
+	.WORD	RM8FBD		; Room to Right
+	.WORD	RM8BF0		; Room to Up
+	.WORD	0		; Room to Down
+	.BYTE	014, 036, 000,000	; Fill horz 30 tiles with FF at 6590
+	.BYTE	022, 243,012	; Block 2x4 tiles from 71BB to 7033
+	.BYTE	201, 002, 010, 060,000	; Block 2 tiles from 7348 to 65C0 copy 8 times
+	.BYTE	102, 002, 001, 022,000	; Block 2x1 tiles from 7984 to 65A2
+	.BYTE	013, 041,012	; Put tile 2A at 6FB1
+	.BYTE	046, 053, 077,012	; Fill vert 7 tiles with 2B at 6FCF
+	.BYTE	012, 023, 005, 031,001	; Rect 19x5 tiles with FF at 66A9
+	.BYTE	014, 117, 257,001	; Fill horz 79 tiles with FF at 673F
+	.BYTE	010, 377, 005, 066,001	; Triangle with FF, count=5 at 66C6
+	.BYTE	025, 353,012	; Block 4x7 tiles from 798E to 707B
+	.BYTE	025, 224,012	; Block 4x7 tiles from 798E to 7024
+	.BYTE	000		; End of sequence
+	.EVEN
+RM9053:	; Room 9053
+	.WORD	LB41F		; Room procedure
+	.WORD	LB422		; Initialization
+	.WORD	RM909F		; Room to Left
+	.WORD	RM8F84		; Room to Right
+	.WORD	RM8FBD		; Room to Up
+	.WORD	RM90DB		; Room to Down
+	.BYTE	012, 036, 011, 000,000	; Rect 30x9 tiles with FF at 6590
+	.BYTE	003, 000, 012, 004, 252,000	; Rect 10x4 tiles with 00 at 663A
+	.BYTE	014, 047, 327,001	; Fill horz 39 tiles with FF at 6767
+	.BYTE	014, 004, 240,001	; Fill horz 4 tiles with FF at 6730
+	.BYTE	014, 006, 274,001	; Fill horz 6 tiles with FF at 674C
+	.BYTE	022, 141,013	; Block 2x4 tiles from 71BB to 70F1
+	.BYTE	022, 125,013	; Block 2x4 tiles from 71BB to 70E5
+	.BYTE	003, 071, 007, 010, 011,000	; Rect 7x8 tiles with 39 at 6599
+	.BYTE	003, 071, 004, 007, 027,001	; Rect 4x7 tiles with 39 at 66A7
+	.BYTE	004, 004, 070, 351,001	; Fill horz 4 tiles with 38 at 6779
+	.BYTE	004, 004, 070, 371,000	; Fill horz 4 tiles with 38 at 6689
+	.BYTE	000		; End of sequence
+	.EVEN
+RM909F:	; Room 909F
+	.WORD	LB47A		; Room procedure
+	.WORD	LA15F		; Initialization
+	.WORD	RM92EF		; Room to Left
+	.WORD	RM9053		; Room to Right
+	.WORD	0		; Room to Up
+	.WORD	0		; Room to Down
+	.BYTE	014, 036, 000,000	; Fill horz 30 tiles with FF at 6590
+	.BYTE	011, 377, 010, 073,000	; Triangle with FF, count=8 at 65CB
+	.BYTE	012, 005, 011, 322,000	; Rect 5x9 tiles with FF at 6662
+	.BYTE	014, 036, 340,001	; Fill horz 30 tiles with FF at 6770
+	.BYTE	007, 377, 010, 365,000	; Triangle with FF, count=8 at 6685
+	.BYTE	026, 016,013	; Block 4x7 tiles from 79AA to 709E
+	.BYTE	026, 261,012	; Block 4x7 tiles from 79AA to 7041
+	.BYTE	026, 124,012	; Block 4x7 tiles from 79AA to 6FE4
+	.BYTE	017, 021,203	; End of sequence + initialization
+	.EVEN
+RM90DB:	; Room 90DB
+	.WORD	LB452		; Room procedure
+	.WORD	LA370		; Initialization
+	.WORD	RM913F		; Room to Left
+	.WORD	RM91BA		; Room to Right
+	.WORD	RM9053		; Room to Up
+	.WORD	0		; Room to Down
+	.BYTE	005		; Fill entire screen with FF
+	.BYTE	003, 000, 026, 006, 104,000	; Rect 22x6 tiles with 00 at 65D4
+	.BYTE	004, 014, 000, 060,000	; Fill horz 12 tiles with 00 at 65C0
+	.BYTE	006, 000, 007, 002,001	; Triangle with 00, count=7 at 6692
+	.BYTE	003, 000, 022, 006, 016,001	; Rect 18x6 tiles with 00 at 669E
+	.BYTE	004, 004, 071, 011,000	; Fill horz 4 tiles with 39 at 6599
+	.BYTE	004, 004, 070, 047,000	; Fill horz 4 tiles with 38 at 65B7
+	.BYTE	030, 145,013	; Block 3x3 tiles from 7C18 to 70F5
+	.BYTE	030, 151,013	; Block 3x3 tiles from 7C18 to 70F9
+	.BYTE	013, 005,013	; Put tile 2A at 7095
+	.BYTE	044, 053, 043,013	; Fill vert 5 tiles with 2B at 70B3
+	.BYTE	013, 024,013	; Put tile 2A at 70A4
+	.BYTE	044, 053, 062,013	; Fill vert 5 tiles with 2B at 70C2
+	.BYTE	025, 370,012	; Block 4x7 tiles from 798E to 7088
+	.BYTE	025, 241,012	; Block 4x7 tiles from 798E to 7031
+	.BYTE	025, 204,012	; Block 4x7 tiles from 798E to 7014
+	.BYTE	017, 005,377	; End of sequence + initialization
+	.EVEN
+RM913F:	; Room 913F
+	.WORD	LB41F		; Room procedure
+	.WORD	LB422		; Initialization
+	.WORD	0		; Room to Left
+	.WORD	RM90DB		; Room to Right
+	.WORD	0		; Room to Up
+	.WORD	RM83ED		; Room to Down
+	.BYTE	011, 377, 011, 035,000	; Triangle with FF, count=9 at 65AD
+	.BYTE	014, 047, 327,001	; Fill horz 39 tiles with FF at 6767
+	.BYTE	014, 005, 000,000	; Fill horz 5 tiles with FF at 6590
+	.BYTE	012, 003, 003, 036,000	; Rect 3x3 tiles with FF at 65AE
+	.BYTE	053, 353, 171,000	; Fill vert 12 tiles with EB at 6609
+	.BYTE	102, 002, 001, 351,001	; Block 2x1 tiles from 7984 to 6779
+	.BYTE	021, 176,013	; Block 3x3 tiles from 71A0 to 710E
+	.BYTE	030, 201,013	; Block 3x3 tiles from 7C18 to 7111
+	.BYTE	031, 276,013	; Block 2x1 tiles from 7E8A to 714E
+	.BYTE	027, 156,013	; Block 3x4 tiles from 7C0C to 70FE
+	.BYTE	037, 252,013	; Block 3x1 tiles from 7E87 to 713A
+	.BYTE	037, 306,013	; Block 3x1 tiles from 7E87 to 7156
+	.BYTE	031, 247,013	; Block 2x1 tiles from 7E8A to 7137
+	.BYTE	031, 304,013	; Block 2x1 tiles from 7E8A to 7154
+	.BYTE	031, 312,013	; Block 2x1 tiles from 7E8A to 715A
+	.BYTE	031, 260,013	; Block 2x1 tiles from 7E8A to 7140
+	.BYTE	031, 263,013	; Block 2x1 tiles from 7E8A to 7143
+	.BYTE	000		; End of sequence
+	.EVEN
+RM91BA:	; Room 91BA
+	.WORD	LB452		; Room procedure
+	.WORD	LA36B		; Initialization
+	.WORD	RM90DB		; Room to Left
+	.WORD	0		; Room to Right
+	.WORD	RM8F84		; Room to Up
+	.WORD	RM924E		; Room to Down
+	.BYTE	014, 004, 000,000	; Fill horz 4 tiles with FF at 6590
+	.BYTE	013, 025,012	; Put tile 2A at 6FA5
+	.BYTE	046, 053, 063,012	; Fill vert 7 tiles with 2B at 6FC3
+	.BYTE	012, 004, 003, 016,001	; Rect 4x3 tiles with FF at 669E
+	.BYTE	014, 230, 146,001	; Fill horz 152 tiles with FF at 66F6
+	.BYTE	215, 002, 013, 034,000	; Block 2 tiles from 81E3 to 65AC copy 11 times
+	.BYTE	007, 377, 002, 060,001	; Triangle with FF, count=2 at 66C0
+	.BYTE	201, 002, 014, 024,000	; Block 2 tiles from 7348 to 65A4 copy 12 times
+	.BYTE	102, 002, 005, 174,001	; Block 2x5 tiles from 7984 to 670C
+	.BYTE	030, 013,013	; Block 3x3 tiles from 7C18 to 709B
+	.BYTE	020, 017,013	; Block 3x3 tiles from 7C21 to 709F
+	.BYTE	020, 022,013	; Block 3x3 tiles from 7C21 to 70A2
+	.BYTE	020, 035,013	; Block 3x3 tiles from 7C21 to 70AD
+	.BYTE	017, 006,377	; End of sequence + initialization
+	.EVEN
+RM920A:	; Room 920A
+	.WORD	L7918		; Room procedure
+	.WORD	LA0F2		; Initialization
+	.WORD	RM83ED		; Room to Left
+	.WORD	RM924E		; Room to Right
+	.WORD	0		; Room to Up
+	.WORD	0		; Room to Down
+	.BYTE	014, 036, 340,001	; Fill horz 30 tiles with FF at 6770
+	.BYTE	027, 141,013	; Block 3x4 tiles from 7C0C to 70F1
+	.BYTE	021, 203,013	; Block 3x3 tiles from 71A0 to 7113
+	.BYTE	020, 207,013	; Block 3x3 tiles from 7C21 to 7117
+	.BYTE	020, 212,013	; Block 3x3 tiles from 7C21 to 711A
+	.BYTE	020, 056,013	; Block 3x3 tiles from 7C21 to 70BE
+	.BYTE	020, 061,013	; Block 3x3 tiles from 7C21 to 70C1
+	.BYTE	020, 226,013	; Block 3x3 tiles from 7C21 to 7126
+	.BYTE	023, 064,013	; Block 4x3 tiles from 7E7B to 70C4
+	.BYTE	023, 213,013	; Block 4x3 tiles from 7E7B to 711B
+	.BYTE	023, 220,013	; Block 4x3 tiles from 7E7B to 7120
+	.BYTE	017, 377,023	; End of sequence + initialization
+	.EVEN
+RM924E:	; Room 924E
+	.WORD	LB452		; Room procedure
+	.WORD	LA366		; Initialization
+	.WORD	RM920A		; Room to Left
+	.WORD	0		; Room to Right
+	.WORD	RM91BA		; Room to Up
+	.WORD	0		; Room to Down
+	.BYTE	014, 020, 016,000	; Fill horz 16 tiles with FF at 659E
+	.BYTE	215, 002, 016, 072,000	; Block 2 tiles from 81E3 to 65CA copy 14 times
+	.BYTE	014, 040, 336,001	; Fill horz 32 tiles with FF at 676E
+	.BYTE	201, 002, 017, 062,000	; Block 2 tiles from 7348 to 65C2 copy 15 times
+	.BYTE	100, 002, 001, 024,000	; Block 2x1 tiles from 71B9 to 65A4
+	.BYTE	021, 214,013	; Block 3x3 tiles from 71A0 to 711C
+	.BYTE	021, 073,013	; Block 3x3 tiles from 71A0 to 70CB
+	.BYTE	023, 224,013	; Block 4x3 tiles from 7E7B to 7124
+	.BYTE	020, 315,012	; Block 3x3 tiles from 7C21 to 705D
+	.BYTE	020, 045,013	; Block 3x3 tiles from 7C21 to 70B5
+	.BYTE	020, 051,013	; Block 3x3 tiles from 7C21 to 70B9
+	.BYTE	020, 054,013	; Block 3x3 tiles from 7C21 to 70BC
+	.BYTE	020, 176,013	; Block 3x3 tiles from 7C21 to 710E
+	.BYTE	020, 201,013	; Block 3x3 tiles from 7C21 to 7111
+	.BYTE	020, 204,013	; Block 3x3 tiles from 7C21 to 7114
+	.BYTE	020, 210,013	; Block 3x3 tiles from 7C21 to 7118
+	.BYTE	017, 007,377	; End of sequence + initialization
+	.EVEN
+RM92A7:	; Room 92A7
+	.WORD	LB483		; Room procedure
+	.WORD	LA16F		; Initialization
+	.WORD	0		; Room to Left
+	.WORD	RM9005		; Room to Right
+	.WORD	0		; Room to Up
+	.WORD	0		; Room to Down
+	.BYTE	014, 040, 000,000	; Fill horz 32 tiles with FF at 6590
+	.BYTE	215, 002, 015, 074,000	; Block 2 tiles from 81E3 to 65CC copy 13 times
+	.BYTE	014, 074, 302,001	; Fill horz 60 tiles with FF at 6752
+	.BYTE	024, 101,013	; Block 4x4 tiles from 71A9 to 70D1
+	.BYTE	024, 121,013	; Block 4x4 tiles from 71A9 to 70E1
+	.BYTE	022, 106,013	; Block 2x4 tiles from 71BB to 70D6
+	.BYTE	022, 110,013	; Block 2x4 tiles from 71BB to 70D8
+	.BYTE	022, 113,013	; Block 2x4 tiles from 71BB to 70DB
+	.BYTE	022, 116,013	; Block 2x4 tiles from 71BB to 70DE
+	.BYTE	017, 377,203	; End of sequence + initialization
+	.EVEN
+RM92EF:	; Room 92EF
+	.WORD	L7918		; Room procedure
+	.WORD	L791B		; Initialization
+	.WORD	0		; Room to Left
+	.WORD	RM909F		; Room to Right
+	.WORD	0		; Room to Up
+	.WORD	0		; Room to Down
+	.BYTE	005		; Fill entire screen with FF
+	.BYTE	003, 000, 032, 006, 042,000	; Rect 26x6 tiles with 00 at 65B2
+	.BYTE	003, 002, 026, 006, 116,001	; Rect 22x6 tiles with 02 at 66DE
+	.BYTE	003, 314, 006, 004, 214,001	; Rect 6x4 tiles with CC at 671C
+	.BYTE	004, 007, 321, 250,001	; Fill horz 7 tiles with D1 at 6738
+	.BYTE	016, 320, 255,001	; Put tile D0 at 673D
+	.BYTE	004, 014, 315, 222,001	; Fill horz 12 tiles with CD at 6722
+	.BYTE	036, 224,001	; Block 1x4 tiles from 9372 to 6724
+	.BYTE	036, 226,001	; Block 1x4 tiles from 9372 to 6726
+	.BYTE	036, 230,001	; Block 1x4 tiles from 9372 to 6728
+	.BYTE	036, 232,001	; Block 1x4 tiles from 9372 to 672A
+	.BYTE	036, 234,001	; Block 1x4 tiles from 9372 to 672C
+	.BYTE	036, 236,001	; Block 1x4 tiles from 9372 to 672E
+	.BYTE	024, 121,012	; Block 4x4 tiles from 71A9 to 6FE1
+	.BYTE	022, 126,012	; Block 2x4 tiles from 71BB to 6FE6
+	.BYTE	022, 131,012	; Block 2x4 tiles from 71BB to 6FE9
+	.BYTE	022, 134,012	; Block 2x4 tiles from 71BB to 6FEC
+	.BYTE	022, 137,012	; Block 2x4 tiles from 71BB to 6FEF
+	.BYTE	022, 142,012	; Block 2x4 tiles from 71BB to 6FF2
+	.BYTE	000		; End of sequence
+	.EVEN
+RM9376:	; Room 9376
+	.WORD	LB41F		; Room procedure
+	.WORD	LB422		; Initialization
+	.WORD	RM93DF		; Room to Left
+	.WORD	0		; Room to Right
+	.WORD	RM8384		; Room to Up
+	.WORD	0		; Room to Down
+	.BYTE	005		; Fill entire screen with FF
+	.BYTE	003, 002, 014, 006, 360,000	; Rect 12x6 tiles with 02 at 6680
+	.BYTE	003, 002, 013, 006, 000,001	; Rect 11x6 tiles with 02 at 6690
+	.BYTE	004, 014, 003, 322,000	; Fill horz 12 tiles with 03 at 6662
+	.BYTE	004, 013, 003, 342,000	; Fill horz 11 tiles with 03 at 6672
+	.BYTE	003, 014, 013, 002, 156,013	; Rect 11x2 tiles with 0C at 70FE
+	.BYTE	004, 013, 013, 120,013	; Fill horz 11 tiles with 0B at 70E0
+	.BYTE	200, 002, 016, 004,000	; Block 2 tiles from 71B9 to 6594 copy 14 times
+	.BYTE	200, 002, 016, 024,000	; Block 2 tiles from 71B9 to 65A4 copy 14 times
+	.BYTE	034, 143,013	; Block 6x2 tiles from 7188 to 70F3
+	.BYTE	046, 375, 012,000	; Fill vert 7 tiles with FD at 659A
+	.BYTE	046, 375, 022,000	; Fill vert 7 tiles with FD at 65A2
+	.BYTE	046, 375, 031,000	; Fill vert 7 tiles with FD at 65A9
+	.BYTE	103, 001, 003, 246,001	; Block 1x3 tiles from 7B4F to 6736
+	.BYTE	103, 001, 003, 252,001	; Block 1x3 tiles from 7B4F to 673A
+	.BYTE	103, 001, 003, 256,001	; Block 1x3 tiles from 7B4F to 673E
+	.BYTE	000		; End of sequence
+	.EVEN
+RM93DF:	; Room 93DF
+	.WORD	LB41F		; Room procedure
+	.WORD	LC671		; Initialization
+	.WORD	RM7C9C		; Room to Left
+	.WORD	RM9376		; Room to Right
+	.WORD	RM9431		; Room to Up
+	.WORD	0		; Room to Down
+	.BYTE	002		; Fill entire screen with 02
+	.BYTE	003, 041, 005, 002, 206,001	; Rect 5x2 tiles with 21 at 6716
+	.BYTE	004, 004, 003, 354,000	; Fill horz 4 tiles with 03 at 667C
+	.BYTE	014, 231, 000,000	; Fill horz 153 tiles with FF at 6590
+	.BYTE	014, 020, 246,000	; Fill horz 16 tiles with FF at 6636
+	.BYTE	014, 004, 316,000	; Fill horz 4 tiles with FF at 665E
+	.BYTE	014, 021, 213,001	; Fill horz 17 tiles with FF at 671B
+	.BYTE	014, 126, 250,001	; Fill horz 86 tiles with FF at 6738
+	.BYTE	200, 002, 015, 006,000	; Block 2 tiles from 71B9 to 6596 copy 13 times
+	.BYTE	044, 375, 016,000	; Fill vert 5 tiles with FD at 659E
+	.BYTE	045, 375, 027,000	; Fill vert 6 tiles with FD at 65A7
+	.BYTE	103, 001, 004, 224,001	; Block 1x4 tiles from 7B4F to 6724
+	.BYTE	103, 001, 003, 273,001	; Block 1x3 tiles from 7B4F to 674B
+	.BYTE	000		; End of sequence
+	.EVEN
+RM9431:	; Room 9431
+	.WORD	LB41F		; Room procedure
+	.WORD	LB422		; Initialization
+	.WORD	0		; Room to Left
+	.WORD	0		; Room to Right
+	.WORD	RM9451		; Room to Up
+	.WORD	RM93DF		; Room to Down
+	.BYTE	005		; Fill entire screen with FF
+	.BYTE	200, 002, 021, 006,000	; Block 2 tiles from 71B9 to 6596 copy 17 times
+	.BYTE	060, 375, 016,000	; Fill vert 17 tiles with FD at 659E
+	.BYTE	060, 375, 027,000	; Fill vert 17 tiles with FD at 65A7
+	.BYTE	000		; End of sequence
+	.EVEN
+RM9451:	; Room 9451
+	.WORD	LB41F		; Room procedure
+	.WORD	LB422		; Initialization
+	.WORD	0		; Room to Left
+	.WORD	0		; Room to Right
+	.WORD	0		; Room to Up
+	.WORD	RM9431		; Room to Down
+	.BYTE	005		; Fill entire screen with FF
+	.BYTE	102, 002, 004, 214,001	; Block 2x4 tiles from 7984 to 671C
+	.BYTE	060, 375, 016,000	; Fill vert 17 tiles with FD at 659E
+	.BYTE	060, 375, 027,000	; Fill vert 17 tiles with FD at 65A7
+	.BYTE	003, 002, 030, 006, 325,000	; Rect 24x6 tiles with 02 at 6665
+	.BYTE	004, 030, 003, 267,000	; Fill horz 24 tiles with 03 at 6647
+	.BYTE	000		; End of sequence
+	.EVEN
+RM947C:	; Room 947C
+	.WORD	LB41F		; Room procedure
+	.WORD	LC671		; Initialization
+	.WORD	RM94AB		; Room to Left
+	.WORD	RM7C9C		; Room to Right
+	.WORD	0		; Room to Up
+	.WORD	0		; Room to Down
+	.BYTE	005		; Fill entire screen with FF
+	.BYTE	003, 002, 025, 007, 226,000	; Rect 21x7 tiles with 02 at 6626
+	.BYTE	003, 002, 007, 006, 351,000	; Rect 7x6 tiles with 02 at 6679
+	.BYTE	047, 002, 253,000	; Fill vert 8 tiles with 02 at 663B
+	.BYTE	046, 002, 312,000	; Fill vert 7 tiles with 02 at 665A
+	.BYTE	004, 010, 041, 234,001	; Fill horz 8 tiles with 21 at 672C
+	.BYTE	004, 007, 041, 273,001	; Fill horz 7 tiles with 21 at 674B
+	.BYTE	000		; End of sequence
+	.EVEN
+RM94AB:	; Room 94AB
+	.WORD	L7918		; Room procedure
+	.WORD	LA0DF		; Initialization
+	.WORD	RM95D6		; Room to Left
+	.WORD	RM947C		; Room to Right
+	.WORD	0		; Room to Up
+	.WORD	0		; Room to Down
+	.BYTE	005		; Fill entire screen with FF
+	.BYTE	003, 000, 036, 007, 226,000	; Rect 30x7 tiles with 00 at 6626
+	.BYTE	003, 002, 002, 007, 262,000	; Rect 2x7 tiles with 02 at 6642
+	.BYTE	013, 247,012	; Put tile 2A at 7037
+	.BYTE	045, 053, 305,012	; Fill vert 6 tiles with 2B at 7055
+	.BYTE	017, 377,026	; End of sequence + initialization
+	.EVEN
+RM94CF:	; Room 94CF
+	.WORD	L7918		; Room procedure
+	.WORD	LA11A		; Initialization
+	.WORD	RM9552		; Room to Left
+	.WORD	RM9A9A		; Room to Right
+	.WORD	0		; Room to Up
+	.WORD	0		; Room to Down
+	.BYTE	014, 074, 302,001	; Fill horz 60 tiles with FF at 6752
+	.BYTE	003, 015, 022, 007, 360,000	; Rect 18x7 tiles with 0D at 6680
+	.BYTE	003, 243, 033, 002, 000,000	; Rect 27x2 tiles with A3 at 6590
+	.BYTE	016, 234, 033,000	; Put tile 9C at 65AB
+	.BYTE	016, 233, 071,000	; Put tile 9B at 65C9
+	.BYTE	003, 277, 022, 006, 074,000	; Rect 18x6 tiles with BF at 65CC
+	.BYTE	022, 130,013	; Block 2x4 tiles from 71BB to 70E8
+	.BYTE	004, 022, 272, 074,000	; Fill horz 18 tiles with BA at 65CC
+	.BYTE	004, 022, 263, 322,000	; Fill horz 18 tiles with B3 at 6662
+	.BYTE	135, 001, 006, 075,000	; Block 1x6 tiles from 9528 to 65CD
+	.BYTE	136, 001, 006, 104,000	; Block 1x6 tiles from 952E to 65D4
+	.BYTE	137, 002, 006, 112,000	; Block 2x6 tiles from 9534 to 65DA
+	.BYTE	140, 003, 006, 116,000	; Block 3x6 tiles from 9540 to 65DE
+	.BYTE	017, 377,013	; End of sequence + initialization
+	.EVEN
+RM9552:	; Room 9552
+	.WORD	LB483		; Room procedure
+	.WORD	LA197		; Initialization
+	.WORD	RM9A5A		; Room to Left
+	.WORD	RM94CF		; Room to Right
+	.WORD	0		; Room to Up
+	.WORD	0		; Room to Down
+	.BYTE	014, 074, 302,001	; Fill horz 60 tiles with FF at 6752
+	.BYTE	003, 015, 022, 007, 374,000	; Rect 18x7 tiles with 0D at 668C
+	.BYTE	003, 243, 033, 002, 003,000	; Rect 27x2 tiles with A3 at 6593
+	.BYTE	016, 236, 002,000	; Put tile 9E at 6592
+	.BYTE	016, 235, 040,000	; Put tile 9D at 65B0
+	.BYTE	003, 277, 022, 006, 110,000	; Rect 18x6 tiles with BF at 65D8
+	.BYTE	022, 115,013	; Block 2x4 tiles from 71BB to 70DD
+	.BYTE	022, 123,013	; Block 2x4 tiles from 71BB to 70E3
+	.BYTE	004, 022, 272, 110,000	; Fill horz 18 tiles with BA at 65D8
+	.BYTE	004, 022, 263, 336,000	; Fill horz 18 tiles with B3 at 666E
+	.BYTE	135, 001, 006, 130,000	; Block 1x6 tiles from 9528 to 65E8
+	.BYTE	141, 001, 006, 121,000	; Block 1x6 tiles from 95B2 to 65E1
+	.BYTE	142, 002, 006, 112,000	; Block 2x6 tiles from 95B8 to 65DA
+	.BYTE	143, 003, 006, 105,000	; Block 3x6 tiles from 95C4 to 65D5
+	.BYTE	017, 377,211	; End of sequence + initialization
+	.EVEN
+RM95D6:	; Room 95D6
+	.WORD	LB483		; Room procedure
+	.WORD	LA183		; Initialization
+	.WORD	RM95F8		; Room to Left
+	.WORD	RM94AB		; Room to Right
+	.WORD	0		; Room to Up
+	.WORD	0		; Room to Down
+	.BYTE	014, 226, 000,000	; Fill horz 150 tiles with FF at 6590
+	.BYTE	012, 020, 005, 166,001	; Rect 16x5 tiles with FF at 6706
+	.BYTE	004, 007, 000, 166,001	; Fill horz 7 tiles with 00 at 6706
+	.BYTE	004, 020, 372, 206,001	; Fill horz 16 tiles with FA at 6716
+	.BYTE	017, 377,206	; End of sequence + initialization
+	.EVEN
+RM95F8:	; Room 95F8
+	.WORD	LB41F		; Room procedure
+	.WORD	LB422		; Initialization
+	.WORD	0		; Room to Left
+	.WORD	RM95D6		; Room to Right
+	.WORD	0		; Room to Up
+	.WORD	RM9634		; Room to Down
+	.BYTE	005		; Fill entire screen with FF
+	.BYTE	003, 000, 027, 010, 235,000	; Rect 23x8 tiles with 00 at 662D
+	.BYTE	006, 377, 003, 235,000	; Triangle with FF, count=3 at 662D
+	.BYTE	004, 014, 372, 230,001	; Fill horz 12 tiles with FA at 6728
+	.BYTE	004, 012, 000, 270,001	; Fill horz 10 tiles with 00 at 6748
+	.BYTE	004, 026, 000, 312,001	; Fill horz 22 tiles with 00 at 675A
+	.BYTE	004, 030, 000, 346,001	; Fill horz 24 tiles with 00 at 6776
+	.BYTE	201, 002, 014, 244,000	; Block 2 tiles from 7348 to 6634 copy 12 times
+	.BYTE	032, 224,001	; Block 2x1 tiles from 889D to 6724
+	.BYTE	000		; End of sequence
+	.EVEN
+RM9634:	; Room 9634
+	.WORD	LB41F		; Room procedure
+	.WORD	LB422		; Initialization
+	.WORD	0		; Room to Left
+	.WORD	RM968A		; Room to Right
+	.WORD	RM95F8		; Room to Up
+	.WORD	RM990D		; Room to Down
+	.BYTE	012, 004, 015, 000,000	; Rect 4x13 tiles with FF at 6590
+	.BYTE	012, 030, 004, 214,001	; Rect 24x4 tiles with FF at 671C
+	.BYTE	007, 377, 005, 364,000	; Triangle with FF, count=5 at 6684
+	.BYTE	016, 000, 364,000	; Put tile 00 at 6684
+	.BYTE	011, 377, 003, 213,001	; Triangle with FF, count=3 at 671B
+	.BYTE	144, 002, 002, 302,001	; Block 2x2 tiles from 9686 to 6752
+	.BYTE	201, 002, 015, 016,000	; Block 2 tiles from 7348 to 659E copy 13 times
+	.BYTE	004, 014, 000, 230,001	; Fill horz 12 tiles with 00 at 6728
+	.BYTE	004, 014, 000, 322,001	; Fill horz 12 tiles with 00 at 6762
+	.BYTE	004, 020, 000, 354,001	; Fill horz 16 tiles with 00 at 677C
+	.BYTE	201, 002, 002, 333,001	; Block 2 tiles from 7348 to 676B copy 2 times
+	.BYTE	032, 275,001	; Block 2x1 tiles from 889D to 674D
+	.BYTE	000		; End of sequence
+	.EVEN
+RM968A:	; Room 968A
+	.WORD	LB483		; Room procedure
+	.WORD	LA188		; Initialization
+	.WORD	RM9634		; Room to Left
+	.WORD	RM96CC		; Room to Right
+	.WORD	0		; Room to Up
+	.WORD	RM9715		; Room to Down
+	.BYTE	012, 020, 005, 016,000	; Rect 16x5 tiles with FF at 659E
+	.BYTE	053, 072, 260,000	; Fill vert 12 tiles with 3A at 6640
+	.BYTE	012, 013, 002, 302,001	; Rect 11x2 tiles with FF at 6752
+	.BYTE	014, 020, 244,001	; Fill horz 16 tiles with FF at 6734
+	.BYTE	004, 011, 372, 264,001	; Fill horz 9 tiles with FA at 6744
+	.BYTE	004, 006, 372, 332,001	; Fill horz 6 tiles with FA at 676A
+	.BYTE	022, 046,013	; Block 2x4 tiles from 71BB to 70B6
+	.BYTE	201, 002, 002, 316,001	; Block 2 tiles from 7348 to 675E copy 2 times
+	.BYTE	032, 260,001	; Block 2x1 tiles from 889D to 6740
+	.BYTE	017, 377,207	; End of sequence + initialization
+	.EVEN
+RM96CC:	; Room 96CC
+	.WORD	LB41F		; Room procedure
+	.WORD	LB422		; Initialization
+	.WORD	RM968A		; Room to Left
+	.WORD	0		; Room to Right
+	.WORD	0		; Room to Up
+	.WORD	RM96F3		; Room to Down
+	.BYTE	014, 226, 000,000	; Fill horz 150 tiles with FF at 6590
+	.BYTE	012, 017, 014, 245,000	; Rect 15x12 tiles with FF at 6635
+	.BYTE	011, 377, 011, 244,000	; Triangle with FF, count=9 at 6634
+	.BYTE	053, 072, 227,000	; Fill vert 12 tiles with 3A at 6627
+	.BYTE	004, 004, 372, 302,001	; Fill horz 4 tiles with FA at 6752
+	.BYTE	000		; End of sequence
+	.EVEN
+RM96F3:	; Room 96F3
+	.WORD	LB41F		; Room procedure
+	.WORD	LB422		; Initialization
+	.WORD	RM9715		; Room to Left
+	.WORD	0		; Room to Right
+	.WORD	0		; Room to Up
+	.WORD	RM976E		; Room to Down
+	.BYTE	012, 017, 021, 017,000	; Rect 15x17 tiles with FF at 659F
+	.BYTE	060, 072, 001,000	; Fill vert 17 tiles with 3A at 6591
+	.BYTE	051, 072, 330,000	; Fill vert 10 tiles with 3A at 6668
+	.BYTE	004, 011, 372, 360,000	; Fill horz 9 tiles with FA at 6680
+	.BYTE	000		; End of sequence
+	.EVEN
+RM9715:	; Room 9715
+	.WORD	LB41F		; Room procedure
+	.WORD	LB422		; Initialization
+	.WORD	0		; Room to Left
+	.WORD	RM96F3		; Room to Right
+	.WORD	RM968A		; Room to Up
+	.WORD	RM9739		; Room to Down
+	.BYTE	012, 013, 021, 000,000	; Rect 11x17 tiles with FF at 6590
+	.BYTE	201, 002, 021, 014,000	; Block 2 tiles from 7348 to 659C copy 17 times
+	.BYTE	060, 072, 032,000	; Fill vert 17 tiles with 3A at 65AA
+	.BYTE	004, 010, 372, 006,001	; Fill horz 8 tiles with FA at 6696
+	.BYTE	000		; End of sequence
+	.EVEN
+RM9739:	; Room 9739
+	.WORD	LB452		; Room procedure
+	.WORD	LA384		; Initialization
+	.WORD	RM99A6		; Room to Left
+	.WORD	RM976E		; Room to Right
+	.WORD	RM9715		; Room to Up
+	.WORD	RM97A6		; Room to Down
+	.BYTE	012, 013, 012, 000,000	; Rect 11x10 tiles with FF at 6590
+	.BYTE	010, 000, 006, 202,000	; Triangle with 00, count=6 at 6612
+	.BYTE	014, 042, 334,001	; Fill horz 34 tiles with FF at 676C
+L9755:	.BYTE	016, 344, 020,001	; Put tile E4 at 66A0 - trigger "D", token $0E/$26
+	.BYTE	056, 072, 032,000	; Fill vert 15 tiles with 3A at 65AA
+	.BYTE	032, 346,001	; Block 2x1 tiles from 889D to 6776
+	.BYTE	201, 002, 020, 014,000	; Block 2 tiles from 7348 to 659C copy 16 times
+	.BYTE	017, 001,377	; End of sequence + initialization
+	.EVEN
+RM976E:	; Room 976E
+	.WORD	LB41F		; Room procedure
+	.WORD	LB422		; Initialization
+	.WORD	RM9739		; Room to Left
+	.WORD	0		; Room to Right
+	.WORD	0		; Room to Up
+	.WORD	0		; Room to Down
+	.BYTE	005		; Fill entire screen with FF
+	.BYTE	003, 000, 017, 010, 000,000	; Rect 15x8 tiles with 00 at 6590
+	.BYTE	003, 000, 007, 007, 360,000	; Rect 7x7 tiles with 00 at 6680
+	.BYTE	004, 006, 000, 367,000	; Fill horz 6 tiles with 00 at 6687
+	.BYTE	004, 004, 000, 025,001	; Fill horz 4 tiles with 00 at 66A5
+	.BYTE	004, 002, 000, 063,001	; Fill horz 2 tiles with 00 at 66C3
+	.BYTE	056, 072, 001,000	; Fill vert 15 tiles with 3A at 6591
+	.BYTE	056, 072, 006,000	; Fill vert 15 tiles with 3A at 6596
+	.BYTE	016, 372, 120,001	; Put tile FA at 66E0
+	.BYTE	000		; End of sequence
+	.EVEN
+RM97A6:	; Room 97A6
+	.WORD	LB483		; Room procedure
+	.WORD	LB368		; Initialization
+	.WORD	RM9876		; Room to Left
+	.WORD	RM97F8		; Room to Right
+	.WORD	RM9739		; Room to Up
+	.WORD	0		; Room to Down
+	.BYTE	012, 011, 007, 360,000	; Rect 9x7 tiles with FF at 6680
+	.BYTE	014, 074, 302,001	; Fill horz 60 tiles with FF at 6752
+	.BYTE	007, 377, 006, 027,001	; Triangle with FF, count=6 at 66A7
+	.BYTE	201, 002, 010, 006,000	; Block 2 tiles from 7348 to 6596 copy 8 times
+	.BYTE	012, 004, 010, 032,000	; Rect 4x8 tiles with FF at 65AA
+L97CF:	.BYTE	016, 000, 241,001	; Put tile 00 at 6731
+	.BYTE	013, 001,013	; Put tile 2A at 7091
+	.BYTE	045, 053, 037,013	; Fill vert 6 tiles with 2B at 70AF
+	.BYTE	026, 362,012	; Block 4x7 tiles from 79AA to 7082
+	.BYTE	026, 225,012	; Block 4x7 tiles from 79AA to 7025
+	.BYTE	026, 166,012	; Block 4x7 tiles from 79AA to 7006
+	.BYTE	003, 002, 002, 007, 014,001	; Rect 2x7 tiles with 02 at 669C
+	.BYTE	017, 377,210	; End of sequence + initialization
+	.EVEN
+L97D0 = L97CF + 1		; trigger "E": 000 or 377
+RM97F8:	; Room 97F8
+	.WORD	L7918		; Room procedure
+	.WORD	LA115		; Initialization
+	.WORD	RM97A6		; Room to Left
+	.WORD	0		; Room to Right
+	.WORD	0		; Room to Up
+	.WORD	RM982B		; Room to Down
+	.BYTE	005		; Fill entire screen with FF
+	.BYTE	003, 002, 034, 007, 360,000	; Rect 28x7 tiles with 02 at 6680
+	.BYTE	003, 002, 020, 004, 176,000	; Rect 16x4 tiles with 02 at 660E
+	.BYTE	010, 002, 003, 233,000	; Triangle with 02, count=3 at 662B
+	.BYTE	007, 002, 003, 254,000	; Triangle with 02, count=3 at 663C
+	.BYTE	200, 002, 011, 011,001	; Block 2 tiles from 71B9 to 6699 copy 9 times
+	.BYTE	102, 002, 001, 333,001	; Block 2x1 tiles from 7984 to 676B
+	.BYTE	017, 377,014	; End of sequence + initialization
+	.EVEN
+RM982B:	; Room 982B
+	.WORD	LB41F		; Room procedure
+	.WORD	LC681		; Initialization
+	.WORD	RM7C9C		; Room to Left
+	.WORD	0		; Room to Right
+	.WORD	RM97F8		; Room to Up
+	.WORD	0		; Room to Down
+	.BYTE	005		; Fill entire screen with FF
+	.BYTE	003, 002, 023, 006, 047,000	; Rect 19x6 tiles with 02 at 65B7
+	.BYTE	003, 002, 023, 006, 322,000	; Rect 19x6 tiles with 02 at 6662
+	.BYTE	010, 002, 005, 104,000	; Triangle with 02, count=5 at 65D4
+	.BYTE	006, 002, 005, 345,000	; Triangle with 02, count=5 at 6675
+	.BYTE	004, 022, 041, 206,001	; Fill horz 18 tiles with 21 at 6716
+	.BYTE	004, 021, 041, 244,001	; Fill horz 17 tiles with 21 at 6734
+	.BYTE	200, 002, 007, 031,000	; Block 2 tiles from 71B9 to 65A9 copy 7 times
+	.BYTE	025, 366,012	; Block 4x7 tiles from 798E to 7086
+	.BYTE	025, 237,012	; Block 4x7 tiles from 798E to 702F
+	.BYTE	025, 145,012	; Block 4x7 tiles from 798E to 6FF5
+	.BYTE	000		; End of sequence
+	.EVEN
+RM9876:	; Room 9876
+	.WORD	LB41F		; Room procedure
+	.WORD	LB422		; Initialization
+	.WORD	RM98C0		; Room to Left
+	.WORD	RM97A6		; Room to Right
+	.WORD	0		; Room to Up
+	.WORD	0		; Room to Down
+	.BYTE	005		; Fill entire screen with FF
+	.BYTE	003, 000, 012, 007, 360,000	; Rect 10x7 tiles with 00 at 6680
+	.BYTE	003, 000, 016, 007, 236,000	; Rect 14x7 tiles with 00 at 662E
+	.BYTE	003, 000, 012, 007, 062,000	; Rect 10x7 tiles with 00 at 65C2
+	.BYTE	010, 000, 002, 273,000	; Triangle with 00, count=2 at 664B
+	.BYTE	010, 000, 003, 117,000	; Triangle with 00, count=3 at 65DF
+	.BYTE	006, 000, 002, 162,001	; Triangle with 00, count=2 at 6702
+	.BYTE	006, 000, 003, 006,001	; Triangle with 00, count=3 at 6696
+	.BYTE	025, 357,012	; Block 4x7 tiles from 798E to 707F
+	.BYTE	025, 241,012	; Block 4x7 tiles from 798E to 7031
+	.BYTE	025, 204,012	; Block 4x7 tiles from 798E to 7014
+	.BYTE	000		; End of sequence
+	.EVEN
+RM98C0:	; Room 98C0
+	.WORD	LB41F		; Room procedure
+	.WORD	LB422		; Initialization
+	.WORD	RM9A9A		; Room to Left
+	.WORD	RM9876		; Room to Right
+	.WORD	0		; Room to Up
+	.WORD	0		; Room to Down
+	.BYTE	014, 360, 000,000	; Fill horz 240 tiles with FF at 6590
+	.BYTE	014, 074, 302,001	; Fill horz 60 tiles with FF at 6752
+	.BYTE	023, 137,013	; Block 4x3 tiles from 7E7B to 70EF
+	.BYTE	021, 010,013	; Block 3x3 tiles from 71A0 to 7098
+	.BYTE	021, 144,013	; Block 3x3 tiles from 71A0 to 70F4
+	.BYTE	146, 001, 005, 033,001	; Block 1x5 tiles from 9903 to 66AB
+	.BYTE	147, 001, 005, 036,001	; Block 1x5 tiles from 9908 to 66AE
+	.BYTE	245, 002, 007, 376,000	; Block 2 tiles from 9901 to 668E copy 7 times
+	.BYTE	000		; End of sequence
+	.EVEN
+RM990D:	; Room 990D
+	.WORD	LB41F		; Room procedure
+	.WORD	LB422		; Initialization
+	.WORD	0		; Room to Left
+	.WORD	0		; Room to Right
+	.WORD	RM9634		; Room to Up
+	.WORD	0		; Room to Down
+	.BYTE	012, 024, 021, 012,000	; Rect 20x17 tiles with FF at 659A
+	.BYTE	003, 000, 021, 014, 013,000	; Rect 17x12 tiles with 00 at 659B
+	.BYTE	003, 000, 010, 004, 174,001	; Rect 8x4 tiles with 00 at 670C
+	.BYTE	011, 000, 003, 173,001	; Triangle with 00, count=3 at 670B
+	.BYTE	201, 002, 020, 031,000	; Block 2 tiles from 7348 to 65A9 copy 16 times
+	.BYTE	026, 025,013	; Block 4x7 tiles from 79AA to 70A5
+	.BYTE	026, 366,012	; Block 4x7 tiles from 79AA to 7086
+	.BYTE	003, 015, 002, 021, 004,000	; Rect 2x17 tiles with 0D at 6594
+	.BYTE	046, 053, 226,012	; Fill vert 7 tiles with 2B at 7026
+	.BYTE	040, 042,000	; Block 3x1 tiles from 9997 to 65B2
+	.BYTE	040, 232,000	; Block 3x1 tiles from 9997 to 662A
+	.BYTE	040, 060,001	; Block 3x1 tiles from 9997 to 66C0
+	.BYTE	040, 250,001	; Block 3x1 tiles from 9997 to 6738
+	.BYTE	150, 004, 003, 074,000	; Block 4x3 tiles from 999A to 65CC
+	.BYTE	150, 004, 003, 226,000	; Block 4x3 tiles from 999A to 6626
+	.BYTE	150, 004, 003, 360,000	; Block 4x3 tiles from 999A to 6680
+	.BYTE	150, 004, 003, 112,001	; Block 4x3 tiles from 999A to 66DA
+	.BYTE	150, 004, 003, 244,001	; Block 4x3 tiles from 999A to 6734
+	.BYTE	151, 004, 002, 000,000	; Block 4x2 tiles from 999E to 6590
+	.BYTE	000		; End of sequence
+	.EVEN
+RM99A6:	; Room 99A6
+	.WORD	L7918		; Room procedure
+	.WORD	LA110		; Initialization
+	.WORD	0		; Room to Left
+	.WORD	RM9739		; Room to Right
+	.WORD	0		; Room to Up
+	.WORD	0		; Room to Down
+	.BYTE	014, 036, 340,001	; Fill horz 30 tiles with FF at 6770
+	.BYTE	055, 377, 106,000	; Fill vert 14 tiles with FF at 65D6
+	.BYTE	046, 053, 016,013	; Fill vert 7 tiles with 2B at 709E
+	.BYTE	012, 024, 002, 012,000	; Rect 20x2 tiles with FF at 659A
+	.BYTE	012, 003, 010, 127,000	; Rect 3x8 tiles with FF at 65E7
+	.BYTE	016, 000, 051,001	; Put tile 00 at 66B9
+	.BYTE	022, 161,013	; Block 2x4 tiles from 71BB to 7101
+	.BYTE	003, 015, 002, 020, 004,000	; Rect 2x16 tiles with 0D at 6594
+	.BYTE	150, 004, 003, 074,000	; Block 4x3 tiles from 999A to 65CC
+	.BYTE	150, 004, 003, 226,000	; Block 4x3 tiles from 999A to 6626
+	.BYTE	150, 004, 003, 360,000	; Block 4x3 tiles from 999A to 6680
+	.BYTE	150, 004, 003, 112,001	; Block 4x3 tiles from 999A to 66DA
+	.BYTE	150, 004, 002, 244,001	; Block 4x2 tiles from 999A to 6734
+	.BYTE	040, 136,000	; Block 3x1 tiles from 9997 to 65EE
+	.BYTE	040, 270,000	; Block 3x1 tiles from 9997 to 6648
+	.BYTE	040, 060,001	; Block 3x1 tiles from 9997 to 66C0
+	.BYTE	151, 004, 002, 000,000	; Block 4x2 tiles from 999E to 6590
+	.BYTE	017, 377,015	; End of sequence + initialization
+	.EVEN
+RM9A1E:	; Room 9A1E
+	.WORD	LB41F		; Room procedure
+	.WORD	LB422		; Initialization
+	.WORD	0		; Room to Left
+	.WORD	RM7C9C		; Room to Right
+	.WORD	RM9A5A		; Room to Up
+	.WORD	0		; Room to Down
+	.BYTE	005		; Fill entire screen with FF
+	.BYTE	003, 002, 006, 010, 002,000	; Rect 6x8 tiles with 02 at 6592
+	.BYTE	003, 002, 010, 006, 104,000	; Rect 8x6 tiles with 02 at 65D4
+	.BYTE	011, 002, 006, 377,000	; Triangle with 02, count=6 at 668F
+	.BYTE	003, 002, 016, 006, 342,000	; Rect 14x6 tiles with 02 at 6672
+	.BYTE	007, 002, 004, 152,000	; Triangle with 02, count=4 at 65FA
+	.BYTE	200, 002, 010, 004,000	; Block 2 tiles from 71B9 to 6594 copy 8 times
+	.BYTE	004, 017, 041, 225,001	; Fill horz 15 tiles with 21 at 6725
+	.BYTE	004, 016, 041, 264,001	; Fill horz 14 tiles with 21 at 6744
+	.BYTE	000		; End of sequence
+	.EVEN
+RM9A5A:	; Room 9A5A
+	.WORD	LB452		; Room procedure
+	.WORD	LA389		; Initialization
+	.WORD	0		; Room to Left
+	.WORD	RM9552		; Room to Right
+	.WORD	RM9B51		; Room to Up
+	.WORD	RM9A1E		; Room to Down
+	.BYTE	005		; Fill entire screen with FF
+	.BYTE	003, 000, 034, 013, 002,000	; Rect 28x11 tiles with 00 at 6592
+	.BYTE	003, 000, 007, 004, 141,001	; Rect 7x4 tiles with 00 at 66F1
+	.BYTE	011, 000, 003, 140,001	; Triangle with 00, count=3 at 66F0
+	.BYTE	003, 002, 006, 002, 304,001	; Rect 6x2 tiles with 02 at 6754
+	.BYTE	004, 004, 002, 247,001	; Fill horz 4 tiles with 02 at 6737
+	.BYTE	200, 002, 005, 154,001	; Block 2 tiles from 71B9 to 66FC copy 5 times
+	.BYTE	102, 002, 001, 116,001	; Block 2x1 tiles from 7984 to 66DE
+	.BYTE	201, 002, 013, 011,000	; Block 2 tiles from 7348 to 6599 copy 11 times
+	.BYTE	017, 000,377	; End of sequence + initialization
+	.EVEN
+RM9A9A:	; Room 9A9A
+	.WORD	LB483		; Room procedure
+	.WORD	LA192		; Initialization
+	.WORD	RM94CF		; Room to Left
+	.WORD	RM98C0		; Room to Right
+	.WORD	RM9ADC		; Room to Up
+	.WORD	0		; Room to Down
+	.BYTE	014, 012, 001,000	; Fill horz 10 tiles with FF at 6591
+	.BYTE	014, 074, 302,001	; Fill horz 60 tiles with FF at 6752
+	.BYTE	012, 004, 010, 032,000	; Rect 4x8 tiles with FF at 65AA
+	.BYTE	013, 000,013	; Put tile 2A at 7090
+	.BYTE	045, 053, 036,013	; Fill vert 6 tiles with 2B at 70AE
+	.BYTE	201, 002, 017, 025,000	; Block 2 tiles from 7348 to 65A5 copy 15 times
+	.BYTE	024, 104,013	; Block 4x4 tiles from 71A9 to 70D4
+	.BYTE	024, 113,013	; Block 4x4 tiles from 71A9 to 70DB
+	.BYTE	024, 120,013	; Block 4x4 tiles from 71A9 to 70E0
+	.BYTE	017, 377,201	; End of sequence + initialization
+	.EVEN
+RM9ADC:	; Room 9ADC
+	.WORD	LB41F		; Room procedure
+	.WORD	LB422		; Initialization
+	.WORD	0		; Room to Left
+	.WORD	0		; Room to Right
+	.WORD	RM9B19		; Room to Up
+	.WORD	RM9A9A		; Room to Down
+	.BYTE	005		; Fill entire screen with FF
+	.BYTE	003, 000, 030, 010, 002,000	; Rect 24x8 tiles with 00 at 6592
+	.BYTE	003, 000, 017, 007, 373,000	; Rect 15x7 tiles with 00 at 668B
+	.BYTE	011, 000, 006, 372,000	; Triangle with 00, count=6 at 668A
+	.BYTE	201, 002, 021, 025,000	; Block 2 tiles from 7348 to 65A5 copy 17 times
+	.BYTE	056, 072, 020,000	; Fill vert 15 tiles with 3A at 65A0
+	.BYTE	014, 015, 340,000	; Fill horz 13 tiles with FF at 6670
+	.BYTE	004, 015, 047, 326,012	; Fill horz 13 tiles with 27 at 7066
+	.BYTE	032, 327,001	; Block 2x1 tiles from 889D to 6767
+	.BYTE	000		; End of sequence
+	.EVEN
+RM9B19:	; Room 9B19
+	.WORD	L7918		; Room procedure
+	.WORD	LA133		; Initialization
+	.WORD	0		; Room to Left
+	.WORD	0		; Room to Right
+	.WORD	RM9BE7		; Room to Up
+	.WORD	RM9ADC		; Room to Down
+	.BYTE	012, 002, 021, 000,000	; Rect 2x17 tiles with FF at 6590
+	.BYTE	012, 004, 021, 032,000	; Rect 4x17 tiles with FF at 65AA
+	.BYTE	201, 002, 021, 025,000	; Block 2 tiles from 7348 to 65A5 copy 17 times
+	.BYTE	060, 072, 020,000	; Fill vert 17 tiles with 3A at 65A0
+	.BYTE	004, 032, 372, 151,001	; Fill horz 26 tiles with FA at 66F9
+	.BYTE	021, 006,013	; Block 3x3 tiles from 71A0 to 7096
+	.BYTE	032, 175,001	; Block 2x1 tiles from 889D to 670D
+	.BYTE	017, 377,006	; End of sequence + initialization
+	.EVEN
+RM9B51:	; Room 9B51
+	.WORD	L7918		; Room procedure
+	.WORD	LA11F		; Initialization
+	.WORD	0		; Room to Left
+	.WORD	0		; Room to Right
+	.WORD	RM9B9D		; Room to Up
+	.WORD	RM9A5A		; Room to Down
+	.BYTE	005		; Fill entire screen with FF
+	.BYTE	003, 000, 032, 016, 002,000	; Rect 26x14 tiles with 00 at 6592
+	.BYTE	046, 000, 357,000	; Fill vert 7 tiles with 00 at 667F
+	.BYTE	046, 053, 344,012	; Fill vert 7 tiles with 2B at 7074
+	.BYTE	201, 002, 002, 313,001	; Block 2 tiles from 7348 to 675B copy 2 times
+	.BYTE	201, 002, 016, 025,000	; Block 2 tiles from 7348 to 65A5 copy 14 times
+	.BYTE	032, 255,001	; Block 2x1 tiles from 889D to 673D
+	.BYTE	020, 105,013	; Block 3x3 tiles from 7C21 to 70D5
+	.BYTE	123, 004, 004, 044,013	; Block 4x4 tiles from 8789 to 70B4
+	.BYTE	123, 004, 004, 060,013	; Block 4x4 tiles from 8789 to 70C0
+	.BYTE	021, 131,013	; Block 3x3 tiles from 71A0 to 70E9
+	.BYTE	017, 377,012	; End of sequence + initialization
+	.EVEN
+RM9B9D:	; Room 9B9D
+	.WORD	LB458		; Room procedure
+	.WORD	LA1D6		; Initialization
+	.WORD	0		; Room to Left
+	.WORD	0		; Room to Right
+	.WORD	RM9F3A		; Room to Up
+	.WORD	RM9B51		; Room to Down
+	.BYTE	005		; Fill entire screen with FF
+	.BYTE	003, 000, 032, 007, 020,001	; Rect 26x7 tiles with 00 at 66A0
+	.BYTE	003, 000, 030, 010, 004,000	; Rect 24x8 tiles with 00 at 6594
+	.BYTE	032, 365,001	; Block 2x1 tiles from 889D to 6785
+	.BYTE	032, 372,000	; Block 2x1 tiles from 889D to 668A
+	.BYTE	201, 002, 007, 030,001	; Block 2 tiles from 7348 to 66A8 copy 7 times
+	.BYTE	201, 002, 010, 026,000	; Block 2 tiles from 7348 to 65A6 copy 8 times
+	.BYTE	021, 224,013	; Block 3x3 tiles from 71A0 to 7124
+	.BYTE	020, 045,013	; Block 3x3 tiles from 7C21 to 70B5
+	.BYTE	020, 177,013	; Block 3x3 tiles from 7C21 to 710F
+	.BYTE	020, 202,013	; Block 3x3 tiles from 7C21 to 7112
+	.BYTE	020, 211,013	; Block 3x3 tiles from 7C21 to 7119
+	.BYTE	017, 014,000	; End of sequence + initialization
+	.EVEN
+RM9BE7:	; Room 9BE7
+	.WORD	LB483		; Room procedure
+	.WORD	LA19C		; Initialization
+	.WORD	0		; Room to Left
+	.WORD	RM9DF5		; Room to Right
+	.WORD	RM9E73		; Room to Up
+	.WORD	RM9B19		; Room to Down
+	.BYTE	012, 002, 014, 226,000	; Rect 2x12 tiles with FF at 6626
+	.BYTE	012, 011, 005, 006,000	; Rect 9x5 tiles with FF at 6596
+	.BYTE	010, 377, 005, 005,000	; Triangle with FF, count=5 at 6595
+	.BYTE	006, 377, 011, 230,000	; Triangle with FF, count=9 at 6628
+	.BYTE	014, 004, 032,000	; Fill horz 4 tiles with FF at 65AA
+	.BYTE	012, 004, 004, 240,001	; Rect 4x4 tiles with FF at 6730
+	.BYTE	060, 072, 020,000	; Fill vert 17 tiles with 3A at 65A0
+	.BYTE	201, 002, 015, 022,000	; Block 2 tiles from 7348 to 65A2 copy 13 times
+	.BYTE	201, 002, 003, 271,001	; Block 2 tiles from 7348 to 6749 copy 3 times
+	.BYTE	004, 032, 372, 207,001	; Fill horz 26 tiles with FA at 6717
+	.BYTE	032, 233,001	; Block 2x1 tiles from 889D to 672B
+	.BYTE	043, 371, 025,001	; Fill vert 4 tiles with F9 at 66A5
+	.BYTE	017, 377,212	; End of sequence + initialization
+	.EVEN
+RM9DF5:	; Room 9DF5
+	.WORD	L7918		; Room procedure
+	.WORD	LA138		; Initialization
+	.WORD	RM9BE7		; Room to Left
+	.WORD	0		; Room to Right
+	.WORD	RM9E22		; Room to Up
+	.WORD	0		; Room to Down
+	.BYTE	014, 007, 000,000	; Fill horz 7 tiles with FF at 6590
+	.BYTE	012, 002, 014, 034,000	; Rect 2x12 tiles with FF at 65AC
+	.BYTE	014, 172, 204,001	; Fill horz 122 tiles with FF at 6714
+	.BYTE	201, 002, 015, 024,000	; Block 2 tiles from 7348 to 65A4 copy 13 times
+	.BYTE	013, 027,012	; Put tile 2A at 6FA7
+	.BYTE	052, 053, 065,012	; Fill vert 11 tiles with 2B at 6FC5
+	.BYTE	017, 377,005	; End of sequence + initialization
+	.EVEN
+RM9E22:	; Room 9E22
+	.WORD	LB41F		; Room procedure
+	.WORD	LB422		; Initialization
+	.WORD	0		; Room to Left
+	.WORD	0		; Room to Right
+	.WORD	0		; Room to Up
+	.WORD	RM9DF5		; Room to Down
+	.BYTE	005		; Fill entire screen with FF
+	.BYTE	003, 000, 024, 002, 312,001	; Rect 20x2 tiles with 00 at 675A
+	.BYTE	003, 002, 032, 014, 040,000	; Rect 26x12 tiles with 02 at 65B0
+	.BYTE	011, 377, 005, 071,000	; Triangle with FF, count=5 at 65C9
+	.BYTE	201, 002, 003, 270,001	; Block 2 tiles from 7348 to 6748 copy 3 times
+	.BYTE	032, 232,001	; Block 2x1 tiles from 889D to 672A
+	.BYTE	022, 025,013	; Block 2x4 tiles from 71BB to 70A5
+	.BYTE	021, 047,013	; Block 3x3 tiles from 71A0 to 70B7
+	.BYTE	021, 055,013	; Block 3x3 tiles from 71A0 to 70BD
+	.BYTE	021, 072,013	; Block 3x3 tiles from 71A0 to 70CA
+	.BYTE	116, 003, 004, 006,013	; Block 3x4 tiles from 849C to 7096
+	.BYTE	000		; End of sequence
+	.EVEN
+RM9E73:	; Room 9E73
+	.WORD	LB41F		; Room procedure
+	.WORD	LB422		; Initialization
+	.WORD	RM9EB8		; Room to Left
+	.WORD	0		; Room to Right
+	.WORD	0		; Room to Up
+	.WORD	RM9BE7		; Room to Down
+	.BYTE	014, 170, 000,000	; Fill horz 120 tiles with FF at 6590
+	.BYTE	012, 006, 015, 220,000	; Rect 6x13 tiles with FF at 6620
+	.BYTE	012, 006, 006, 124,001	; Rect 6x6 tiles with FF at 66E4
+	.BYTE	010, 377, 004, 217,001	; Triangle with FF, count=4 at 671F
+	.BYTE	004, 014, 372, 112,001	; Fill horz 12 tiles with FA at 66DA
+	.BYTE	054, 072, 210,000	; Fill vert 13 tiles with 3A at 6618
+	.BYTE	046, 072, 174,000	; Fill vert 7 tiles with 3A at 660C
+	.BYTE	004, 012, 372, 131,001	; Fill horz 10 tiles with FA at 66E9
+	.BYTE	201, 002, 015, 212,000	; Block 2 tiles from 7348 to 661A copy 13 times
+	.BYTE	032, 134,001	; Block 2x1 tiles from 889D to 66EC
+	.BYTE	000		; End of sequence
+	.EVEN
+RM9EB8:	; Room 9EB8
+	.WORD	L7918		; Room procedure
+	.WORD	LA12E		; Initialization
+	.WORD	RM9ED9		; Room to Left
+	.WORD	RM9E73		; Room to Right
+	.WORD	0		; Room to Up
+	.WORD	0		; Room to Down
+	.BYTE	014, 170, 000,000	; Fill horz 120 tiles with FF at 6590
+	.BYTE	004, 036, 372, 112,001	; Fill horz 30 tiles with FA at 66DA
+	.BYTE	046, 050, 163,012	; Fill vert 7 tiles with 28 at 7003
+	.BYTE	046, 050, 203,012	; Fill vert 7 tiles with 28 at 7013
+	.BYTE	017, 377,007	; End of sequence + initialization
+	.EVEN
+RM9ED9:	; Room 9ED9
+	.WORD	LB41F		; Room procedure
+	.WORD	LB422		; Initialization
+	.WORD	RM9EFA		; Room to Left
+	.WORD	RM9EB8		; Room to Right
+	.WORD	0		; Room to Up
+	.WORD	0		; Room to Down
+	.BYTE	014, 170, 000,000	; Fill horz 120 tiles with FF at 6590
+	.BYTE	004, 036, 372, 112,001	; Fill horz 30 tiles with FA at 66DA
+	.BYTE	046, 050, 165,012	; Fill vert 7 tiles with 28 at 7005
+	.BYTE	046, 050, 201,012	; Fill vert 7 tiles with 28 at 7011
+	.BYTE	000		; End of sequence
+	.EVEN
+RM9EFA:	; Room 9EFA
+	.WORD	LB41F		; Room procedure
+	.WORD	LB422		; Initialization
+	.WORD	0		; Room to Left
+	.WORD	RM9ED9		; Room to Right
+	.WORD	0		; Room to Up
+	.WORD	RM9F3A		; Room to Down
+	.BYTE	014, 175, 000,000	; Fill horz 125 tiles with FF at 6590
+	.BYTE	012, 005, 014, 226,000	; Rect 5x12 tiles with FF at 6626
+	.BYTE	012, 024, 005, 161,001	; Rect 20x5 tiles with FF at 6701
+	.BYTE	014, 023, 117,001	; Fill horz 19 tiles with FF at 66DF
+	.BYTE	004, 006, 372, 142,001	; Fill horz 6 tiles with FA at 66F2
+	.BYTE	046, 072, 206,000	; Fill vert 7 tiles with 3A at 6616
+	.BYTE	046, 050, 207,012	; Fill vert 7 tiles with 28 at 7017
+	.BYTE	201, 002, 015, 176,000	; Block 2 tiles from 7348 to 660E copy 13 times
+	.BYTE	032, 120,001	; Block 2x1 tiles from 889D to 66E0
+	.BYTE	000		; End of sequence
+	.EVEN
+RM9F3A:	; Room 9F3A
+	.WORD	L7918		; Room procedure
+	.WORD	LA124		; Initialization
+	.WORD	0		; Room to Left
+	.WORD	RM9F7E		; Room to Right
+	.WORD	RM9EFA		; Room to Up
+	.WORD	RM9B9D		; Room to Down
+	.BYTE	012, 005, 017, 000,000	; Rect 5x15 tiles with FF at 6590
+	.BYTE	014, 074, 302,001	; Fill horz 60 tiles with FF at 6752
+	.BYTE	012, 024, 002, 011,000	; Rect 20x2 tiles with FF at 6599
+	.BYTE	201, 002, 017, 006,000	; Block 2 tiles from 7348 to 6596 copy 15 times
+	.BYTE	022, 123,013	; Block 2x4 tiles from 71BB to 70E3
+	.BYTE	054, 072, 112,000	; Fill vert 13 tiles with 3A at 65DA
+	.BYTE	054, 072, 125,000	; Fill vert 13 tiles with 3A at 65E5
+	.BYTE	032, 330,001	; Block 2x1 tiles from 889D to 6768
+	.BYTE	101, 002, 001, 366,001	; Block 2x1 tiles from 7348 to 6786
+	.BYTE	017, 377,011	; End of sequence + initialization
+	.EVEN
+RM9F7E:	; Room 9F7E
+	.WORD	L7918		; Room procedure
+	.WORD	LA129		; Initialization
+	.WORD	RM9F3A		; Room to Left
+	.WORD	RMA022		; Room to Right
+	.WORD	0		; Room to Up
+	.WORD	0		; Room to Down
+	.BYTE	012, 002, 002, 302,001	; Rect 2x2 tiles with FF at 6752
+	.BYTE	003, 243, 033, 002, 305,001	; Rect 27x2 tiles with A3 at 6755
+	.BYTE	153, 001, 002, 304,001	; Block 1x2 tiles from A008 to 6754
+	.BYTE	003, 365, 032, 012, 220,012	; Rect 26x10 tiles with F5 at 7020
+	.BYTE	012, 002, 002, 220,012	; Rect 2x2 tiles with FF at 7020
+	.BYTE	152, 002, 002, 232,000	; Block 2x2 tiles from A004 to 662A
+	.BYTE	033, 354,012	; Block 4x4 tiles from A00A to 707C
+	.BYTE	033, 360,012	; Block 4x4 tiles from A00A to 7080
+	.BYTE	033, 364,012	; Block 4x4 tiles from A00A to 7084
+	.BYTE	033, 370,012	; Block 4x4 tiles from A00A to 7088
+	.BYTE	033, 374,012	; Block 4x4 tiles from A00A to 708C
+	.BYTE	033, 000,013	; Block 4x4 tiles from A00A to 7090
+	.BYTE	003, 033, 030, 004, 366,000	; Rect 24x4 tiles with 1B at 6686
+	.BYTE	003, 243, 030, 002, 140,000	; Rect 24x2 tiles with A3 at 65F0
+	.BYTE	153, 001, 002, 137,000	; Block 1x2 tiles from A008 to 65EF
+	.BYTE	016, 230, 103,000	; Put tile 98 at 65D3
+	.BYTE	004, 026, 015, 104,000	; Fill horz 22 tiles with 0D at 65D4
+	.BYTE	154, 004, 002, 026,000	; Block 4x2 tiles from A01A to 65A6
+	.BYTE	003, 015, 004, 002, 032,000	; Rect 4x2 tiles with 0D at 65AA
+	.BYTE	017, 377,010	; End of sequence + initialization
+	.EVEN
+RMA022:	; Room A022
+	.WORD	LB41F		; Room procedure
+	.WORD	LB422		; Initialization
+	.WORD	RM9F7E		; Room to Left
+	.WORD	0		; Room to Right
+	.WORD	0		; Room to Up
+	.WORD	0		; Room to Down
+	.BYTE	003, 243, 033, 002, 302,001	; Rect 27x2 tiles with A3 at 6752
+	.BYTE	003, 365, 032, 012, 214,012	; Rect 26x10 tiles with F5 at 701C
+	.BYTE	012, 002, 002, 244,012	; Rect 2x2 tiles with FF at 7034
+	.BYTE	155, 002, 002, 256,000	; Block 2x2 tiles from A0A7 to 663E
+	.BYTE	033, 346,012	; Block 4x4 tiles from A00A to 7076
+	.BYTE	033, 352,012	; Block 4x4 tiles from A00A to 707A
+	.BYTE	033, 356,012	; Block 4x4 tiles from A00A to 707E
+	.BYTE	033, 362,012	; Block 4x4 tiles from A00A to 7082
+	.BYTE	033, 366,012	; Block 4x4 tiles from A00A to 7086
+	.BYTE	033, 372,012	; Block 4x4 tiles from A00A to 708A
+	.BYTE	003, 033, 030, 004, 360,000	; Rect 24x4 tiles with 1B at 6680
+	.BYTE	003, 243, 030, 002, 132,000	; Rect 24x2 tiles with A3 at 65EA
+	.BYTE	156, 001, 002, 162,000	; Block 1x2 tiles from A0AB to 6602
+	.BYTE	016, 224, 122,000	; Put tile 94 at 65E2
+	.BYTE	004, 026, 015, 074,000	; Fill horz 22 tiles with 0D at 65CC
+	.BYTE	157, 004, 002, 004,000	; Block 4x2 tiles from A0AD to 6594
+	.BYTE	003, 015, 004, 002, 000,000	; Rect 4x2 tiles with 0D at 6590
+	.BYTE	047, 377, 353,000	; Fill vert 8 tiles with FF at 667B
+	.BYTE	156, 001, 002, 335,001	; Block 1x2 tiles from A0AB to 676D
+	.BYTE	000		; End of sequence
+	.EVEN
+RMB513:	; Room B513
+	.WORD	LB446		; Room procedure
+	.WORD	LB422		; Initialization
+	.WORD	0		; Room to Left
+	.WORD	RM791E		; Room to Right
+	.WORD	0		; Room to Up
+	.WORD	0		; Room to Down
+	.BYTE	015		; Fill entire screen with 0D
+	.BYTE	004, 036, 365, 340,001	; Fill horz 30 tiles with F5 at 6770
+	.BYTE	004, 036, 013, 136,013	; Fill horz 30 tiles with 0B at 70EE
+	.BYTE	003, 014, 036, 003, 174,013	; Rect 30x3 tiles with 0C at 710C
+	.BYTE	000		; End of sequence
+	.EVEN
+; Room 7F85: Extra room between rooms 8162 and 7DA9
+RM7F85:	.WORD	LB937		; Room procedure
+	.WORD	LB422		; Initialization
+	.WORD	0		; Room to Left
+	.WORD	0		; Room to Right
+	.WORD	0		; Room to Up
+	.WORD	RM7D5A		; Room to Down
+	.BYTE	005		; Fill entire screen with FF
+	.BYTE	003, 002, 026, 017, 004,000	; Rect 22x15 tiles with 02 at 6594
+	.BYTE	003, 002, 004, 013, 222,000	; Rect 4x11 tiles with 02 at 6622
+	.BYTE	052, 353, 224,000	; Fill vert 11 tiles with EB at 6624
+	.BYTE	034, 200,013	; Block 6x2 tiles from 7188 - pile
+	.BYTE	034, 212,013	; Block 6x2 tiles from 7188 - pile
+	.BYTE	034, 220,013	; Block 6x2 tiles from 7188 - pile
+	.BYTE	102, 002, 002, 315,001	; Block 2x3 tiles from 7984 - ladder
+	.BYTE	000		; End of sequence
+;	.EVEN
+;
+; Blocks for rooms
+L71B9:	.BYTE	007,012
+L7348:	.BYTE	005,010
+L7984:	.BYTE	361,360,007,012,007,012,007,012,007,012
+L7B4F:	.BYTE	376,375
+L7B51:	.BYTE	375
+L7B52:	.BYTE	375,375,375,374
+L7C2A:	.BYTE	006,011
+L7C2C:	.BYTE	355,354
+L7C9A:	.BYTE	006,011
+L7CE5:	.BYTE	002,351,350,347,347,027,015,025,025,015,030,015,025,025,015,031
+	.BYTE	015,015,015,015,042,042,042,042,042,042,042,042,042,042,037,015
+	.BYTE	015,015,015
+L7D08:	.BYTE	373,373,377,377,373
+L7D0D:	.BYTE	126,116,116,116,116,127,122,117,117,117,117,124,122,117,117,117
+	.BYTE	117,124,122,154,155,156,120,124,123,157,160,161,121,125,123,162
+	.BYTE	163,164,121,125,122,120,120,120,120,124
+L7D37:	.BYTE	347,347,346,345,002,015,025,025,015,034,015,025,025,015,035,015
+	.BYTE	015,015,015,036,042,042,042,042,042,042,042,042,042,042,015,015
+	.BYTE	015,015,040
+L81E3:	.BYTE	377,377
+L849C:	.BYTE	000,001,002,003,004,005,003,004,005,006,007,010
+L84DF:	.BYTE	000,001,001,001,002,003,004,004,004,005,006,007,007,007,010
+L8577:	.BYTE	000,002,006,010
+L857B:	.BYTE	000,001,001,001,002,003,004,004,004,005,003,004,004,004,005,006
+	.BYTE	007,007,007,010
+L86F5:	.BYTE	000,001,001,002,006,007,007,010
+L8789:	.BYTE	000,001,001,002,003,004,004,005,003,004,004,005,006,007,007,010
+L8898:	.BYTE	371
+L8899:	.BYTE	370,371,371,371
+L8E47:	.BYTE	144,145,132,132,133,377,134,143,377,377,377,142,132,132,141,142
+	.BYTE	132,132,132,140,132,132,132,137,135,132,132,136
+L8E63:	.BYTE	043,044
+L8E65:	.BYTE	323,322
+L8E67:	.BYTE	340,331,330,325,340
+L8E6C:	.BYTE	001,332,334,333,335,327,336,326,337,326,001,341
+L8E78:	.BYTE	057,060,001,056,050,061,055,050,050,053,050,054,050,050,052,050
+	.BYTE	051,001,047,001,001,045,046,001
+L8E90:	.BYTE	066,001,001,064,065,067,050,050,001,062,063,001
+L9528:	.BYTE	251,250,250,250,250,247
+L952E:	.BYTE	246,245,244,250,242,241
+L9534:	.BYTE	272,313,277,312,311,310,307,306,312,277,304,263
+L9540:	.BYTE	272,272,303,277,302,301,277,300,000,302,301,000,300,000,000,301
+	.BYTE	000,000
+L95B2:	.BYTE	240,242,250,244,245,237
+L95B8:	.BYTE	273,272,271,277,270,267,266,265,277,271,263,262
+L95C4:	.BYTE	261,272,272,260,257,277,000,256,277,000,260,257,000,000,256,000
+	.BYTE	000,260
+L9686:	.BYTE	264,252,255,253
+L9901:	.BYTE	232,231
+L9903:	.BYTE	305,305,274,305,305
+L9908:	.BYTE	305,305,275,305,305
+L999A:	.BYTE	264,252,264,252
+L999E:	.BYTE	254,276,254,276,255,253,255,253
+LA004:	.BYTE	000,230,230,225
+LA008:	.BYTE	236,235
+LA01A:	.BYTE	000,000,227,226,227,226,015,015
+LA0A7:	.BYTE	224,000,015,224
+LA0AB:	.BYTE	234,233
+LA0AD:	.BYTE	223,222,000,000,015,015,223,222
+; Room 84A8 crane block 3x6 tiles
+LF98F:	.BYTE	202,203,204,205,206,207,205,210,211,212,213,211,202,203,204,000
+	.BYTE	214,000
+; Room 791E (room with pier) initialization data
+LC65A:	.BYTE	343,343,343,366,366,343,343,343,366,366,343,343,343,343,343,343
+	.BYTE	343
+
+; Blocks for rooms 2
+L7C21:	.BYTE	024,025,026,027,030,031,032,033,034
+L71A0:	.BYTE	000,001,002,003,004,005,006,007,010
+L71BB:	.BYTE	037,040,041,042,043,044,045,046
+L7E7B:	.BYTE	000,001,001,002,003,004,004,005,006,007,007,010
+L71A9:	.BYTE	015,015,015,016,017,020,020,021,015,023,015,015,022,022,022,022
+L798E:	.BYTE	377,377,071,130,377,071,072,130,071,072,072,130,072,072,072,130
+	.BYTE	072,072,073,377,072,073,377,377,073,377,377,377
+L79AA:	.BYTE	131,074,377,377,131,075,074,377,131,075,075,074,131,075,075,075
+	.BYTE	377,076,075,075,377,377,076,075,377,377,377,076
+L7C0C:	.BYTE	077,100,101,102,103,104,105,106,107,110,111,112
+L7C18:	.BYTE	113,114,115,105,106,107,110,111,112
+L7E8A:	.BYTE	011,012
+L889D:	.BYTE	357,356
+LA00A:	.BYTE	376,373,373,370,375,377,377,367,375,377,377,367,374,371,371,366
+L7188:	.BYTE	377,057,060,061,062,377,063,064,065,066,067,070
+L7194:	.BYTE	016,017,020,021,022,015,015,015,022,015,015,015
+L9372:	.BYTE	316,317,317,317
+L7E87:	.BYTE	011,035,012
+L9997:	.BYTE	032,032,026
+
+	.EVEN
+
+; Table of addresses of Blocks for rooms
+TBLOCK:
+	.WORD	L71B9	; 0.
+	.WORD	L7348	; 1.
+	.WORD	L7984	; 2.
+	.WORD	L7B4F	; 3.
+	.WORD	L7B51	; 4.
+	.WORD	L7B52	; 5.
+	.WORD	L7C2A	; 6.
+	.WORD	L7C2C	; 7.
+	.WORD	L7C9A	; 8.
+	.WORD	L7CE5	; 9.
+	.WORD	L7D08	; 10.
+	.WORD	L7D0D	; 11.
+	.WORD	L7D37	; 12.
+	.WORD	L81E3	; 13.
+	.WORD	L849C	; 14.
+	.WORD	L84DF	; 15.
+	.WORD	L8577	; 16.
+	.WORD	L857B	; 17.
+	.WORD	L86F5	; 18.
+	.WORD	L8789	; 19.
+	.WORD	L8898	; 20.
+	.WORD	L8899	; 21.
+	.WORD	L8E47	; 22.
+	.WORD	L8E63	; 23.
+	.WORD	L8E65	; 24.
+	.WORD	L8E67	; 25.
+	.WORD	L8E6C	; 26.
+	.WORD	L8E78	; 27.
+	.WORD	L8E90	; 28.
+	.WORD	L9528	; 29.
+	.WORD	L952E	; 30.
+	.WORD	L9534	; 31.
+	.WORD	L9540	; 32.
+	.WORD	L95B2	; 33.
+	.WORD	L95B8	; 34.
+	.WORD	L95C4	; 35.
+	.WORD	L9686	; 36.
+	.WORD	L9901	; 37.
+	.WORD	L9903	; 38.
+	.WORD	L9908	; 39.
+	.WORD	L999A	; 40.
+	.WORD	L999E	; 41.
+	.WORD	LA004	; 42.
+	.WORD	LA008	; 43.
+	.WORD	LA01A	; 44.
+	.WORD	LA0A7	; 45.
+	.WORD	LA0AB	; 46.
+	.WORD	LA0AD	; 47.
+	.WORD	LF98F	; 48. crane
+	.WORD	LC65A	; 49. pier
+
+; Table of addresses of Blocks for rooms 2
+TBLOK2:
+	.WORD	L7C21	; 0.
+	.BYTE	003,003
+	.WORD	L71A0	; 1.
+	.BYTE	003,003
+	.WORD	L71BB	; 2.
+	.BYTE	002,004
+	.WORD	L7E7B	; 3.
+	.BYTE	004,003
+	.WORD	L71A9	; 4.
+	.BYTE	004,004
+	.WORD	L798E	; 5.
+	.BYTE	004,007
+	.WORD	L79AA	; 6.
+	.BYTE	004,007
+	.WORD	L7C0C	; 7.
+	.BYTE	003,004
+	.WORD	L7C18	; 8.
+	.BYTE	003,003
+	.WORD	L7E8A	; 9.
+	.BYTE	002,001
+	.WORD	L889D	; 10.
+	.BYTE	002,001
+	.WORD	LA00A	; 11.
+	.BYTE	004,004
+	.WORD	L7188	; 12.
+	.BYTE	006,002
+	.WORD	L7194	; 13.
+	.BYTE	004,003
+	.WORD	L9372	; 14.
+	.BYTE	001,004
+	.WORD	L7E87	; 15.
+	.BYTE	003,001
+	.WORD	L9997	; 16.
+	.BYTE	003,001
+
+; End of S1ROOM.MAC
