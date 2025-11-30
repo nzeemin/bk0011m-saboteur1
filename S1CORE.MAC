@@ -21,10 +21,17 @@ MMOD34 = ^B0011110000000000	; 3:4  -  для загрузки
 MMODE1 = ^B0011100000000000	; 3:1  -  основной
 MMODE5 = ^B0001100000000000	; 5:1  -  для рисования на экране
 MMOD56 = ^B0001111100000000	; 5:6  -  для рисования на экране тайлами
+MMOD52 = ^B0001101000000000	; 5:2  -  для рисования через таблицы Byte2Word
 
 ; Значения регистра управления палитрами
 ;          ST..____........
 PMODEG = ^B0000111000000000	; Экран стр.5, таймер отключен, палитра 14
+
+;CHELTH=1		; Cheat code for no damage
+;CVERT =0		; Cheat code for short route to Helicopter
+;CBOMB =0		; Cheat code for carrying BOMB
+
+TIMERI = 200.		; Fast timer reset value, see TIMECN
 
 SCREEN = 040000			; Screen start
 SCRTOP = SCREEN + <512.*2>	; Where the game screen starts
@@ -38,13 +45,23 @@ PKEYUP = 010	; UP
 PKEYFR = 020	; FIRE key
 PKEYST = 200	; STOP key
 
-;------------------------------------------------------------------------------
-
-;CHELTH=1		; Cheat code for no damage
-;CVERT =0		; Cheat code for short route to Helicopter
-;CBOMB =0		; Cheat code for carrying BOMB
-
-TIMERI = 200.		; Fast timer reset value, see TIMECN
+; Bank 2 to convert byte + attributes (ink paper) -> color word
+Byte2Word00 = 100400
+Byte2Word01 = 101400
+Byte2Word02 = 102400
+Byte2Word03 = 103400
+Byte2Word10 = 104400
+Byte2Word11 = 105400
+Byte2Word12 = 106400
+Byte2Word13 = 107400
+Byte2Word20 = 110400
+Byte2Word21 = 111400
+Byte2Word22 = 112400
+Byte2Word23 = 113400
+Byte2Word30 = 114400
+Byte2Word31 = 115400
+Byte2Word32 = 116400
+Byte2Word33 = 117400
 
 ;------------------------------------------------------------------------------
 
@@ -76,6 +93,35 @@ K01100:	MTPS	#000340			; Disable interrupts
 	INC	R3
 	CMP	R3, #128.
 	BLT	1$
+; Prepare byte -> word tables, 16 tables by 512 bytes, see Byte2Word00
+	MOV	#MMOD52, @#177716	; Set the main memory mode
+	CLR	R5			; xxxxPPII (P-paper, I-ink)
+	MOV	#100000, R4
+10$:	MOV	R5, 40$+2
+	MOV	R5, 50$+2
+	BIC	#^B1111111111111100, 40$+2	; modify bis for 'ink'
+	ASR	50$+2			; modify bis for 'paper'
+	ASR	50$+2
+	MOV	#200, R0		; (!) start conversion from -0 (signed byte)
+20$:	CLR	(R4)			; cycle 256 bytes
+	MOV	R0, R1
+	MOV	#8., R3
+30$:	ASL	(R4)			; cycle 8 bits
+	ASL	(R4)
+	ASLB	R1
+	BCC	50$
+40$:	BIS	#000000, (R4)		; set 'ink'
+	BR	60$
+50$:	BIS	#000000, (R4)		; set 'paper'
+60$:	SOB	R3, 30$
+	INC	R4
+	INC	R4
+	INCB	R0
+	CMPB	#200, R0
+	BNE	20$
+	INC	R5
+	CMP	R5, #16.
+	BLO	10$
 ; STOP key handler starts here
 STOP:	MOV	#1000, SP
 	MOV	#1330, @#177664		; Set standard scroll value
@@ -263,6 +309,12 @@ L72BA:	.BYTE	000,200,100,300,040,240,140,340,020,220,120,320,060,260,160,360
 	.BYTE	006,206,106,306,046,246,146,346,026,226,126,326,066,266,166,366
 	.BYTE	016,216,116,316,056,256,156,356,036,236,136,336,076,276,176,376
 REFBFH = L72BA
+
+Byte2WordTbl:
+	.WORD	Byte2Word00, Byte2Word01, Byte2Word02, Byte2Word03
+	.WORD	Byte2Word10, Byte2Word11, Byte2Word12, Byte2Word13
+	.WORD	Byte2Word20, Byte2Word21, Byte2Word22, Byte2Word23
+	.WORD	Byte2Word30, Byte2Word31, Byte2Word32, Byte2Word33
 
 ; Table of game screen rows addresses, 10 rows, for auto-gun drawings
 LA747:	.WORD	SCRTOP+<1000*3>+<120*5>+1
@@ -1248,8 +1300,7 @@ SCRADR:	.WORD	SCRTOP+1000+2		; current screen address
 TILBUF:	.BLKB	10.
 
 ; Draw tile map on the screen
-DRALL:	MOV	#MMOD56, @#177716	; Включаем режим памяти 5:6
-	MOV	#17., R1		; 17. rows
+DRALL:	MOV	#17., R1		; 17. rows
 	MOV	#<SCRTOP+1000+2>, SCRADR	; screen address
 	MOV	#TLSCR1, R3		; start address in Tile screen 1
 	CLR	L7238			; offset = 0
@@ -1276,7 +1327,7 @@ LB2A9:	INC	SCRADR			; screen address +1
 	RETURN
 
 ; Do the tile rendering
-DRTILE:
+DRTILE:	MOV	#MMOD56, @#177716	; Включаем режим памяти 5:6 для доступа к тайлам
 	CLRB	(R3)			; clear "need to update" flag
 ; Process Tile screen 0 - background tile
 	MOV	L7238, R3		; get offset
@@ -1413,32 +1464,43 @@ LB263:	MOV	L7238, R3		; get offset
 	MOVB	R0, (R2)		; save attribute byte
 30$:
 ; Mark prepared Tile Buffer record to draw on the screen
-LB293:	MOV	#TILBUF, R3
+LB293:	MOV	#MMOD52, @#177716	; Включаем режим памяти 5:2
+	MOVB	TILBUF+8., R0		; get color attributes
+	MOV	Byte2WordTbl(R0), R4	; get Byte2Word table address
+	MOV	#TILBUF, R3
 	MOV	SCRADR, R5
 	MOVB	(R3)+, R0		; 0
 	ASL	R0
-	MOV	PXCONH(R0), (R5)	; copy to screen
+	ADD	R4, R0
+	MOV	(R0), (R5)		; copy to screen
 	MOVB	(R3)+, R0		; 1
 	ASL	R0
-	MOV	PXCONH(R0), 100(R5)	; copy to screen
+	ADD	R4, R0
+	MOV	(R0), 100(R5)		; copy to screen
 	MOVB	(R3)+, R0		; 2
 	ASL	R0
-	MOV	PXCONH(R0), 200(R5)	; copy to screen
+	ADD	R4, R0
+	MOV	(R0), 200(R5)		; copy to screen
 	MOVB	(R3)+, R0		; 3
 	ASL	R0
-	MOV	PXCONH(R0), 300(R5)	; copy to screen
+	ADD	R4, R0
+	MOV	(R0), 300(R5)		; copy to screen
 	MOVB	(R3)+, R0		; 4
 	ASL	R0
-	MOV	PXCONH(R0), 400(R5)	; copy to screen
+	ADD	R4, R0
+	MOV	(R0), 400(R5)		; copy to screen
 	MOVB	(R3)+, R0		; 5
 	ASL	R0
-	MOV	PXCONH(R0), 500(R5)	; copy to screen
+	ADD	R4, R0
+	MOV	(R0), 500(R5)		; copy to screen
 	MOVB	(R3)+, R0		; 6
 	ASL	R0
-	MOV	PXCONH(R0), 600(R5)	; copy to screen
+	ADD	R4, R0
+	MOV	(R0), 600(R5)		; copy to screen
 	MOVB	(R3)+, R0		; 7
 	ASL	R0
-	MOV	PXCONH(R0), 700(R5)	; copy to screen
+	ADD	R4, R0
+	MOV	(R0), 700(R5)		; copy to screen
 ;
 	JMP	LB2A9			; continue the loop
 
