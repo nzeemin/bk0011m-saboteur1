@@ -1326,32 +1326,41 @@ LB2A9:	INC	SCRADR			; screen address +1
 	MOV	#MMODE1, @#177716	; Включаем режим памяти 1
 	RETURN
 
+; Special case: draw background tile $FF, don't draw any other planes
+DRTILE_FF:
+	MOV	SCRADR, R5
+	MOV	#^B0000010000000000, (R5)
+	MOV	#^B0000000000010001, 100(R5)
+	MOV	#^B0000010000000000, 200(R5)
+	CLR	300(R5)
+	MOV	#^B0000000001000001, 400(R5)
+	CLR	500(R5)
+	MOV	#^B0000010000000000, 600(R5)
+	CLR	700(R5)
+	BR	LB2A9			; continue the loop
+
 ; Do the tile rendering
 DRTILE:	MOV	#MMOD56, @#177716	; Включаем режим памяти 5:6 для доступа к тайлам
 	CLRB	(R3)			; clear "need to update" flag
 ; Process Tile screen 0 - background tile
 	MOV	L7238, R3		; get offset
 	MOVB	TLSCR0(R3), R0		; get tile from Tile screen 0
-	;CMPB	#377, R0		; $FF - "earth" background?
-	;TODO: Don't draw Ninja for background tile $FF
+	CMPB	#377, R0		; $FF - "earth" background?
+	BEQ	DRTILE_FF
 	BIC	#177400, R0
 	MOV	R0, R3
 	ASL	R3
 	ASL	R3
-	ASL	R3			; * 8.
-	ADD	R0, R3			; * 9.
+	ADD	R0, R3			; * 5.
+	ASL	R3			; * 10.
 	ADD	#LF700, R3		; + Background tiles base address
 	MOV	#TILBUF, R2		; buffer address
-	;.REPT	9.			; copy 8. pixel bytes + attr byte
-	MOVB	(R3)+, (R2)+
-	MOVB	(R3)+, (R2)+
-	MOVB	(R3)+, (R2)+
-	MOVB	(R3)+, (R2)+
-	MOVB	(R3)+, (R2)+
-	MOVB	(R3)+, (R2)+
-	MOVB	(R3)+, (R2)+
-	MOVB	(R3)+, (R2)+
-	MOVB	(R3)+, (R2)+
+	;.REPT	5			; copy 8. pixel bytes + attr byte
+	MOV	(R3)+, (R2)+		; 0, 1
+	MOV	(R3)+, (R2)+		; 2, 3
+	MOV	(R3)+, (R2)+		; 4, 5
+	MOV	(R3)+, (R2)+		; 6, 7
+	MOV	(R3)+, (R2)		; 8, 9
 	;.ENDR
 ; Process Tile screen 2 tile - Ninja
 LB1A3:	MOV	L7238, R3		; get offset
@@ -1365,21 +1374,45 @@ LB1A3:	MOV	L7238, R3		; get offset
 	ASL	R0			; * 16.
 	ADD	#LE700, R0		; + Ninja tiles base address
 	MOV	R0, R3			; now HL = tile data address
-	MOV	#8., R1			; 8 bytes
+	MOV	#4., R1			; 8 bytes
 	MOV	#TILBUF, R2		; tile buffer address
-LB1E4:	MOVB	(R2), R0		; get byte from the buffer
+LB1E4:	TSTB	NJADIR			; check direction
+	BEQ	20$			; left =>
+; Ninja tile, direction right
+10$:	MOVB	(R2), R0		; get byte from the buffer
 	MOVB	(R3)+, R5		; get mask byte
-	TSTB	NJADIR			; check direction
-	BNE	10$			; right =>
-	MOVB	L72BA(R5), R5		; byte mirroring
-10$:	BICB	R5, R0			; apply the mask
+	BICB	R5, R0			; apply the mask
 	MOVB	(R3)+, R5		; get pixels byte
-	TSTB	NJADIR			; check direction
-	BNE	20$			; right =>
-	MOVB	L72BA(R5), R5		; byte mirroring
-20$:	BISB	R5, R0			; apply the pixels
+	BISB	R5, R0			; apply the pixels
 	MOVB	R0, (R2)+		; store byte back to the buffer
-	SOB	R1, LB1E4
+; direction right, second pair of pixels/mask - mirrored
+	MOVB	(R2), R0		; get byte from the buffer
+	MOVB	(R3)+, R5		; get mask byte
+	MOVB	L72BA(R5), R5		; byte mirroring
+	BICB	R5, R0			; apply the mask
+	MOVB	(R3)+, R5		; get pixels byte
+	MOVB	L72BA(R5), R5		; byte mirroring
+	BISB	R5, R0			; apply the pixels
+	MOVB	R0, (R2)+		; store byte back to the buffer
+	SOB	R1, 10$
+	BR	LB1FC
+; Ninja tile, direction left
+20$:	MOVB	(R2), R0		; get byte from the buffer
+	MOVB	(R3)+, R5		; get mask byte
+	MOVB	L72BA(R5), R5		; byte mirroring
+	BICB	R5, R0			; apply the mask
+	MOVB	(R3)+, R5		; get pixels byte
+	MOVB	L72BA(R5), R5		; byte mirroring
+	BISB	R5, R0			; apply the pixels
+	MOVB	R0, (R2)+		; store byte back to the buffer
+; direction left, second pair of pixels/mask - non-mirrored
+	MOVB	(R2), R0		; get byte from the buffer
+	MOVB	(R3)+, R5		; get mask byte
+	BICB	R5, R0			; apply the mask
+	MOVB	(R3)+, R5		; get pixels byte
+	BISB	R5, R0			; apply the pixels
+	MOVB	R0, (R2)+		; store byte back to the buffer
+	SOB	R1, 20$
 	;BR	LB263			; !!MUT-CMD!! Skip Dog and Guard drawing on 1st draw
 ; Process Tile screen 3 tile - Dog
 LB1FC:	MOV	L7238, R3		; get offset
@@ -1393,21 +1426,45 @@ LB1FC:	MOV	L7238, R3		; get offset
 	ASL	R0			; * 16.
 	ADD	#LF0F0, R0		; + Dog tiles base address
 	MOV	R0, R3			; now HL = tile data address
-	MOV	#8., R1
+	MOV	#4., R1
 	MOV	#TILBUF, R2		; tile buffer address
-LB218:	MOVB	(R2), R0		; get byte from the buffer
+	TSTB	DOGDIR			; check Dog direction
+	BEQ	20$			; left =>
+; Dog tile, direction right
+10$:	MOVB	(R2), R0		; get byte from the buffer
 	MOVB	(R3)+, R5		; get mask byte
-	TSTB	DOGDIR			; check Dog direction
-	BNE	10$			; right =>
-	MOVB	L72BA(R5), R5		; byte mirroring
-10$:	BICB	R5, R0			; apply the mask
+	BICB	R5, R0			; apply the mask
 	MOVB	(R3)+, R5		; get pixels byte
-	TSTB	DOGDIR			; check Dog direction
-	BNE	20$			; right =>
-	MOVB	L72BA(R5), R5		; byte mirroring
-20$:	BISB	R5, R0			; apply the pixels
+	BISB	R5, R0			; apply the pixels
 	MOVB	R0, (R2)+		; store byte back to the buffer
-	SOB	R1, LB218
+; direction right, second pair of pixels/mask - mirrored
+	MOVB	(R2), R0		; get byte from the buffer
+	MOVB	(R3)+, R5		; get mask byte
+	MOVB	L72BA(R5), R5		; byte mirroring
+	BICB	R5, R0			; apply the mask
+	MOVB	(R3)+, R5		; get pixels byte
+	MOVB	L72BA(R5), R5		; byte mirroring
+	BISB	R5, R0			; apply the pixels
+	MOVB	R0, (R2)+		; store byte back to the buffer
+	SOB	R1, 10$
+	BR	LB230
+; Dog tile, direction left
+20$:	MOVB	(R2), R0		; get byte from the buffer
+	MOVB	(R3)+, R5		; get mask byte
+	MOVB	L72BA(R5), R5		; byte mirroring
+	BICB	R5, R0			; apply the mask
+	MOVB	(R3)+, R5		; get pixels byte
+	MOVB	L72BA(R5), R5		; byte mirroring
+	BISB	R5, R0			; apply the pixels
+	MOVB	R0, (R2)+		; store byte back to the buffer
+; direction left, second pair of pixels/mask - non-mirrored
+	MOVB	(R2), R0		; get byte from the buffer
+	MOVB	(R3)+, R5		; get mask byte
+	BICB	R5, R0			; apply the mask
+	MOVB	(R3)+, R5		; get pixels byte
+	BISB	R5, R0			; apply the pixels
+	MOVB	R0, (R2)+		; store byte back to the buffer
+	SOB	R1, 20$
 ; Process Tile screen 4 tile - Guard
 LB230:	MOV	L7238, R3		; get offset
 	MOVB	TLSCR4(R3), R0		; get tile from Tile screen 4
@@ -1420,21 +1477,45 @@ LB230:	MOV	L7238, R3		; get offset
 	ASL	R0			; * 16.
 	ADD	#LE700, R0		; + Guard tiles base address
 	MOV	R0, R3			; now HL = tile data address
-	MOV	#8., R1
+	MOV	#4., R1
 	MOV	#TILBUF, R2		; tile buffer address
-LB24B:	MOVB	(R2), R0		; get byte from the buffer
+	TSTB	GARDDI			; check direction
+	BEQ	20$			; left =>
+; Guard tile, direction right
+10$:	MOVB	(R2), R0		; get byte from the buffer
 	MOVB	(R3)+, R5		; get mask byte
-	TSTB	GARDDI			; check direction
-	BNE	10$			; right =>
-	MOVB	L72BA(R5), R5		; byte mirroring
-10$:	BICB	R5, R0			; apply the mask
+	BICB	R5, R0			; apply the mask
 	MOVB	(R3)+, R5		; get pixels byte
-	TSTB	GARDDI			; check direction
-	BNE	20$			; right =>
-	MOVB	L72BA(R5), R5		; byte mirroring
-20$:	BISB	R5, R0			; apply the pixels
+	BISB	R5, R0			; apply the pixels
 	MOVB	R0, (R2)+		; store byte back to the buffer
-	SOB	R1, LB24B
+; direction right, second pair of pixels/mask - mirrored
+	MOVB	(R2), R0		; get byte from the buffer
+	MOVB	(R3)+, R5		; get mask byte
+	MOVB	L72BA(R5), R5		; byte mirroring
+	BICB	R5, R0			; apply the mask
+	MOVB	(R3)+, R5		; get pixels byte
+	MOVB	L72BA(R5), R5		; byte mirroring
+	BISB	R5, R0			; apply the pixels
+	MOVB	R0, (R2)+		; store byte back to the buffer
+	SOB	R1, 10$
+	BR	LB263
+; Guard tile, direction left
+20$:	MOVB	(R2), R0		; get byte from the buffer
+	MOVB	(R3)+, R5		; get mask byte
+	MOVB	L72BA(R5), R5		; byte mirroring
+	BICB	R5, R0			; apply the mask
+	MOVB	(R3)+, R5		; get pixels byte
+	MOVB	L72BA(R5), R5		; byte mirroring
+	BISB	R5, R0			; apply the pixels
+	MOVB	R0, (R2)+		; store byte back to the buffer
+; direction left, second pair of pixels/mask - non-mirrored
+	MOVB	(R2), R0		; get byte from the buffer
+	MOVB	(R3)+, R5		; get mask byte
+	BICB	R5, R0			; apply the mask
+	MOVB	(R3)+, R5		; get pixels byte
+	BISB	R5, R0			; apply the pixels
+	MOVB	R0, (R2)+		; store byte back to the buffer
+	SOB	R1, 20$
 ; Process Tile screen 5 tile - front
 LB263:	MOV	L7238, R3		; get offset
 	MOVB	TLSCR5(R3), R0		; get tile from Tile screen 5
@@ -1448,12 +1529,24 @@ LB263:	MOV	L7238, R3		; get offset
 	ASL	R3
 	ASL	R3
 	ASL	R3
-	ASL	R3			; * 16.
-	ADD	R0, R3			; * 17.
+	ADD	R0, R3			; * 9.
+	ASL	R3			; * 18.
 	ADD	#LD600, R3		; + front tiles base address
 	MOV	#TILBUF, R2		; buffer address
-	MOV	#8., R1
+	MOV	#2, R1
 10$:	MOVB	(R2), R0		; get byte from the buffer
+	BICB	(R3)+, R0		; apply the mask
+	BISB	(R3)+, R0		; apply the pixels
+	MOVB	R0, (R2)+		; store byte back to the buffer
+	MOVB	(R2), R0		; get byte from the buffer
+	BICB	(R3)+, R0		; apply the mask
+	BISB	(R3)+, R0		; apply the pixels
+	MOVB	R0, (R2)+		; store byte back to the buffer
+	MOVB	(R2), R0		; get byte from the buffer
+	BICB	(R3)+, R0		; apply the mask
+	BISB	(R3)+, R0		; apply the pixels
+	MOVB	R0, (R2)+		; store byte back to the buffer
+	MOVB	(R2), R0		; get byte from the buffer
 	BICB	(R3)+, R0		; apply the mask
 	BISB	(R3)+, R0		; apply the pixels
 	MOVB	R0, (R2)+		; store byte back to the buffer
@@ -4204,9 +4297,9 @@ SIZER = . - STARTR
 
 ;.INCLUDE /S1TILE.MAC/
 LD600 = 100000
-LE700 = 104410
-LF0F0 = 111370
-LF700 = 114410
+LE700 = 104620
+LF0F0 = 111600
+LF700 = 114620
 
 ENDD:
 
