@@ -34,8 +34,8 @@ PMODEG = ^B0000111000000000	; Экран стр.5, таймер отключен
 TIMERI = 200.		; Fast timer reset value, see TIMECN
 
 SCREEN = 040000			; Screen start
-SCRTOP = SCREEN + <512.*2>	; Where the game screen starts
-SCRIND = SCRTOP + <512.*19.>	; Screen address for first indicators line
+SCRTOP = SCREEN + 1000		; Where the game screen starts
+SCRIND = SCRTOP + 1200*19.	; Screen address for first indicators line
 
 ; PPUKEY bits
 PKEYRT = 001	; RIGHT
@@ -74,6 +74,24 @@ K01100:	MTPS	#000340			; Disable interrupts
 	MOV	#000004, R0
 	MOV	#STOP, (R0)+		; STOP key handler vector
 	MOV	#340, (R0)
+	CALL	PREPARE			; Prepare tables
+; STOP key handler starts here
+STOP:	MOV	#1000, SP
+	MOV	#1330, @#177664		; Set standard scroll value
+	MOV	#MMODE1, @#177716	; Set the main memory mode
+	CALL	CLS			; Clear the screen
+; Initialization finished, go to Menu
+	JMP	LBC0D			; => Menu
+;
+OSTACK:	.WORD	01000			; Saved SP value
+;
+FNCORE:	;CALL	STPALD			; Select default palette
+	MOV	OSTACK, SP
+	;MOV	#EXITSC, R1		; String for screen cleanup before the exit
+	;CALL	PRINT
+	RETURN				; .EXIT
+
+PREPARE:
 ; Prepare PXCONV table, used to convert pixels BYTE -> BK WORD
 	MOV	#L33124, R2
 	MOV	#-128., R3		; R3 бежит от -128. до +127.
@@ -122,22 +140,8 @@ K01100:	MTPS	#000340			; Disable interrupts
 	INC	R5
 	CMP	R5, #16.
 	BLO	10$
-; STOP key handler starts here
-STOP:	MOV	#1000, SP
-	MOV	#1330, @#177664		; Set standard scroll value
-	MOV	#MMODE1, @#177716	; Set the main memory mode
-;K01206:	MOV	#004000, <K01224+2>	; set filler
-	;CALL	K01224			; Clear the screen
-; Initialization finished, go to Menu
-	JMP	LBC0D			; => Menu
 ;
-OSTACK:	.WORD	01000			; Saved SP value
-;
-FNCORE:	;CALL	STPALD			; Select default palette
-	MOV	OSTACK, SP
-	;MOV	#EXITSC, R1		; String for screen cleanup before the exit
-	;CALL	PRINT
-	EMT	350			; .EXIT
+	RETURN
 
 ; Procedure: Read a key
 READKEY:
@@ -159,11 +163,16 @@ WAITUP:	CALL	READKEY			; KEYB Read a key
 	BNE	WAITUP
 	RETURN
 
+; Procedure: Clear whole screen with Black
+CLS:	CLR	R0
+	MOV	#SCREEN, R2
+	MOV	#16.*256., R4
+	BR	CLSRN1
 ; Procedure: Clear screen with Blue color, for Menu screen
 CLSRNM:	MOV	#52525, R0
-	MOV	#SCREEN, R2
-	MOV	#16.*224., R4
-	MOV	#MMODE5, @#177716	; Включаем режим памяти 5
+	MOV	#SCRTOP, R2
+	MOV	#16.*240., R4
+CLSRN1:	MOV	#MMODE5, @#177716	; Включаем режим памяти 5
 10$:	MOV	R0, (R2)+
 	MOV	R0, (R2)+
 	SOB	R4, 10$
@@ -291,7 +300,7 @@ LE1ED:	.WORD	LE217	; Current level description address, 14-char string
 ;------------------------------------------------------------------------------
 ; Tables
 
-; Mirror table
+; Byte mirror table
 L723A:	.BYTE	001,201,101,301,041,241,141,341,021,221,121,321,061,261,161,361
 	.BYTE	011,211,111,311,051,251,151,351,031,231,131,331,071,271,171,371
 	.BYTE	005,205,105,305,045,245,145,345,025,225,125,325,065,265,165,365
@@ -317,35 +326,35 @@ Byte2WordTbl:
 	.WORD	Byte2Word30, Byte2Word31, Byte2Word32, Byte2Word33
 
 ; Table of game screen rows addresses, 10 rows, for auto-gun drawings
-LA747:	.WORD	SCRTOP+<1000*3>+<120*5>+1
-	.WORD	SCRTOP+<1000*4>+<120*5>+1
-	.WORD	SCRTOP+<1000*5>+<120*5>+1
-	.WORD	SCRTOP+<1000*6>+<120*5>+1
-	.WORD	SCRTOP+<1000*7>+<120*5>+1
-	.WORD	SCRTOP+<1000*8.>+<120*5>+1
-	.WORD	SCRTOP+<1000*9.>+<120*5>+1
-	.WORD	SCRTOP+<1000*11.>+<120*5>+1
-	.WORD	SCRTOP+<1000*12.>+<120*5>+1
-	.WORD	SCRTOP+<1000*13.>+<120*5>+1
+LA747:	.WORD	SCRTOP+<1200*3>+<120*5>+1
+	.WORD	SCRTOP+<1200*4>+<120*5>+1
+	.WORD	SCRTOP+<1200*5>+<120*5>+1
+	.WORD	SCRTOP+<1200*6>+<120*5>+1
+	.WORD	SCRTOP+<1200*7>+<120*5>+1
+	.WORD	SCRTOP+<1200*8.>+<120*5>+1
+	.WORD	SCRTOP+<1200*9.>+<120*5>+1
+	.WORD	SCRTOP+<1200*11.>+<120*5>+1
+	.WORD	SCRTOP+<1200*12.>+<120*5>+1
+	.WORD	SCRTOP+<1200*13.>+<120*5>+1
 
 ; Screen addresses for every 17. rows
-LBAB3:	.WORD	SCRTOP+<1000*1>+1
-	.WORD	SCRTOP+<1000*2>+1
-	.WORD	SCRTOP+<1000*3>+1
-	.WORD	SCRTOP+<1000*4>+1
-	.WORD	SCRTOP+<1000*5>+1
-	.WORD	SCRTOP+<1000*6>+1
-	.WORD	SCRTOP+<1000*7>+1
-	.WORD	SCRTOP+<1000*8.>+1
-	.WORD	SCRTOP+<1000*9.>+1
-	.WORD	SCRTOP+<1000*10.>+1
-	.WORD	SCRTOP+<1000*11.>+1
-	.WORD	SCRTOP+<1000*12.>+1
-	.WORD	SCRTOP+<1000*13.>+1
-	.WORD	SCRTOP+<1000*14.>+1
-	.WORD	SCRTOP+<1000*15.>+1
-	.WORD	SCRTOP+<1000*16.>+1
-	.WORD	SCRTOP+<1000*17.>+1
+LBAB3:	.WORD	SCRTOP+<1200*1>+1
+	.WORD	SCRTOP+<1200*2>+1
+	.WORD	SCRTOP+<1200*3>+1
+	.WORD	SCRTOP+<1200*4>+1
+	.WORD	SCRTOP+<1200*5>+1
+	.WORD	SCRTOP+<1200*6>+1
+	.WORD	SCRTOP+<1200*7>+1
+	.WORD	SCRTOP+<1200*8.>+1
+	.WORD	SCRTOP+<1200*9.>+1
+	.WORD	SCRTOP+<1200*10.>+1
+	.WORD	SCRTOP+<1200*11.>+1
+	.WORD	SCRTOP+<1200*12.>+1
+	.WORD	SCRTOP+<1200*13.>+1
+	.WORD	SCRTOP+<1200*14.>+1
+	.WORD	SCRTOP+<1200*15.>+1
+	.WORD	SCRTOP+<1200*16.>+1
+	.WORD	SCRTOP+<1200*17.>+1
 
 ; Level descriptions and data addresses
 LE217:	.ASCII	/EXTREMELY EASY/
@@ -542,13 +551,13 @@ L62B4:	MOVB	(R2)+, R0
 
 ; Initial Energy fill
 L7472:	MOV	#MMODE5, @#177716	; Включаем режим памяти 5
-	MOV	#<SCRTOP+<1000*21.>+6*2>, R2	; screen address
+	MOV	#<SCRIND+1200*2.+100+6*2>, R2	; screen address
 	MOV	#15., R1
-10$:	MOV	#16., R4
+10$:	MOV	#18., R4
 20$:	MOV	#177777, (R2)
 	ADD	#100, R2		; next line
 	SOB	R4, 20$
-	ADD	#176002, R2		; next column
+	ADD	#<2-100*18.>, R2	; next column
 	SOB	R1, 10$
 	MOV	#MMODE1, @#177716	; Включаем режим памяти 1
 	MOV	#14., NRJ		; set Energy = MAX
@@ -570,7 +579,7 @@ L749E:	TST	NRJLO
 
 ; Draw Energy column
 DRNRJC:	MOV	NRJ, R2			; 0..14.
-	ADD	#<SCRTOP+<1000*21.>+6*2>, R2	; screen address
+	ADD	#<SCRIND+1200*2+100+6*2>, R2	; screen address
 	MOV	NRJLO, R1
 	MOV	#16., R4
 10$:	MOV	R1, (R2)
@@ -1238,16 +1247,24 @@ DRINDS:	MOV	#MMODE5, @#177716	; Включаем режим памяти 5
 	ASL	R2			; * 8.
 	ASL	R2			; * 16.
 	ADD	#LAE02, R2		; Indicator tiles address
-27$:	MOV	#8., R4
+27$:	;MOV	#8., R4
 30$:	;CLR	R0
 	MOV	(R2)+, (R3)		; copy to screen
-	ADD	#100, R3		; next line
-	SOB	R4, 30$
-	SUB	#<1000-2>, R3		; next column
+	MOV	(R2)+, 100(R3)		; copy to screen
+	MOV	(R2)+, 200(R3)		; copy to screen
+	MOV	(R2), 300(R3)		; copy to screen
+	MOV	(R2)+, 400(R3)		; extra line
+	MOV	(R2)+, 500(R3)		; copy to screen
+	MOV	(R2)+, 600(R3)		; copy to screen
+	MOV	(R2)+, 700(R3)		; copy to screen
+	MOV	(R2), 1000(R3)		; copy to screen
+	MOV	(R2)+, 1100(R3)		; extra line
+	;SOB	R4, 30$
+	ADD	#2, R3			; next column
 	INC	R5
 	BIC	#177740, R5		; keep 5 lower bits = 0..31.
 	BNE	40$
-	ADD	#<1000-64.>, R3	; next row
+	ADD	#<1200-64.>, R3	; next row
 40$:	SUB	#16., R2
 	SOB	R1, 27$
 	POP	R2
@@ -1257,16 +1274,16 @@ LAD1D:	MOV	#MMODE1, @#177716	; Включаем режим памяти 1
 	MOV	#13., R1
 	MOV	#LAD4A, R3		; Indicator messages start address
 	CALL	PRSTR			; Print string "PAY : $ 00000"
-	MOV	#<SCRIND+1000+23.*2>, R2	; screen address for timer value
+	MOV	#<SCRIND+1200+23.*2>, R2	; screen address for timer value
 	MOV	#2, R1
 	CALL	PRSTR			; Print string "99"
-	MOV	#<SCRIND+3000+1.*2>, R2
+	MOV	#<SCRIND+3600+1.*2>, R2
 	MOV	#4, R1
 	CALL	PRSTR			; Print string "HELD"
-	MOV	#<SCRIND+3000+22.*2>, R2
+	MOV	#<SCRIND+3600+22.*2>, R2
 	MOV	#4, R1
 	CALL	PRSTR			; Print string "TIME"
-	MOV	#<SCRIND+3000+27.*2>, R2
+	MOV	#<SCRIND+3600+27.*2>, R2
 	MOV	#4, R1
 	CALL	PRSTR			; Print string "NEAR"
 	RETURN
@@ -1294,14 +1311,14 @@ LAD1D:	MOV	#MMODE1, @#177716	; Включаем режим памяти 1
 ;------------------------------------------------------------------------------
 
 L7238:	.WORD	0			; offset in all tilemaps
-SCRADR:	.WORD	SCRTOP+1000+2		; current screen address
+SCRADR:	.WORD	SCRTOP+1200+2		; current screen address
 
 ; 8. pixel bytes, 2. attribute bytes
 TILBUF:	.BLKB	10.
 
 ; Draw tile map on the screen
 DRALL:	MOV	#17., R1		; 17. rows
-	MOV	#<SCRTOP+1000+2>, SCRADR	; screen address
+	MOV	#<SCRTOP+1200+2>, SCRADR	; screen address
 	MOV	#TLSCR1, R3		; start address in Tile screen 1
 	CLR	L7238			; offset = 0
 ; Loop start
@@ -1320,7 +1337,7 @@ LB2A9:	INC	SCRADR			; screen address +1
 	POP	R4			; restore columns counter
 	SOB	R4, LB16F		; continue loop by columns
 ; Next tile row
-	ADD	#<1000-30.*2>, SCRADR	; screen address to next row
+	ADD	#<1200-30.*2>, SCRADR	; screen address to next row
 	POP	R1			; restore rows counter
 	SOB	R1, LB16D		; continue loop by rows
 	MOV	#MMODE1, @#177716	; Включаем режим памяти 1
@@ -1333,10 +1350,12 @@ DRTILE_FF:
 	MOV	#^B0000000000010001, 100(R5)
 	MOV	#^B0000010000000000, 200(R5)
 	CLR	300(R5)
-	MOV	#^B0000000001000001, 400(R5)
-	CLR	500(R5)
-	MOV	#^B0000010000000000, 600(R5)
-	CLR	700(R5)
+	CLR	400(R5)
+	MOV	#^B0000000001000001, 500(R5)
+	CLR	600(R5)
+	MOV	#^B0000010000000000, 700(R5)
+	CLR	1000(R5)
+	CLR	1100(R5)
 	BR	LB2A9			; continue the loop
 
 ; Do the tile rendering
@@ -1577,23 +1596,27 @@ LB293:	MOV	#MMOD52, @#177716	; Включаем режим памяти 5:2
 	MOVB	(R3)+, R0		; 3
 	ASL	R0
 	ADD	R4, R0
-	MOV	(R0), 300(R5)		; copy to screen
+	MOV	(R0), R0
+	MOV	R0, 300(R5)		; copy to screen
+	MOV	R0, 400(R5)		; copy to screen
 	MOVB	(R3)+, R0		; 4
 	ASL	R0
 	ADD	R4, R0
-	MOV	(R0), 400(R5)		; copy to screen
+	MOV	(R0), 500(R5)		; copy to screen
 	MOVB	(R3)+, R0		; 5
 	ASL	R0
 	ADD	R4, R0
-	MOV	(R0), 500(R5)		; copy to screen
+	MOV	(R0), 600(R5)		; copy to screen
 	MOVB	(R3)+, R0		; 6
 	ASL	R0
 	ADD	R4, R0
-	MOV	(R0), 600(R5)		; copy to screen
+	MOV	(R0), 700(R5)		; copy to screen
 	MOVB	(R3)+, R0		; 7
 	ASL	R0
 	ADD	R4, R0
-	MOV	(R0), 700(R5)		; copy to screen
+	MOV	(R0), R0
+	MOV	R0, 1000(R5)		; copy to screen
+	MOV	R0, 1100(R5)		; copy to screen
 ;
 	JMP	LB2A9			; continue the loop
 
@@ -1768,7 +1791,7 @@ LB4E3:	INCB	(R3)
 LB4ED:	SOB	R1, INCPAY
 	MOV	#LAD52, R3		; Pay value text address
 	MOV	#5, R1			; five digits
-	MOV	#<SCRTOP+<1000*19.>+15.*2>, R2	; Screen address
+	MOV	#<SCRTOP+<1200*19.>+15.*2>, R2	; Screen address
 	;JMP	PRSTR			; => Print string, and RET
 
 ; Print string on the screen
@@ -1780,13 +1803,16 @@ PRSTR1:	CLR	R0
 	ASL	R0
 	ASL	R0			; * 8.
 	ADD	#<FONT-400>, R0		; + font base address
+	MOV	#^B0101010101010101, (R2)
+	ADD	#100, R2		; next screen line
 	MOV	#8., R4
 PRSTR2:	MOVB	(R0)+, R5
 	ASL	R5
 	MOV	PXCONH(R5), (R2)	; copy to screen
 	ADD	#100, R2		; next screen line
 	SOB	R4, PRSTR2
-	ADD	#177002, R2		; one column right
+	MOV	#^B0101010101010101, (R2)
+	ADD	#<2-1100>, R2		; one column right
 	SOB	R1, PRSTR1
 	MOV	#MMODE1, @#177716	; Включаем режим памяти 1
 	RETURN
@@ -2010,7 +2036,7 @@ LB77B:
 	CMPB	#057, (R3)		; $2F = '0' - 1
 	BNE	LB7A4
 	JMP	LBE71
-LB7A4:	MOV	#<SCRIND+1000+23.*2>, R2	; screen address for timer value
+LB7A4:	MOV	#<SCRIND+1200+23.*2>, R2	; screen address for timer value
 	MOV	#LAD57, R3		; Indicator Time value address
 	MOV	#2, R1			; Two digits
 	CALL	PRSTR			; Print string
@@ -2025,7 +2051,7 @@ LB7B6:	MOV	#TIMODE, R3		; Time mode address
 ; Set up BOMB ticking mode
 	MOVB	#2, (R3)		; set Time mode = BOMB ticking mode
 	MOV	#LBD2F, R3		; "BOMB"
-	MOV	#<SCRIND+3000+22.*2>, R2	; screen address under timer value
+	MOV	#<SCRIND+3600+22.*2>, R2	; screen address under timer value
 	MOV	#4, R1
 	CALL	PRSTR			; Print string "BOMB"
 LB7CA:	MOV	#34471, R3		; !!MUT-ARG!! "99" bomb timer initial value
@@ -2115,35 +2141,45 @@ LB851:	MOV	#35., R1		; 35 objects
 ;NOTE: Procedure B86C removed, not used
 
 ; Update Ninja on tilemap
-LB8D0:	CALL	UPNJA			; Set update flags for Ninja, 6x7 tiles
+LB8D0:	;CALL	UPNJA			; Set update flags for Ninja, 6x7 tiles
 	MOV	#TLSCR4, R3		; Tile screen 4 start address
 	MOV	#<510./2>, R1
 10$:	MOV	#177777, (R3)+
 	SOB	R1, 10$
 ; Draw Ninja on tilemap
 LB8E0:	MOV	NJAPOS, R3		; get Ninja position in tilemap
+	MOV	R3, R5
 	MOV	NJASPR, R2		; get Ninja sprite address
 	MOV	#7, R1			; 7 rows
 	TSTB	NJADIR			; get Ninja direction
 	BNE	LB907			; right =>
+; Draw Ninja on tilemap, direction left
 	ADD	#<TLSCR2+6>, R3		; Tile screen 2 start address + 6
-10$:	MOVB	(R2)+, -(R3)
-	MOVB	(R2)+, -(R3)
-	MOVB	(R2)+, -(R3)
-	MOVB	(R2)+, -(R3)
-	MOVB	(R2)+, -(R3)
-	MOVB	(R2)+, -(R3)
+	ADD	#<TLSCR1+6>, R5		; Tile screen 1 start address + 6
+10$:	MOV	#6, R4
+12$:	MOVB	(R2)+, R0
+	MOVB	R0, -(R3)
+	INCB	R0			; $FF ?
+	BEQ	14$
+	MOVB	#1, (R5)		; set "need to update" flag
+14$:	INC	R5
+	SOB	R4, 12$
 	ADD	#<30.+6>, R3
 	SOB	R1, 10$
 	BR	LB922
+; Draw Ninja on tilemap, direction right
 LB907:	ADD	#TLSCR2, R3		; Tile screen 2 start address
-20$:	MOVB	(R2)+, (R3)+
-	MOVB	(R2)+, (R3)+
-	MOVB	(R2)+, (R3)+
-	MOVB	(R2)+, (R3)+
-	MOVB	(R2)+, (R3)+
-	MOVB	(R2)+, (R3)
-	ADD	#<30.-5>, R3
+	ADD	#TLSCR1, R5		; Tile screen 1 start address
+20$:	MOV	#6, R4
+22$:	MOVB	(R2)+, R0
+	MOVB	R0, (R3)+
+	INCB	R0			; $FF ?
+	BEQ	24$
+	MOVB	#1, (R5)		; set "need to update" flag
+24$:	INC	R5
+	SOB	R4, 22$
+	ADD	#<30.-6>, R3
+	ADD	#<30.-6>, R5
 	SOB	R1, 20$
 LB922:	MOV	#TLSCR3, R3		; Tile screen 3 start address
 	MOV	#<512./2>, R1
@@ -2336,7 +2372,7 @@ LBBA7:	CLR	(R4)			; delete the object
 ; Procedure: Draw Explosion image on the screen and make some noise
 LBA52:	;TODO: Sound
 	DECB	LBAB2			; decrease Explosion counter
-LBA57:	MOV	#<SCRTOP+1000+2>, R3	; !!MUT-ARG!! address on the screen
+LBA57:	MOV	#<SCRTOP+1200+2>, R3	; !!MUT-ARG!! address on the screen
 LBA5A:	MOV	#LABE5, R2		; !!MUT-ARG!! Explosion image address
 LBA5F:	MOV	#3, R4			; !!MUT-ARG!! height
 LBA61:	PUSH	R3
@@ -2385,71 +2421,6 @@ LBBD4:	CALL	LBBDF			; Read input
 	BEQ	LBBDC
 	JMP	LB8D0			; => Update Ninja on tilemap
 LBBDC:	JMP	LC226			; no FIRE => Ninja standing
-
-; Procedure: Read Input
-LBBDF:	PUSH	R3
-	PUSH	R1
-; If we have a key pressed, go through key mapping table
-	TSTB	@#177660	;БК	; do we have an unprocessed key?
-	BPL	K41276		;БК	; no => jump
-	MOVB	@#177662, R0	;БК	; get the key
-	MOV	#K41305, R3
-	MOV	#9., R1
-K41256:	CMPB	(R3)+, R0		; <  matches the key?
-	BNE	K41270			; |  no => jump
-	INC	R3			; |
-	MOVB	(R3), R0		; |  get the result byte
-	BR	K41300			; |  break the loop
-K41270:	ADD	#000002, R3		; |  to next key probe
-	SOB	R1, K41256		; repeat
-K41276:	CLR	R0			; not found - result is empty
-K41300:	POP	R1
-	POP	R3
-	MOV	R0, INPUTB
-	RETURN
-;
-; BK Joystick - port 177714
-;  7   6   5   4   3   2   1   0
-;  B  Fr2  Fr  A   Lt  Dn  Rt  Up
-;
-; Game controls
-;  7   6   5   4   3   2   1   0
-;              Fr  Up  Dn  Lt  Rt
-; Key mappings
-K41305:	.BYTE	070, 001, 010		; '8' - up
-	.BYTE	062, 004, 004		; '2' - down
-	.BYTE	064, 010, 002		; '4' - left
-	.BYTE	066, 002, 001		; '6' - right
-	.BYTE	065, 140, 020		; '5' - fire
-	.BYTE	061, 000, 012		; '1' - up + left
-	.BYTE	063, 000, 011		; '3' - up + right
-	.BYTE	067, 000, 024		; '7' - down + fire
-	.BYTE	071, 000, 024		; '9' - down + fire
-	.EVEN
-
-; Procedure: Get pseudo-random number, result in R3
-; Uses: R0, R2, R3
-; From Highway Encounter game code
-RANDOM:	MOV	RNDSED, R2	; A270	LD DE,($5C76)	; Read RND SEED variable
-	MOV	R2, R3		; A274	LD H,E
-	SWAB	R3
-	BIC	#377, R3
-	ADD	#375, R3	; A275	LD L,$FD
-	MOV	R2, R0		; A277	LD A,D
-	SWAB	R0
-	BIC	#177400, R0	; A278	OR A
-	SUB	R2, R3		; A279	SBC HL,DE
-	SBCB	R0		; A27B	SBC A,$00
-	SUB	R2, R3		; A27D	SBC HL,DE
-	SBCB	R0		; A27F	SBC A,$00
-				; A281	LD E,A
-	BIC	#177400, R0	; A282	LD D,$00
-	SUB	R0, R3		; A284	SBC HL,DE
-	BHIS	89$		; A286	JR NC,$A289
-	INC	R3		; A288	INC HL
-89$:	MOV	R3, RNDSED	; A289	LD ($5C76),HL	; Write RND SEED variable
-	RETURN			; A28C	RET
-RNDSED:	.WORD	123456	; Pseudo-random seed
 
 LBC0D:
 ; Clear the screen
@@ -2738,10 +2709,10 @@ LBE80:
 ; Movement handler: Game Over
 LBEB3:	MOV	#LBF12, R3		; !!MUT-ARG!! two-line message address
 LBEB4 = LBEB3 + 2
-	MOV	#<SCRTOP+<1000*3.>+8.*2>, R2
+	MOV	#<SCRTOP+<1200*3.>+8.*2>, R2
 	MOV	#15., R1
 	CALL	PRSTR			; Print string 1st line
-	MOV	#<SCRTOP+<1000*5.>+6.*2>, R2
+	MOV	#<SCRTOP+<1200*5.>+6.*2>, R2
 	MOV	#20., R1
 	CALL	PRSTR			; Print string 1st line
 ;
@@ -2802,24 +2773,24 @@ LBFD5:	MOV	#10., R1
 	CALL	INCPAY			; Increase PAY value by 5000.
 	CALL	CLSRNM			; Clear the screen with Blue color
 	MOV	#LC062, R3		; Messages address
-	MOV	#<SCRTOP+<1000*4.>+13.*2>, R2
+	MOV	#<SCRTOP+<1200*4.>+13.*2>, R2
 	MOV	#14., R1
 	CALL	PRSTR			; Print string "DISK RETRIEVED"
-	MOV	#<SCRTOP+<1000*9.>+12.*2>, R2
+	MOV	#<SCRTOP+<1200*9.>+12.*2>, R2
 	MOV	#18., R1
 	CALL	PRSTR			; Print string "DISK BONUS: $05000"
-	MOV	#<SCRTOP+<1000*11.>+9.*2>, R2
+	MOV	#<SCRTOP+<1200*11.>+9.*2>, R2
 	MOV	#7, R1
 	CALL	PRSTR			; Print string "LEVEL X"
-	MOV	#<SCRTOP+<1000*20.>+6.*2>, R2
+	MOV	#<SCRTOP+<1200*20.>+6.*2>, R2
 	MOV	#13., R1
 	CALL	PRSTR			; Print string "TOTAL PAY : $"
 	MOV	#LC075, R3		; Messages address
-	MOV	#<SCRTOP+<1000*11.>+17.*2>, R2
+	MOV	#<SCRTOP+<1200*11.>+17.*2>, R2
 	MOV	#13., R1
 	CALL	PRSTR			; Print string "BONUS: $05000"
 	MOV	#LE388, R3		; Message address: level bonus
-	MOV	#<SCRTOP+<1000*11.>+25.*2>, R2
+	MOV	#<SCRTOP+<1200*11.>+25.*2>, R2
 	MOV	#3., R1
 	CALL	PRSTR			; Print string
 	MOVB	<LE388+3>, R1		; get level bonus value
@@ -2836,8 +2807,8 @@ LC056:	MOV	#LBF12, LBEB4		; "ESCAPE" / "MISSION SUCCESSFUL"
 ; Scrolling block of 17x15 tiles, scroll 4 lines up
 LC094:	DECB	L7343			; decrease counter
 	BEQ	LBFD5			; => zero => Escaped; final messages, then Game Over
-	MOV	#<SCRTOP+1000+400+7*2>, R3	; from
-	MOV	#<SCRTOP+1000+7*2>, R2	; to
+	MOV	#<SCRTOP+1200+400+7*2>, R3	; from
+	MOV	#<SCRTOP+1200+7*2>, R2	; to
 	MOV	#120., R1		; lines count
 10$:	MOV	#17., R4		; horz tiles count
 20$:	;MOV	R3, @#176640 ;TODO	; from address
@@ -3445,34 +3416,34 @@ LDF60:	CALL	WAITUP			; clear keyboard buffer
 
 	MOV	#16., R1
 	MOV	#TITLE, R3
-	MOV	#<SCRTOP+<1000*0.>+13.*2>, R2
+	MOV	#<SCRTOP+<1200*0.>+13.*2>, R2
 	CALL	PRSTR			; Print string - title
 	MOV	#17., R1
 	;MOV	#VERSIO, R3
-	MOV	#<SCRTOP+<1000*2.>+13.*2>, R2
+	MOV	#<SCRTOP+<1200*2.>+13.*2>, R2
 	CALL	PRSTR			; Print string - version
 	;MOV	#10., R1
 	;MOV	#SPALET, R3
-	;MOV	#<SCRTOP+<1000*6.>+14.*2>, R2
+	;MOV	#<SCRTOP+<1200*6.>+14.*2>, R2
 	;CALL	PRSTR			; Print string "P  PALETTE"
 	MOV	#16., R1
 	MOV	#LDF27, R3
-	MOV	#<SCRTOP+<1000*15.>+14.*2>, R2
+	MOV	#<SCRTOP+<1200*15.>+14.*2>, R2
 	CALL	PRSTR			; Print string "S  START MISSION"
 	MOV	#7., R1
-	MOV	#<SCRTOP+<1000*18.>+14.*2>, R2
+	MOV	#<SCRTOP+<1200*18.>+14.*2>, R2
 	CALL	PRSTR			; Print string "X  EXIT"
 	MOV	#16., R1
 	;MOV	#LE1FE, R3
-	MOV	#<SCRTOP+<1000*9.>+13.*2>, R2
+	MOV	#<SCRTOP+<1200*9.>+13.*2>, R2
 	CALL	PRSTR			; Print string "1-9 SELECT LEVEL"
 LDF8E:	MOV	#LC082, R3		; "LEVEL X"
 	MOV	#7., R1
-	MOV	#<SCRTOP+<1000*11.>+16.*2>, R2
+	MOV	#<SCRTOP+<1200*11.>+16.*2>, R2
 	CALL	PRSTR			; Print string "LEVEL X"
 	MOV	LE1ED, R3		; get level description address
 	MOV	#14., R1		; 14.-char string
-	MOV	#<SCRTOP+<1000*12.>+16.*2>, R2
+	MOV	#<SCRTOP+<1200*12.>+16.*2>, R2
 	CALL	PRSTR			; Print string
 
 ; Menu loop starts here
@@ -3502,70 +3473,6 @@ LDF8E:	MOV	#LC082, R3		; "LEVEL X"
 	BR	LDF8E			; return to Menu, redraw LEVEL sign
 30$:
 	BR	10$			; continue menu loop
-;
-; Procedure: Apply level variables
-LEVSEL:	MOVB	LEVED, R0		; get current level digit 1..9.
-	SUB	#061, R0		; 0..8.
-	ADD	R0, R0
-	ADD	R0, R0
-	ADD	R0, R0
-	ADD	R0, R0			; * 16.
-	ADD	#LE217, R0		; Level descriptions address
-	MOV	R0, LE1ED		; save level description address
-	ADD	#14., R0
-	MOV	(R0), R3		; now R3 = address for level variables
-; Prepare level variables, see E325
-	MOVB	(R3)+, LA3BF		; +$00: set Guard counter value
-	MOVB	(R3)+, <L9C56+2>	; +$01: set Dog counter value
-	MOVB	(R3)+, <LB4C3+2>	; +$02: set Turret counter value
-	MOV	#LAD57, R1		; address for Indicator Time value
-	MOVB	(R3)+, (R1)+		; +$03: set Indicator Time value, lower digit
-	MOVB	(R3)+, (R1)		; +$04: set Indicator Time value, higher digit
-	MOV	#<LB7CA+2>, R1		; address for Time value for BOMB
-	MOVB	(R3)+, (R1)+		; +$05: set Time value for BOMB, lower digit
-	MOVB	(R3)+, (R1)		; +$06: set Time value for BOMB, higher digit
-	MOVB	(R3)+, L97D0		; +$07: set flag for wall in room RM97A6
-	MOVB	(R3)+, L9755		; +$08: set flag for wall in room RM9739
-	MOVB	(R3)+, L7F7A		; +$09: set flag for wall in room RM7F48
-	MOVB	(R3)+, L8DBB		; +$0A: set flag for wall in room RM8D5C
-	MOVB	(R3)+, L8F31		; +$0B: set flag for wall in room RM8F20
-	MOV	#LE388, R1
-	MOV	(R3)+, (R1)+
-	MOV	(R3)+, (R1)
-	MOV	#LD357, R1		; address for BOMB in Table of objects D34D
-	MOV	(R3)+, (R1)+		; Copy last 4 bytes: BOMB placement
-	MOV	(R3)+, (R1)
-; Room changes according to the Level selected, see F913
-	MOVB	#4, <L89B3+1>		; patch length = 4
-	MOVB	#144, <L89B3+3>		; patch offset low byte
-	MOV	#13., R0		; H = length
-	MOV	#213, R3		; L = offset low byte
-	MOV	#5, R4			; B = length
-	MOV	R4, R1			; C = length
-	MOV	R4, R5			; D = length
-	MOV	#6, R2			; E = length
-	CMPB	LEVED, #64		; compare Level to '4'
-	BHIS	LF94D
-	MOV	#11., R2		; E = length
-	MOVB	#027, <L89B3+1>		; patch length = 23.
-	MOVB	#121, <L89B3+3>		; patch offset low byte
-	CMPB	LEVED, #63		; compare Level to '3'
-	BEQ	LF94D
-	MOV	#15., R1		; C = length
-	MOV	#11., R5		; D = length
-	CMPB	LEVED, #62		; compare Level to '2'
-	BEQ	LF94D
-	MOV	#10., R4		; B = length
-	MOV	#022, R0		; H = length
-	MOV	#206, R3		; L = offset low byte
-LF94D:
-	MOVB	R0, <L8D45+1>		; H - patch length
-	MOVB	R4, <L8CAE+1>		; B - patch length
-	MOVB	R1, <L8A52+1>		; C - patch length
-	MOVB	R5, <L8A00+1>		; D - patch length
-	MOVB	R2, <L88EB+1>		; E - patch length
-	MOVB	R3, <L8D45+3>		; L - patch offset low byte
-	RETURN
 
 ; Start Mission
 LE2A7:
@@ -4283,6 +4190,135 @@ LDE84:	.WORD	RM79C6
 	.BYTE	000, 0
 	.WORD	RM9B9D
 	.BYTE	001, 0
+
+; Procedure: Get pseudo-random number, result in R3
+; Uses: R0, R2, R3
+; From Highway Encounter game code
+RANDOM:	MOV	RNDSED, R2	; A270	LD DE,($5C76)	; Read RND SEED variable
+	MOV	R2, R3		; A274	LD H,E
+	SWAB	R3
+	BIC	#377, R3
+	ADD	#375, R3	; A275	LD L,$FD
+	MOV	R2, R0		; A277	LD A,D
+	SWAB	R0
+	BIC	#177400, R0	; A278	OR A
+	SUB	R2, R3		; A279	SBC HL,DE
+	SBCB	R0		; A27B	SBC A,$00
+	SUB	R2, R3		; A27D	SBC HL,DE
+	SBCB	R0		; A27F	SBC A,$00
+				; A281	LD E,A
+	BIC	#177400, R0	; A282	LD D,$00
+	SUB	R0, R3		; A284	SBC HL,DE
+	BHIS	89$		; A286	JR NC,$A289
+	INC	R3		; A288	INC HL
+89$:	MOV	R3, RNDSED	; A289	LD ($5C76),HL	; Write RND SEED variable
+	RETURN			; A28C	RET
+RNDSED:	.WORD	123456	; Pseudo-random seed
+
+; Procedure: Read Input
+LBBDF:	PUSH	R3
+	PUSH	R1
+; If we have a key pressed, go through key mapping table
+	TSTB	@#177660	;БК	; do we have an unprocessed key?
+	BPL	K41276		;БК	; no => jump
+	MOVB	@#177662, R0	;БК	; get the key
+	MOV	#K41305, R3
+	MOV	#9., R1
+K41256:	CMPB	(R3)+, R0		; <  matches the key?
+	BNE	K41270			; |  no => jump
+	INC	R3			; |
+	MOVB	(R3), R0		; |  get the result byte
+	BR	K41300			; |  break the loop
+K41270:	ADD	#000002, R3		; |  to next key probe
+	SOB	R1, K41256		; repeat
+K41276:	CLR	R0			; not found - result is empty
+K41300:	POP	R1
+	POP	R3
+	MOV	R0, INPUTB
+	RETURN
+;
+; BK Joystick - port 177714
+;  7   6   5   4   3   2   1   0
+;  B  Fr2  Fr  A   Lt  Dn  Rt  Up
+;
+; Game controls
+;  7   6   5   4   3   2   1   0
+;              Fr  Up  Dn  Lt  Rt
+; Key mappings
+K41305:	.BYTE	070, 001, 010		; '8' - up
+	.BYTE	062, 004, 004		; '2' - down
+	.BYTE	064, 010, 002		; '4' - left
+	.BYTE	066, 002, 001		; '6' - right
+	.BYTE	065, 140, 020		; '5' - fire
+	.BYTE	061, 000, 012		; '1' - up + left
+	.BYTE	063, 000, 011		; '3' - up + right
+	.BYTE	067, 000, 024		; '7' - down + fire
+	.BYTE	071, 000, 024		; '9' - down + fire
+	.EVEN
+
+; Procedure: Apply level variables
+LEVSEL:	MOVB	LEVED, R0		; get current level digit 1..9.
+	SUB	#061, R0		; 0..8.
+	ADD	R0, R0
+	ADD	R0, R0
+	ADD	R0, R0
+	ADD	R0, R0			; * 16.
+	ADD	#LE217, R0		; Level descriptions address
+	MOV	R0, LE1ED		; save level description address
+	ADD	#14., R0
+	MOV	(R0), R3		; now R3 = address for level variables
+; Prepare level variables, see E325
+	MOVB	(R3)+, LA3BF		; +$00: set Guard counter value
+	MOVB	(R3)+, <L9C56+2>	; +$01: set Dog counter value
+	MOVB	(R3)+, <LB4C3+2>	; +$02: set Turret counter value
+	MOV	#LAD57, R1		; address for Indicator Time value
+	MOVB	(R3)+, (R1)+		; +$03: set Indicator Time value, lower digit
+	MOVB	(R3)+, (R1)		; +$04: set Indicator Time value, higher digit
+	MOV	#<LB7CA+2>, R1		; address for Time value for BOMB
+	MOVB	(R3)+, (R1)+		; +$05: set Time value for BOMB, lower digit
+	MOVB	(R3)+, (R1)		; +$06: set Time value for BOMB, higher digit
+	MOVB	(R3)+, L97D0		; +$07: set flag for wall in room RM97A6
+	MOVB	(R3)+, L9755		; +$08: set flag for wall in room RM9739
+	MOVB	(R3)+, L7F7A		; +$09: set flag for wall in room RM7F48
+	MOVB	(R3)+, L8DBB		; +$0A: set flag for wall in room RM8D5C
+	MOVB	(R3)+, L8F31		; +$0B: set flag for wall in room RM8F20
+	MOV	#LE388, R1
+	MOV	(R3)+, (R1)+
+	MOV	(R3)+, (R1)
+	MOV	#LD357, R1		; address for BOMB in Table of objects D34D
+	MOV	(R3)+, (R1)+		; Copy last 4 bytes: BOMB placement
+	MOV	(R3)+, (R1)
+; Room changes according to the Level selected, see F913
+	MOVB	#4, <L89B3+1>		; patch length = 4
+	MOVB	#144, <L89B3+3>		; patch offset low byte
+	MOV	#13., R0		; H = length
+	MOV	#213, R3		; L = offset low byte
+	MOV	#5, R4			; B = length
+	MOV	R4, R1			; C = length
+	MOV	R4, R5			; D = length
+	MOV	#6, R2			; E = length
+	CMPB	LEVED, #64		; compare Level to '4'
+	BHIS	LF94D
+	MOV	#11., R2		; E = length
+	MOVB	#027, <L89B3+1>		; patch length = 23.
+	MOVB	#121, <L89B3+3>		; patch offset low byte
+	CMPB	LEVED, #63		; compare Level to '3'
+	BEQ	LF94D
+	MOV	#15., R1		; C = length
+	MOV	#11., R5		; D = length
+	CMPB	LEVED, #62		; compare Level to '2'
+	BEQ	LF94D
+	MOV	#10., R4		; B = length
+	MOV	#022, R0		; H = length
+	MOV	#206, R3		; L = offset low byte
+LF94D:
+	MOVB	R0, <L8D45+1>		; H - patch length
+	MOVB	R4, <L8CAE+1>		; B - patch length
+	MOVB	R1, <L8A52+1>		; C - patch length
+	MOVB	R5, <L8A00+1>		; D - patch length
+	MOVB	R2, <L88EB+1>		; E - patch length
+	MOVB	R3, <L8D45+3>		; L - patch offset low byte
+	RETURN
 
 ;------------------------------------------------------------------------------
 STARTD:
