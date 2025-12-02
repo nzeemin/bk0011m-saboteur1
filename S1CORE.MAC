@@ -86,10 +86,9 @@ STOP:	MOV	#1000, SP
 OSTACK:	.WORD	01000			; Saved SP value
 ;
 FNCORE:	;CALL	STPALD			; Select default palette
+	MOV	#016000, @#177716	; Вернуть стандартное значение регистра управления памятью
 	MOV	OSTACK, SP
-	;MOV	#EXITSC, R1		; String for screen cleanup before the exit
-	;CALL	PRINT
-	RETURN				; .EXIT
+	JMP	@#100000		; Возврат в ANDOS
 
 PREPARE:
 ; Prepare PXCONV table, used to convert pixels BYTE -> BK WORD
@@ -909,8 +908,7 @@ LA4A2:	CMPB	#144, TLSCR0(R2)	; $64, in Tile screen 0
 	BNE	LA4C0			; no => skip draw on this tile
 	MOVB	#1, TLSCR1(R2)		; set "need update" marker in Tile screen 1
 	MOV	#73567, R5		; $7777
-	;MOV	R3, @#176640 ;TODO	; set UKNC indirect address
-	;XOR	R5, @#176642		; write to screen
+	XOR	R5, (R3)		; write to screen
 LA4C0:	CMPB	#377, TLSCR2(R2)	; $FF, in Tile screen 2
 	BEQ	LA4CF			; yes =>
 	MOV	#4, R1			; Ninja hit
@@ -920,7 +918,7 @@ LA4CF:
 LA4D0:	INC	R3			; !!MUT-CMD!! "DEC R3" or "INC R3" instruction
 LA4D1:	INC	R2			; !!MUT-CMD!! "DEC R2" or "INC R2" instruction
 	SOB	R1, LA4A2
-LA4D4:	;TODO: Sound off
+LA4D4:	MOV	#220, @#177716		; sound off
 	TSTB	LA3B4			; check Guard counter
 	BNE	LA4E4			; => Draw Guard on tilemap
 	MOVB	#4., GARDST		; set Guard state = $04
@@ -1835,7 +1833,13 @@ LB53E = LB53D + 2	; Boat position
 	MOVB	<LB5A7+1>, R0
 	XOR	R5, R0
 	MOVB	R0, <LB5A7+1>
-	;PPUCMD	#1			; Sound
+; Sound
+20$:	MOV	#220, @#177716
+	MOV	#8., R4
+30$:	DEC	R4			; delay
+	BNE	30$
+	MOV	#320, @#177716
+;
 	DECB	L7343			; decrease counter
 	BEQ	LB577
 	JMP	LB8D0			; => Update Ninja on tilemap
@@ -1847,14 +1851,12 @@ LB577:	INCB	NJAX			; increrase Ninja X
 	MOVB	#4, L7343		; set counter = 4
 	JMP	LBFB0			; Set movement handler = R3, Ninja sprite = R2
 
-; Play sound ??
+; Play some noise
 LB596:	MOV	#20., R1
 LB598:	JMP	LF9A1
 
 ; Sound ??
-LB59E:
-	;TODO: Sound ??
-	RETURN
+LB59E:	JMP	LF9A1
 
 LB5C7:	CALL	LAC44			; Reset Guard data and Dog data
 	;MOV	LB7CB, <LBC3B+2>	; NO NEED: the only assignment for <LBC3B+2>
@@ -1874,7 +1876,7 @@ LB5C7:	CALL	LAC44			; Reset Guard data and Dog data
 	CLRB	TIMODE			; set Time mode = time ticking
 	CLR	LB850			; clear HELD tile
 	CLRB	<LD486+8.>		; set head tile in Ninja/Guard standing sprite
-	;TODO: Sound off
+	MOV	#220, @#177716		; sound off
 	MOVB	#1, <LD486+9.>		; set head tile for Ninja/Guard standing sprite
 	MOVB	#1, NJADIR		; set Ninja direction = 1 = right
 	MOVB	#1, LB84F		; set NEAR item = 1
@@ -2141,12 +2143,12 @@ LB851:	MOV	#35., R1		; 35 objects
 ;NOTE: Procedure B86C removed, not used
 
 ; Update Ninja on tilemap
-LB8D0:	;CALL	UPNJA			; Set update flags for Ninja, 6x7 tiles
+LB8D0:
 	MOV	#TLSCR4, R3		; Tile screen 4 start address
 	MOV	#<510./2>, R1
 10$:	MOV	#177777, (R3)+
 	SOB	R1, 10$
-; Draw Ninja on tilemap
+; Draw Ninja on tilemap + set "need to update" flags
 LB8E0:	MOV	NJAPOS, R3		; get Ninja position in tilemap
 	MOV	R3, R5
 	MOV	NJASPR, R2		; get Ninja sprite address
@@ -2316,7 +2318,11 @@ LBA0C:	MOV	#20., R1
 
 ; This object should be deleted, Granade explode
 ; R4 = object address in LA39F table
-LBAD5:	CMP	#RM8DCA, ROOM		; current room = 8DCA (room with helicopter) ?
+LBAD5:	PUSH	R4
+	MOV	#1, R1
+	CALL	LF9A1			; Noise sound
+	POP	R4
+	CMP	#RM8DCA, ROOM		; current room = 8DCA (room with helicopter) ?
 	BEQ	LBBA7			; yes => delete the object
 ;
 LBAE4:	MOVB	(R4), R0
@@ -2392,7 +2398,7 @@ LBA5D:	MOV	#3, R1			; !!MUT-ARG!! width
 	ADD	#24., R2
 	ADD	#1000, R3
 	SOB	R4, LBA61		; continue loop by lines
-	;TODO: Sound off
+	MOV	#220, @#177716		; sound off
 	RETURN
 
 ; Set "need update" mark for object R4
@@ -2590,7 +2596,7 @@ LBDC2:	ADD	R2, R3			; now R3 = address in Guard tilemap
 	CMPB	#377, (R3)		; empty tile?
 	BEQ	LBDD4			; yes =>
 	MOVB	#9., GARDST		; set Guard state = $09 dead
-	CALL	LB596			; Play sound
+	CALL	LB596			; Play noise sound
 	MOV	#5, R1			; 5 hundreds
 	CALL	INCPAY			; Increase PAY value by 500. - Guard killed
 LBDD4:	MOV	#LBBD4, R3		; Movement handler address
@@ -2967,7 +2973,11 @@ LC2C5:	MOV	NJAWLK, R0
 	BNE	LC2E8
 	INC	R0
 	MOV	R0, LA39E
-	;TODO: Sound?
+; Sound of steps
+	MOV	#50., R1
+10$:	MOV	#320, @#177716
+	MOV	#220, @#177716
+	SOB	R1, 10$
 
 LC2E8:	MOV	L733B(R3), NJASPR	; sprite address from table -> Ninja sprite
 	JMP	LB8D0			; => Update Ninja on tilemap
@@ -3159,7 +3169,7 @@ LC4BE:	ADD	R2, R3			; now R3 = address in Tile screen 4
 	CMPB	#377, (R3)		; empty ?
 	BEQ	LC4D0			; yes => finalize the jump
 	MOVB	#9., GARDST		; set Guard state = $09 dead
-	CALL	LB596			; Play sound
+	CALL	LB596			; Play noise sound
 	MOV	#5, R1
 	CALL	INCPAY			; Increase PAY value by 500. - Guard killed by punch/kick
 ; Finalize the jump
@@ -3288,7 +3298,7 @@ LC5EE:	MOV	#1, LA39E
 	MOV	(R3), R1		; get counter value
 	CLR	(R3)
 	CALL	NRJDEC			; Decrease Energy by R1
-	MOV	#50., R1
+	MOV	#7, R1
 	CALL	LB59E
 	JMP	LBFCC			; => Ninja sitting now
 
@@ -3409,6 +3419,7 @@ LDE7B:	MOV	#1, R0
 
 ; Prepare for Menu
 LDF37:
+	MOV	#220, @#177716		; sound off
 
 ; Menu
 LDF60:	CALL	WAITUP			; clear keyboard buffer
@@ -3487,9 +3498,23 @@ LE2A7:
 LF913:
 	JMP	LB3B0
 
-; Sound ??
-LF9A1:
-	;TODO: Sound??
+; Noise sound using program code for pseudo-random delays
+; R1 = how long
+LF9A1:	ASL	R1
+	ASL	R1
+	ASL	R1
+	MOV	#001600, R3		; адрес откуда брать данные
+	MOV	#220, R0		; значение для порта 177716
+	MOV	#100, R5
+10$:	MOV	R0, @#177716
+	XOR	R5, R0
+	CLR	R4
+	BISB	(R3)+, R4		; get delay value
+	INC	R4
+20$:	DEC	R4			; delay
+	BNE	20$
+	SOB	R1, 10$
+	MOV	#220, @#177716		; sound off
 	RETURN
 
 ; Pause, then wait for any key pressed
@@ -3510,8 +3535,8 @@ LFA11:
 	RETURN	;STUB
 
 LFA31:	CALL	NRJDEC			; Decrease Energy by R1
-	MOV	#1, R0
-	CALL	LF9A1			; Sound
+	MOV	#1, R1
+	CALL	LF9A1			; Noise sound
 	RETURN
 
 ;------------------------------------------------------------------------------
