@@ -219,8 +219,9 @@ PBLK2:
 ; Добавляем эти строчки, чтобы в готовом файле была видна версия
 SLoading:
 	.ASCII	/Loading/
-	.ASCII	/ SABOT1 BK11M /
+	.ASCII	/ SABOT1 BK-0011M /
 .INCLUDE /VERSIO.MAC/
+	.ASCII	/.../
 	.BYTE	0
 	.EVEN
 
