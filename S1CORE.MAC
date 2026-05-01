@@ -8,10 +8,11 @@
 ; Распределение памяти
 ; 000000-040000 16K - код
 ; 040000-100000 16K
-;   стр.5 экран, при рисовании на экране
+;   стр.5 экран
 ;   стр.3 комнаты, спрайты и другие данные
 ; 100000-140000 16K
-;   стр.1 тайлы
+;   стр.6 тайлы - см. S1TILE.MAC
+;   стр.2 таблицы Byte2Word00 итд.
 ;------------------------------------------------------------------------------
 
 ; Режимы для регистра управления памятью
@@ -1273,22 +1274,6 @@ LAD1D:	MOV	#MMODE1, @#177716	; Включаем режим памяти 1
 	CALL	PRSTR			; Print string "NEAR"
 	RETURN
 
-;LAEF0:
-
-;LAF7E:
-
-;LAF84:
-
-
-;LAF9C:
-
-;LAFAA:
-
-;LAFBE:
-
-;LB040:
-;	BR	LAFBE
-
 ;------------------------------------------------------------------------------
 
 ; Draw tile map on the screen
@@ -1304,7 +1289,7 @@ LB16F:	TSTB	(R3)			; check "need update" flag in Tile screen 1
 	MOV	#MMOD56, @#177716	; Включаем режим памяти 5:6 для доступа к тайлам
 	CLRB	(R3)			; clear "need to update" flag
 	MOVB	<-510.>(R3), R0		; get tile from Tile screen 0
-	INCB	R0			; $FF - "earth" background?
+	INC	R0			; $FF - "earth" background?
 	BNE	DRTILE			; no => draw regular tile
 ; Special case: draw background tile $FF, don't draw any other planes
 ;NOTE: R3 = current address in Tile screen 1, don't change it
@@ -1315,12 +1300,12 @@ SCRADR = DRALL1 + 2
 	MOV	#^B0000000000010001, 100(R5)
 	MOV	R0, 200(R5)
 	CLR	300(R5)
-	CLR	400(R5)
+	CLR	400(R5)			; extra line
 	MOV	#^B0000000001000001, 500(R5)
 	CLR	600(R5)
 	MOV	R0, 700(R5)
 	CLR	1000(R5)
-	CLR	1100(R5)
+	CLR	1100(R5)		; extra line
 ; Next column
 LB2A9:	ADD	#2, SCRADR		; screen address +2
 	INC	R3			; next address in Tile screen 1
@@ -1337,13 +1322,12 @@ LB2E3:	DEC	#17.			; !!MUT-ARG!! decrease rows counter
 DRTILE:
 ; Process Tile screen 0 - background tile
 ; R0 = back tile + 1, R3 = current address in Tile screen 1
-	BIC	#177400, R0		; 1..255.
 	MOV	R0, R4
 	ASL	R4
 	ASL	R4
 	ADD	R0, R4			; * 5.
 	ASL	R4			; * 10.
-	ADD	#<LF700>, R4		; + Background tiles base address
+	ADD	#LF700, R4		; + Background tiles base address
 ; copy 8. pixel bytes + attr byte
 	MOV	-(R4), -(SP)		; 8, 9
 	MOV	-(R4), -(SP)		; 6, 7
@@ -1362,7 +1346,7 @@ LB1A3:	MOVB	510.(R3), R0		; get tile from Tile screen 2
 	ASL	R0			; * 16.
 	ADD	#<LE700-16.>, R0	; + Ninja tiles base address
 	MOV	R0, R4			; now HL = tile data address
-	MOV	#4., R1			; 8 bytes
+	MOV	#2., R1			; 8 bytes
 	MOV	SP, R2			; tile buffer address
 LB1E4:	TSTB	NJADIR			; check direction
 	BEQ	20$			; left =>
@@ -1372,6 +1356,18 @@ LB1E4:	TSTB	NJADIR			; check direction
 	BISB	(R4)+, R0		; get pixels byte
 	MOVB	R0, (R2)+		; store byte back to the buffer
 ; direction right, second pair of pixels/mask - mirrored
+	MOVB	(R2), R0		; get byte from the buffer
+	MOVB	(R4)+, R5		; get mask byte
+	BICB	L72BA(R5), R0		; byte mirroring
+	MOVB	(R4)+, R5		; get pixels byte
+	BISB	L72BA(R5), R0		; byte mirroring
+	MOVB	R0, (R2)+		; store byte back to the buffer
+; direction right, 3rd pair - non-mirrored
+	MOVB	(R2), R0		; get byte from the buffer
+	BICB	(R4)+, R0		; get mask byte
+	BISB	(R4)+, R0		; get pixels byte
+	MOVB	R0, (R2)+		; store byte back to the buffer
+; direction right, 4th pair of pixels/mask - mirrored
 	MOVB	(R2), R0		; get byte from the buffer
 	MOVB	(R4)+, R5		; get mask byte
 	BICB	L72BA(R5), R0		; byte mirroring
@@ -1392,13 +1388,24 @@ LB1E4:	TSTB	NJADIR			; check direction
 	BICB	(R4)+, R0		; get mask byte
 	BISB	(R4)+, R0		; get pixels byte
 	MOVB	R0, (R2)+		; store byte back to the buffer
+; direction left, 3rd pair - mirrored
+	MOVB	(R2), R0		; get byte from the buffer
+	MOVB	(R4)+, R5		; get mask byte
+	BICB	L72BA(R5), R0		; byte mirroring
+	MOVB	(R4)+, R5		; get pixels byte
+	BISB	L72BA(R5), R0		; byte mirroring
+	MOVB	R0, (R2)+		; store byte back to the buffer
+; direction left, 4th pair of pixels/mask - non-mirrored
+	MOVB	(R2), R0		; get byte from the buffer
+	BICB	(R4)+, R0		; get mask byte
+	BISB	(R4)+, R0		; get pixels byte
+	MOVB	R0, (R2)+		; store byte back to the buffer
 	SOB	R1, 20$
 ; Process Tile screen 3 tile - Dog
 ; R3 = current address in Tile screen 1, SP = tile buffer address
 LB1FC:	MOVB	<510.*2>(R3), R0	; get tile from Tile screen 3
-	INCB	R0			; $FF ?
+	INC	R0			; $FF ?
 	BEQ	LB230			; yes => skip Dog tile drawing
-	BIC	#177400, R0
 	ASL	R0
 	ASL	R0
 	ASL	R0
@@ -1482,12 +1489,8 @@ LB230:	MOVB	<510.*3>(R3), R0	; get tile from Tile screen 4
 ; Process Tile screen 5 tile - front
 ; R3 = current address in Tile screen 1, SP = tile buffer address
 LB263:	MOVB	<510.*4>(R3), R0	; get tile from Tile screen 5
-	INCB	R0			; $FF - transparent?
+	INC	R0			; $FF - transparent?
 	BEQ	LB293			; yes => skip front tile drawing
-	CMPB	#365, R0		; tile < $F5 ?
-	BHIS	5$
-	SUB	#<365-126.>, R0		; correction for tiles $F5..$FE
-5$:	BIC	#177400, R0		; 1..255.
 	MOV	R0, R4
 	ASL	R4
 	ASL	R4
@@ -4305,10 +4308,10 @@ SIZER = . - STARTR
 .INCLUDE /S1SPRT.MAC/
 
 ;.INCLUDE /S1TILE.MAC/
-LD600 = 100000
-LE700 = 104620
-LF0F0 = 111600
-LF700 = 114620
+LD600 = 100306
+LE700 = 104642
+LF0F0 = 111622
+LF700 = 117242
 
 ENDD:
 
