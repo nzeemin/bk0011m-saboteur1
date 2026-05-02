@@ -10,53 +10,24 @@ MMODE5 = ^B0001100000000000	; 5:1  -  для рисования на экран�
 
 ; Значение регистра управления палитрами для заставки
 ;          ST..____........
-PMODES = ^B0000000000000000	; Экран стр.5, таймер отключен, палитра 0
+;PMODES = ^B0000000000000000	; Screen page 5, palette 0
 
 S1LZS2 = <<S1LZSZ + 1> / 2> * 2		; S2LZSZ но выровненный до слова
+START = 001400				; Start address of the main code block
 
 STBOOT:
 	MTPS	#340			; disable all interruptions
-	MOV	#1330, @#177664		; Устанавливаем стандартное значение скролла
-	MOV	#PMODES, @#177662	; Устанавливаем палитру для заставки
-; Надпись Loading
-	MOV	#SLoading, R1
-	CLR	R2
-	EMT	20
-;
-;; Загрузить сжатый экран заставки
-;	MOV	#PBLK1, R1
-;	CALL	@#120002		; вызов ANDOS
-;; Разархивировать сжатый экран заставки
-;	MOV	#003000, R1		; Откуда
-;	MOV	#040000, R2		; Куда: экран
-;	CALL	UNLZSA
-;
-; Загрузить сжатый блок S1TILE
-	MOV	#MMOD34, @#177716	; Включаем режим памяти 3:4, для загрузки блока
-	MOV	#PBLK2, R1
-	CALL	@#120002		; вызов ANDOS
-; Разрахивировать сжатый блок S1TILE в страницу 6
-	MOV	#MMOD36, @#177716	; Включаем режим памяти 3:6
-	MOV	#3000, R1		; Откуда
-	MOV	#100000, R2		; Куда
+	MOV	#1330, @#177664		; set standard scroll value
+	;MOV	#PMODES, @#177662	; set palette for the title screen
+	CLR	@#177662		; screen 5, palette 0, vsync on
+; Prepare, unpack, load
+	CALL	BOOTP1
+; Unpack the main code block
+	MOV	#<140000-S1LZS2>, R1	; address from
+	MOV	#START, R2		; address to
 	CALL	UNLZSA
-; Загрузить сжатый блок кода
-	MOV	#MMOD34, @#177716	; Включаем режим памяти 3:4, для загрузки кода
-	MOV	#PBLK5, R1
-	CALL	@#120002		; вызов ANDOS
-; Переместить сжатый блок кода
-	MOV	#MMODE1, @#177716	; Включаем режим памяти 1, основной
-	MOV	#140000, R2		; Адрес ДО которого перемещаем
-	MOV	#<2000+S1LZS2>, R1	; Адрес с которого перемещаем, верхняя граница
-	MOV	#<S1LZS2/2>, R3
-1$:	MOV	-(R1), -(R2)
-	SOB	R3, 1$
-; Разархивировать блок кода
-	MOV	#<140000-S1LZS2>, R1	; Откуда
-	MOV	#001600, R2		; Адрес куда
-	MOV	R2, -(SP)		; Адрес возврата
-	NOP	;JMP	UNLZSA
-	NOP
+; Start the main program
+	JMP	@#START
 
 ;------------------------------------------------------------------------------
 
@@ -164,13 +135,45 @@ UNLZSA:
 	ADD (SP)+,R0			; add original value
 ;Exit:
 120$:	RETURN
-;
-	NOP
-	NOP
 
 ;------------------------------------------------------------------------------
 ;
-PBLK5:
+BOOTP1:
+; Text under the title screen
+	CLR	R1			; колонка курсора = 0
+	MOV	#20., R2		; строка курсора
+	EMT	24			; установка курсора в позицию
+	MOV	#SLoading, R1
+	CLR	R2
+	EMT	20			; вывод строки
+; Unpack the title screen
+	MOV	#LZSCRN, R1		; address from
+	MOV	#040000, R2		; address to: screen
+	CALL	UNLZSA
+;; Загрузить сжатый блок S1TILE
+;	MOV	#MMOD34, @#177716	; Включаем режим памяти 3:4, для загрузки блока
+;	MOV	#PBLK2, R1
+;	CALL	@#120002		; call ANDOS
+; Unpack the compressed S1TILE block into page 6
+	MOV	#MMOD36, @#177716	; Включаем режим памяти 3:6
+	MOV	#LZTILE, R1		; address from
+	MOV	#100000, R2		; address to
+	CALL	UNLZSA
+; Load the compressed code block
+	MOV	#MMOD34, @#177716	; Включаем режим памяти 3:4, для загрузки кода
+	MOV	#PBLK1, R1
+	CALL	@#120002		; call ANDOS
+; Move up the compressed main code block
+	MOV	#MMODE1, @#177716	; Включаем режим памяти 1, основной
+	MOV	#140000, R2		; Адрес ДО которого перемещаем
+	MOV	#<2000+S1LZS2>, R1	; Адрес с которого перемещаем, верхняя граница
+	MOV	#<S1LZS2/2>, R3
+1$:	MOV	-(R1), -(R2)
+	SOB	R3, 1$
+;
+	RETURN
+
+PBLK1:
 	.BYTE	3	; Команда 3 = читать файл
 	.BYTE	0	; Ответ
 	.WORD	2000	; Адрес
@@ -179,51 +182,33 @@ PBLK5:
 	.WORD	0
 	.WORD	0
 	.ASCII	/                /
-;PBLK4:
-;	.BYTE	3	; Команда 3 = читать файл
-;	.BYTE	0	; Ответ
-;	.WORD	17000	; Адрес
-;	.WORD	S1GZSZ	; Размер - берём после сжатия
-;	.ASCII	/S1GCHR.LZS      /
-;	.WORD	0
-;	.WORD	0
-;	.ASCII	/                /
-;PBLK3:
+;PBLK2:
 ;	.BYTE	3	; Команда 3 = читать файл
 ;	.BYTE	0	; Ответ
 ;	.WORD	3000	; Адрес
-;	.WORD	S1NZSZ	; Размер - берём после сжатия
-;	.ASCII	/S1NCHR.LZS      /
-;	.WORD	0
-;	.WORD	0
-;	.ASCII	/                /
-PBLK2:
-	.BYTE	3	; Команда 3 = читать файл
-	.BYTE	0	; Ответ
-	.WORD	3000	; Адрес
-	.WORD	S1TZSZ	; Размер - берём после сжатия
-	.ASCII	/S1TILE.LZS      /
-	.WORD	0
-	.WORD	0
-	.ASCII	/                /
-;PBLK1:
-;	.BYTE	3	; Команда 3 = читать файл
-;	.BYTE	0	; Ответ
-;	.WORD	3000	; Адрес
-;	.WORD	2865.	; Размер ;TODO: брать после сжатия экрана
-;	.ASCII	/S1SCRN.LZS      /
+;	.WORD	S1TZSZ	; Размер - берём после сжатия
+;	.ASCII	/S1TILE.LZS      /
 ;	.WORD	0
 ;	.WORD	0
 ;	.ASCII	/                /
 
-; Добавляем эти строчки, чтобы в готовом файле была видна версия
+; Строка для вывода при загрузке
 SLoading:
-	.ASCII	/Loading/
-	.ASCII	/ SABOT1 BK-0011M /
+	.BYTE	232	; cursor off
+	.BYTE	233	; 32/64
+	.ASCII	/original 1985 by Clive Townsend/<12>
+	.ASCII	/BK-0011M port by NZeemin/<12>/  /
 .INCLUDE /VERSIO.MAC/
-	.ASCII	/.../
 	.BYTE	0
 	.EVEN
+
+; Сжатый экран
+LZSCRN:
+.INSERT /S1SCRN.LZS/
+
+; Сжатый блок S1TILE
+LZTILE:
+.INSERT /S1TILE.LZS/
 
 ;------------------------------------------------------------------------------
 

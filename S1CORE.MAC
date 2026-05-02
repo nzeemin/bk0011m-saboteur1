@@ -5,24 +5,24 @@
 ; !!MUT-ARG!! - the command argument is mutable
 
 ;------------------------------------------------------------------------------
-; Распределение памяти
-; 000000-040000 16K - код
+; Memory usage
+; 000000-040000 16K - code
 ; 040000-100000 16K
-;   стр.5 экран
-;   стр.3 комнаты, спрайты и другие данные
+;   page 5 screen
+;   page 3 rooms, sprites and other data
 ; 100000-140000 16K
-;   стр.6 тайлы - см. S1TILE.MAC
-;   стр.2 таблицы Byte2Word00 итд.
+;   page 6 tiles - see S1TILE.MAC
+;   page 2 Byte2Word00 tables etc.
 ;------------------------------------------------------------------------------
 
-; Режимы для регистра управления памятью
-;          .___1___...00.00	Стр.	Назначение
-MMODE0 = ^B0001110000000000	; 5:4  -  системный
-MMOD34 = ^B0011110000000000	; 3:4  -  для загрузки
-MMODE1 = ^B0011100000000000	; 3:1  -  основной
-MMODE5 = ^B0001100000000000	; 5:1  -  для рисования на экране
-MMOD56 = ^B0001111100000000	; 5:6  -  для рисования на экране тайлами
-MMOD52 = ^B0001101000000000	; 5:2  -  для рисования через таблицы Byte2Word
+; Memory mode register values
+;          .___1___...00.00	Pages
+MMODE0 = ^B0001110000000000	; 5:4  -  system
+MMOD34 = ^B0011110000000000	; 3:4  -  for loading
+MMODE1 = ^B0011100000000000	; 3:1  -  main program, no screen
+MMODE5 = ^B0001100000000000	; 5:1  -  to draw on the screen
+MMOD56 = ^B0001111100000000	; 5:6  -  to draw tiles on the screen
+MMOD52 = ^B0001101000000000	; 5:2  -  to draw using Byte2Word tables
 
 ;CHELTH=1		; Cheat code for no damage
 ;CVERT =0		; Cheat code for short route to Helicopter
@@ -62,16 +62,30 @@ Byte2Word33 = 117400
 
 ;------------------------------------------------------------------------------
 
-;	.=001600
+;	.=001400
 ; Coming here from S1BOOT code
 ; Initialization
-; Уже включен основной режим памяти MMODE1
-K01100:	MTPS	#000340			; Disable interrupts
+; Main memory mode MMODE1 already set
+START:
+	MTPS	#000340			; Disable interrupts
 	MOV	SP, OSTACK		; Save initial SP value
+	MOV	#INTBCK, R0
+	MOV	@#000004, (R0)+		; save current interrupt vectors
+	MOV	@#000060, (R0)+
+	MOV	@#000274, (R0)+
+	MOV	@#000100, (R0)+
+	MOV	@#000102, (R0)+
 	MOV	#000004, R0
 	MOV	#STOP, (R0)+		; STOP key handler vector
 	MOV	#340, (R0)
 	CALL	PREPARE			; Prepare tables
+;TODO: Message and wait for a key
+	MOV	#13., R1
+	MOV	#ANYKEY, R3
+	MOV	#<SCRTOP+30200+9.*2>, R2
+	CALL	PRSTR			; Print string - title
+	CALL	WTKEY
+	CALL	FadeScreen
 ; STOP key handler starts here
 STOP:	MOV	#1000, SP
 	MOV	#1330, @#177664		; Set standard scroll value
@@ -80,12 +94,21 @@ STOP:	MOV	#1000, SP
 ; Initialization finished, go to Menu
 	JMP	LBC0D			; => Menu
 ;
-OSTACK:	.WORD	01000			; Saved SP value
-;
-FNCORE:	;CALL	STPALD			; Select default palette
+; Finalization
+FNCORE:	MTPS	#000340			; Disable interrupts
+	;CALL	STPALD			; Select default palette
+	MOV	#INTBCK, R0
+	MOV	(R0)+, @#000004
+	MOV	(R0)+, @#000060
+	MOV	(R0)+, @#000274
+	MOV	(R0)+, @#000100
+	MOV	(R0)+, @#000102
 	MOV	#016000, @#177716	; Вернуть стандартное значение регистра управления памятью
 	MOV	OSTACK, SP
 	JMP	@#100000		; Возврат в ANDOS
+;
+OSTACK:	.WORD	01000		; Saved SP value
+INTBCK:	.BLKW	5		; Interrupt vectors backup
 
 PREPARE:
 ; Prepare PXCONV table, used to convert pixels BYTE -> BK WORD
@@ -137,6 +160,46 @@ PREPARE:
 	CMP	R5, #16.
 	BLO	10$
 ;
+	RETURN
+
+; Randomly clear tiles on the screen // by BlaireCas
+FadeScreen:
+	MOV	#MMODE5, @#177716	; Включаем режим памяти 5
+	MOV	#255., R4
+; LFSR 8-bit random (Galois), 2^8-1 cycle
+; cycle xor: 8-bit [10111000] 9-bit [110110000]
+10$:	ASR	#123
+	BCC	20$
+	MOV	#^B0000000010111000, R0
+	XOR	R0, 10$+2
+20$:	MOV	10$+2, R0
+; now R0 = pseudo-random byte, we'll use it as [X][Y]
+	MOV	R0, R1
+	BIC	#^B1111111100001111, R1
+	ASR	R1
+	ASR	R1
+	BIC	#^B1111111111110000, R0
+	SWAB	R0
+	ASL	R0
+	ASL	R0
+	BIS	R1, R0
+	CALL	FadeScreen1
+	SOB	R4, 10$
+; Clear the last one at top-left
+	CLR	R0
+	CALL	FadeScreen1
+	MOV	#MMODE1, @#177716	; Set the main memory mode
+	RETURN
+FadeScreen1:
+	ADD	#SCREEN, R0		; now R0 = screen address
+	MOV	#16., R3
+40$:	CLR	(R0)+
+	CLR	(R0)
+	ADD	#<100-2>, R0
+	SOB	R3, 40$
+	MOV	#700, R3		; delay
+50$:	NOP
+	SOB	R3, 50$
 	RETURN
 
 ; Procedure: Read a key
@@ -467,8 +530,9 @@ LAD57:	.ASCII	/99/			; Indicator time value
 LAD59:	.ASCII	/HELDTIMENEAR/
 LBD2F:	.ASCII	/BOMB/			; "BOMB" message
 
+ANYKEY:	.ASCII	/PRESS ANY KEY/
 ; Menu
-TITLE:	.ASCII	/SABOTEUR 1 BK11M/
+TITLE:	.ASCII	/SABOTEUR 1/
 VERSIO:
 .INCLUDE /VERSIO.MAC/
 	.ASCII / /
@@ -519,14 +583,13 @@ L62A2:	MOVB	R0, (R2)+		; store repeated byte in buffer
 	BR	L628F
 ; Buffer is ready, copy to screen
 L62A9:	MOV	#MMODE5, @#177716	; Включаем режим памяти 5
-	MOV	#SCRTOP, R3		; Screen start address
+	MOV	#<SCRTOP+1200*2>, R3	; Screen address
 	MOV	#TLSCR0, R2		; Tile screens address, used as a buffer
 	MOV	#12., R4		; Number of columns = 12.
 L62B1:	PUSH	R3			; save screen address
 	MOV	#<24.*8.>, R1		; Number of lines = 24. * 8.
-	;MOV	#377, R5		; XOR value
+	;MOV	#^B1010101010101010, R5	; XOR value
 L62B4:	MOVB	(R2)+, R0
-	;XOR	R5, R0
 	MOV	PXCONH(R0), (R3)	; copy to screen
 	ADD	#64., R3
 	SOB	R1, L62B4		; continue loop for lines
@@ -1969,6 +2032,7 @@ LB6F4:	PUSH	R3			; Save address in the room sequence
 ; Called to finish room initialization from room initialization procedure
 LB724:
 LB422 = LB724
+	MTPS	#000340			; Disable interrupts
 	MOV	#TLSCR1, R3		; Tile screen 1 start address
 	MOV	#<510./2>, R1
 10$:	MOV	#401, (R3)+		; put two bytes $01
@@ -1995,6 +2059,8 @@ LB768:	POP	R3			; restore address in Table of objects
 	CMPB	#9., GARDST 		; Guard state = 9. dead ?
 	BEQ	LB77B			; no => skip
 	MOVB	#10., GARDST		; set Guard state = $0A
+;
+;TODO	MTPS	#000000			; Enable interrupts
 ;
 ; Game loop start
 LB77B:
@@ -3397,9 +3463,9 @@ LDF37:
 LDF60:	CALL	WAITUP			; clear keyboard buffer
 	;CALL	LDEC1			; Clear strings on the screen
 
-	MOV	#16., R1
+	MOV	#10., R1
 	MOV	#TITLE, R3
-	MOV	#<SCRTOP+<1200*0.>+13.*2>, R2
+	MOV	#<SCRTOP+<1200*1.>+13.*2>, R2
 	CALL	PRSTR			; Print string - title
 	MOV	#17., R1
 	;MOV	#VERSIO, R3
