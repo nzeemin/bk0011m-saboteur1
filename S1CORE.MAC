@@ -472,7 +472,7 @@ TITLE:	.ASCII	/SABOTEUR 1 BK11M/
 VERSIO:
 .INCLUDE /VERSIO.MAC/
 	.ASCII / /
-SPALET:	.ASCII	/P  PALETTE/
+;SPALET:	.ASCII	/P  PALETTE/
 LDF27:	.ASCII	/S  START MISSION/
 	.ASCII	/X  EXIT/
 LE1FE:	.ASCII	/1-9 SELECT LEVEL/
@@ -498,17 +498,11 @@ LC087:	.ASCII	/TOTAL PAY : $/
 LE388:	.ASCII	/ 10/			; level bonus string
 	.BYTE	10.			; level bonus value
 
-;LB061:	.ASCII	/00  $/
-
-;LB0E8:	.ASCII	/          /		; String 10 spaces
-
-;LDEE6:	.ASCII	/                /	; String 18 spaces
-
 	.EVEN
 ;------------------------------------------------------------------------------
 
 ; Show title picture (two ninjas)
-L6289:	MOV	#L62DB, R3		; Encoded picture data address
+L6289:	MOV	#L62DB, R3		; Encoded picture data address, see S1PICT.MAC
 	MOV	#TLSCR0, R2		; Tile screens address, used as a buffer
 L628F:	MOVB	(R3)+, R0		; Load next byte of picture data
 	BEQ	L62A1			; $00 => repeat byte N times
@@ -587,21 +581,48 @@ DRNRJC:	MOV	NRJ, R2			; 0..14.
 ; R3 = address on the screen; R0 = item number 0..9.
 DRITEM:	ASL	R0
 L74D3:	MOV	LB5B0(R0), R2		; !!MUT-ARG!! get item address from the table
-	MOV	#24., R1
-	MOV	#MMODE5, @#177716	; Включаем режим памяти 5
-L74E4:	MOVB	(R2)+, R5
-	ASL	R5
-	MOV	PXCONH(R5), (R3)+	; copy to screen
-	MOVB	(R2)+, R5
-	ASL	R5
-	MOV	PXCONH(R5), (R3)+	; copy to screen
-	MOVB	(R2)+, R5
-	ASL	R5
-	MOV	PXCONH(R5), (R3)+	; copy to screen
-	MOVB	(R2)+, R5
-	ASL	R5
-	MOV	PXCONH(R5), (R3)	; copy to screen
-	ADD	#<100-6>, R3		; next line
+	MOV	#MMOD52, @#177716	; Включаем режим памяти 5:2
+	MOV	#3, R1			; 3 rows
+L74E4:	MOV	#4, R4			; 4 columns
+30$:	MOVB	(R2)+, R5		; get color attributes
+	MOV	Byte2WordTbl(R5), R5	; get Byte2Word table address
+	MOVB	(R2)+, R0		; 0
+	ASL	R0
+	ADD	R5, R0
+	MOV	(R0), (R3)		; copy to screen
+	MOVB	(R2)+, R0		; 1
+	ASL	R0
+	ADD	R5, R0
+	MOV	(R0), 100(R3)		; copy to screen
+	MOVB	(R2)+, R0		; 2
+	ASL	R0
+	ADD	R5, R0
+	MOV	(R0), 200(R3)		; copy to screen
+	MOVB	(R2)+, R0		; 3
+	ASL	R0
+	ADD	R5, R0
+	MOV	(R0), 300(R3)		; copy to screen
+	MOV	(R0), 400(R3)		; copy to screen - extra line
+	MOVB	(R2)+, R0		; 4
+	ASL	R0
+	ADD	R5, R0
+	MOV	(R0), 500(R3)		; copy to screen
+	MOVB	(R2)+, R0		; 5
+	ASL	R0
+	ADD	R5, R0
+	MOV	(R0), 600(R3)		; copy to screen
+	MOVB	(R2)+, R0		; 6
+	ASL	R0
+	ADD	R5, R0
+	MOV	(R0), 700(R3)		; copy to screen
+	MOVB	(R2)+, R0		; 7
+	ASL	R0
+	ADD	R5, R0
+	MOV	(R0), 1000(R3)		; copy to screen
+	MOV	(R0), 1100(R3)		; copy to screen - extra line
+	ADD	#2, R3			; next column
+	SOB	R4, 30$
+	ADD	#<1200-8.>, R3		; next row
 	SOB	R1, L74E4		; repeat
 	MOV	#MMODE1, @#177716	; Включаем режим памяти 1
 	RETURN
@@ -4173,7 +4194,7 @@ LDE84:	.WORD	RM79C6
 RANDOM:	MOV	RNDSED, R2	; A270	LD DE,($5C76)	; Read RND SEED variable
 	MOV	R2, R3		; A274	LD H,E
 	SWAB	R3
-	BIC	#377, R3
+	CLRB	R3
 	ADD	#375, R3	; A275	LD L,$FD
 	MOV	R2, R0		; A277	LD A,D
 	SWAB	R0
