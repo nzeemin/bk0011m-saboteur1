@@ -83,7 +83,7 @@ tools\BKTurbo8_x64.exe -ik -s001000 -lS1BOOT.lst CO S1BOOT.MAC >S1BOOT.out
 dir /-c SABOT1.BIN|findstr /R /C:"SABOT1.BIN"
 
 findstr /R /C:"BOOTP1:" S1BOOT.lst
-findstr /R /C:".ORG	040000" S1CORE.lst
+findstr /R /C:"FREE0 =" S1CORE.lst
 
 echo %ESCchar%[92mSUCCESS%ESCchar%[0m
 exit

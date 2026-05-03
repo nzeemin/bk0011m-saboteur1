@@ -35,12 +35,11 @@ SCRTOP = SCREEN + 1000		; Where the game screen starts
 SCRIND = SCRTOP + 1200*19.	; Screen address for first indicators line
 
 ; PPUKEY bits
-PKEYRT = 001	; RIGHT
-PKEYLT = 002	; LEFT
+PKEYUP = 001	; UP
+PKEYRT = 002	; RIGHT
 PKEYDN = 004	; DOWN
-PKEYUP = 010	; UP
-PKEYFR = 020	; FIRE key
-PKEYST = 200	; STOP key
+PKEYLT = 010	; LEFT
+PKEYFR = 060	; FIRE key
 
 ; Bank 2 to convert byte + attributes (ink paper) -> color word
 Byte2Word00 = 100400
@@ -76,21 +75,29 @@ START:
 	MOV	@#000100, (R0)+
 	MOV	@#000102, (R0)+
 	MOV	#000004, R0
+	MOV	#VSYINT, @#000100	; VSync interrupt
+	MOV	#200, @#000102		; VSync interrupt PSW
+	MOV	#KEYINT, @#000060	; keyboard interrupt
+	MOV	#KEYIN2, @#000274	; keyboard interrupt
 	MOV	#STOP, (R0)+		; STOP key handler vector
 	MOV	#340, (R0)
 	CALL	PREPARE			; Prepare tables
-;TODO: Message and wait for a key
+	CLR	@#177660		; allow keyboard interrupts
+; Message and wait for a key
 	MOV	#13., R1
-	MOV	#ANYKEY, R3
+	MOV	#ANYKEY, R3		; "PRESS ANY KEY"
 	MOV	#<SCRTOP+30200+9.*2>, R2
 	CALL	PRSTR			; Print string - title
-	CALL	WTKEY
-	CALL	FadeScreen
+	MTPS	#0			; enable interrupts
+	CLR	KEYCUR
+12$:	TST	KEYCUR
+	BEQ	12$			; wait for a key
 ; STOP key handler starts here
 STOP:	MOV	#1000, SP
 	MOV	#1330, @#177664		; Set standard scroll value
 	MOV	#MMODE1, @#177716	; Set the main memory mode
-	CALL	CLS			; Clear the screen
+	CALL	FadeScreen		; Clear the screen
+	MTPS	#0			; enable interrupts
 ; Initialization finished, go to Menu
 	JMP	LBC0D			; => Menu
 ;
@@ -103,9 +110,9 @@ FNCORE:	MTPS	#000340			; Disable interrupts
 	MOV	(R0)+, @#000274
 	MOV	(R0)+, @#000100
 	MOV	(R0)+, @#000102
-	MOV	#016000, @#177716	; Вернуть стандартное значение регистра управления памятью
-	MOV	OSTACK, SP
-	JMP	@#100000		; Возврат в ANDOS
+	MOV	#016000, @#177716	; restore standard memory register value
+	MOV	OSTACK, SP		; restore stack
+	JMP	@#100000		; return to ANDOS
 ;
 OSTACK:	.WORD	01000		; Saved SP value
 INTBCK:	.BLKW	5		; Interrupt vectors backup
@@ -131,7 +138,7 @@ PREPARE:
 	CMP	R3, #128.
 	BLT	1$
 ; Prepare byte -> word tables, 16 tables by 512 bytes, see Byte2Word00
-	MOV	#MMOD52, @#177716	; Set the main memory mode
+	MOV	#MMOD52, @#177716	; Set memory mode
 	CLR	R5			; xxxxPPII (P-paper, I-ink)
 	MOV	#100000, R4
 10$:	MOV	R5, 40$+2
@@ -202,25 +209,55 @@ FadeScreen1:
 	SOB	R3, 50$
 	RETURN
 
-; Procedure: Read a key
-READKEY:
-	TSTB	@#177660
-	BPL	10$		; no key => exit
-	MOVB	@#177662, R0
-	RETURN
-10$:	CLR	R0		; empty key
-	RETURN
+; Keyboard interrupt handler  // by BlaireCas
+PPUKEY = INPUTB
+KEYINT:	PUSH	R0
+	MOV	@#177662, R0		; get the key
+	MOV	R0, (PC)+
+KEYCUR:	.WORD	0
+	;TST	JoyUsed			; do not use keyboard if we already used joystick
+	;BNE	90$
+	CMP	R0, #10			; key left
+	BNE	10$
+	BIS	#PKEYLT, PPUKEY
+	BR	90$
+10$:	CMP	R0, #31			; key right
+	BNE	20$
+	BIS	#PKEYRT, PPUKEY
+	BR	90$
+20$:	CMP	R0, #32			; key up
+	BNE	30$
+	BIS	#PKEYUP, PPUKEY
+	BR	90$
+30$:	CMP	R0, #33			; key down
+	BNE	40$
+	BIS	#PKEYDN, PPUKEY
+	BR	90$
+40$:	CMP	R0, #40			; key space
+	BNE	90$
+	BIS	#PKEYFR, PPUKEY
+90$:	POP	R0
+	RTI
 ;
-; Procedure: Get a key
-WTKEY:	CALL	READKEY
-	TSTB	R0
-	BEQ	WTKEY
-	RETURN
-; Procedure: Empty keyboard buffer
-WAITUP:	CALL	READKEY			; KEYB Read a key
-	TSTB	R0
-	BNE	WAITUP
-	RETURN
+; Keyboard interrupt second handler  // by BlaireCas
+KEYIN2:
+	PUSH	R0
+	MOV	@#177662, R0		; get the key
+	;TST	JoyUsed			; do not use keyboard if we already used joystick
+	;BNE	90$
+	CMP	R0, #10			; key left
+	BNE	10$
+	BIS	#PKEYLT, PPUKEY
+	BR	80$
+10$:	CMP	R0, #31			; key right
+	BNE	90$
+	BIS	#PKEYRT, PPUKEY
+80$:	BIS	#PKEYUP, PPUKEY
+90$:	POP	R0
+	RTI
+
+; VSync interrupt handler
+VSYINT:	RTI
 
 ; Procedure: Clear whole screen with Black
 CLS:	CLR	R0
@@ -247,8 +284,8 @@ PAUSE:
 
 ; Game controls
 ;   7   6   5   4   3   2   1   0
-; Stop          Fr  Up  Dn  Lt  Rt
-INPUTB:	.BYTE	0	; Input bits: S00FUDLR
+;           Fr  Fr  Lt  Dn  Rt  Up
+INPUTB:	.BYTE	0	; Input bits: 00FFLDRU
 	.EVEN
 
 ROOM:	.WORD	RM791E	; Current Room address
@@ -1293,7 +1330,7 @@ LAC6E:	SOB	R1, LAC5C
 	RETURN
 
 ; Draw game screen frames and indicator text
-DRINDS:	MOV	#MMODE5, @#177716	; Включаем режим памяти 5
+DRINDS:	MOV	#MMOD52, @#177716	; Включаем режим памяти 5:2
 	MOV	#SCRTOP, R3		; Screen start address
 	MOV	#LAD65, R2		; Game screen frames/indicators RLE encoded sequence
 	CLR	R5			; counter up to 32.
@@ -1315,27 +1352,38 @@ DRINDS:	MOV	#MMODE5, @#177716	; Включаем режим памяти 5
 	ASL	R2
 	ASL	R2
 	ASL	R2			; * 8.
-	ASL	R2			; * 16.
+	ADD	R0, R2			; * 9.
 	ADD	#LAE02, R2		; Indicator tiles address
-27$:	;MOV	#8., R4
-30$:	;CLR	R0
-	MOV	(R2)+, (R3)		; copy to screen
-	MOV	(R2)+, 100(R3)		; copy to screen
-	MOV	(R2)+, 200(R3)		; copy to screen
-	MOV	(R2), 300(R3)		; copy to screen
-	MOV	(R2)+, 400(R3)		; extra line
-	MOV	(R2)+, 500(R3)		; copy to screen
-	MOV	(R2)+, 600(R3)		; copy to screen
-	MOV	(R2)+, 700(R3)		; copy to screen
-	MOV	(R2), 1000(R3)		; copy to screen
-	MOV	(R2)+, 1100(R3)		; extra line
-	;SOB	R4, 30$
-	ADD	#2, R3			; next column
+27$:	PUSH	R5
+	MOVB	(R2)+, R5		; get color attributes
+	MOV	Byte2WordTbl(R5), R5	; get Byte2Word table address
+	MOV	#2., R4
+30$:	MOVB	(R2)+, R0		; 0
+	ASL	R0
+	ADD	R5, R0
+	MOV	(R0), (R3)		; copy to screen
+	MOVB	(R2)+, R0		; 1
+	ASL	R0
+	ADD	R5, R0
+	MOV	(R0), 100(R3)		; copy to screen
+	MOVB	(R2)+, R0		; 2
+	ASL	R0
+	ADD	R5, R0
+	MOV	(R0), 200(R3)		; copy to screen
+	MOVB	(R2)+, R0		; 3
+	ASL	R0
+	ADD	R5, R0
+	MOV	(R0), 300(R3)		; copy to screen
+	MOV	(R0), 400(R3)		; copy to screen - extra line
+	ADD	#500, R3
+	SOB	R4, 30$
+	ADD	#<2-1200>, R3		; next column
+	POP	R5
 	INC	R5
 	BIC	#177740, R5		; keep 5 lower bits = 0..31.
 	BNE	40$
-	ADD	#<1200-64.>, R3	; next row
-40$:	SUB	#16., R2
+	ADD	#<1200-64.>, R3		; next row
+40$:	SUB	#9., R2			; return to tile start
 	SOB	R1, 27$
 	POP	R2
 	BR	10$
@@ -1355,8 +1403,7 @@ LAD1D:	MOV	#MMODE1, @#177716	; Включаем режим памяти 1
 	CALL	PRSTR			; Print string "TIME"
 	MOV	#<SCRIND+3600+27.*2>, R2
 	MOV	#4, R1
-	CALL	PRSTR			; Print string "NEAR"
-	RETURN
+	JMP	PRSTR			; Print string "NEAR"
 
 ;------------------------------------------------------------------------------
 
@@ -2032,7 +2079,7 @@ LB6F4:	PUSH	R3			; Save address in the room sequence
 ; Called to finish room initialization from room initialization procedure
 LB724:
 LB422 = LB724
-	MTPS	#000340			; Disable interrupts
+;	MTPS	#000340			; Disable interrupts
 	MOV	#TLSCR1, R3		; Tile screen 1 start address
 	MOV	#<510./2>, R1
 10$:	MOV	#401, (R3)+		; put two bytes $01
@@ -2060,11 +2107,15 @@ LB768:	POP	R3			; restore address in Table of objects
 	BEQ	LB77B			; no => skip
 	MOVB	#10., GARDST		; set Guard state = $0A
 ;
-;TODO	MTPS	#000000			; Enable interrupts
+;	MTPS	#0			; Enable interrupts
 ;
 ; Game loop start
 LB77B:
-;NOTE: Removed: Clear LAST / get LASTK
+	CLR	KEYCUR			; Clear last key pressed
+	BIT	#100, @#177716		; any key pressed?
+	BEQ	20$			; yes => skip
+	CLR	PPUKEY			; else clear keys variable
+20$:
 	CMPB	#1, TIMODE		; Time mode = stopped ?
 	BEQ	LB7AF			; yes =>
 ; Decrease Time, check if Time is out
@@ -2460,7 +2511,7 @@ LBBAE:	MOV	2(R4), R3		; get object position
 	RETURN
 
 ; Movement handler: Ninja punching
-LBBD4:	CALL	LBBDF			; Read input
+LBBD4:	MOV	PPUKEY, R0		; Read input
 	BIT	#PKEYFR, R0		; check FIRE bit
 	BEQ	LBBDC
 	JMP	LB8D0			; => Update Ninja on tilemap
@@ -2511,7 +2562,7 @@ LBC7E:	MOV	#<LD486+8.>, R2		; head tile address
 LBC98:	;CMPB	#210., (R3)
 	;BEQ	LBC7E
 ; Check for suicide key combination, LBC9D
-	;CALL	LBBDF ;TODO		; Read Input
+	;MOV	PPUKEY, R0 ;TODO		; Read Input
 	;BIT	#PKEYST, R0		; check for STOP key
 	;BEQ	LBCB6			; not pressed => skip suicide
 	;MOV	#LBEEF, LBEB4		; "SEPUKU" / "MISSION ABORTED"
@@ -2523,7 +2574,7 @@ LBCBC:	MOV	#LB595, R3
 	TSTB	(R3)
 	BEQ	LBCC4
 	DECB	(R3)
-LBCC4:	CALL	LBBDF			; Read Input
+LBCC4:	MOV	PPUKEY, R0		; Read Input
 	BIT	#PKEYFR, R0		; check FIRE bit
 	BNE	LBCCC			; FIRE =>
 	JMP	LBDDD
@@ -2612,10 +2663,10 @@ LBD7A = LBD79 + 2	; HELD tile
 	ADD	#2, R1
 LBD8D:	MOVB	R1, LA3A3
 	MOVB	INPUTB, R0		; get Input bits
-	BIT	#10, R0			; check UP bit
+	BIT	#PKEYUP, R0		; check UP bit
 	BEQ	LBD9B
 	ADD	#-3, R1
-LBD9B:	BIT	#4, R0			; check DOWN bit
+LBD9B:	BIT	#PKEYDN, R0		; check DOWN bit
 	BEQ	LBDA2
 	ADD	#3, R1
 LBDA2:	MOVB	R1, LA3A2
@@ -2641,7 +2692,7 @@ LBDD4:	MOV	#LBBD4, R3		; Movement handler address
 	MOV	#LD504, R2		; Sprite Ninja/Guard punching
 	JMP	LBFB0			; Set movement handler = R3, Ninja sprite = R2
 
-LBDDD:	BIT	#10, R0			; bit 3 - up
+LBDDD:	BIT	#PKEYUP, R0		; check UP bit
 	BNE	LBDE2			; yes =>
 	JMP	LBFBA
 ; UP pressed
@@ -2760,9 +2811,8 @@ LBEB4 = LBEB3 + 2
 	MOV	#20., R1
 	CALL	PRSTR			; Print string 1st line
 ;
-	;CALL	STOPPU			; Remove PPU procedure
 	CALL	LF9B9			; Pause, then wait for any key pressed
-;
+	CALL	FadeScreen
 	JMP	LBC0D			; => Title picture and music, then go to Main menu
 
 ; UP pressed (continued, see BDE2)
@@ -2779,11 +2829,11 @@ LBF8A:	MOVB	#3, L7343		; set counter = 3
 	MOVB	INPUTB, R0		; get Input bits
 	TSTB	NJADIR			; check Ninja direction
 	BEQ	LBFA0			; left =>
-	BIT	#1, R0			; check RIGHT bit
+	BIT	#PKEYRT, R0		; check RIGHT bit
 	BEQ	LBF9E
 	CALL	LC4E8
 LBF9E:	BR	LBFA5
-LBFA0:	BIT	#2, R0			; check LEFT bit
+LBFA0:	BIT	#PKEYLT, R0		; check LEFT bit
 	BEQ	LBFA5
 	CALL	LC4E8
 LBFA5:	MOV	#LC339, R3		; Movement handler: Ninja jumping
@@ -2795,7 +2845,7 @@ LBFB0:	MOV	R3, LB8CE		; set movement handler
 	MOV	R2, NJASPR		; set Ninja sprite address
 	JMP	LB8D0			; => Update Ninja on tilemap
 
-LBFBA:	BIT	#4, R0			; bit 2 - down
+LBFBA:	BIT	#PKEYDN, R0		; check DOWN bit
 	BEQ	LC13D			; no =>
 ; DOWN pressed
 LBFBF:	MOV	NJAPOS, R3		; get Ninja position in tilemap
@@ -2873,7 +2923,7 @@ LC12E:	MOV	#LC3D9, LB8CE		; Movement handler for Ninja on ladder
 	MOV	#LD52E, NJASPR		; Sprite Ninja on ladder
 	JMP	LC498			; => Move down one tile
 
-LC13D:	BIT	#2, R0			; bit 1 - left
+LC13D:	BIT	#PKEYLT, R0		; check LEFT bit
 	BEQ	LC154			; no =>
 ; LEFT pressed
 	MOV	#NJADIR, R3		; Ninja direction address
@@ -2885,7 +2935,7 @@ LC14B:	MOV	#LC24B, R3		; Movement handler address
 	MOV	#LD3DE, R2		; Sprite Ninja/Guard walking 1
 	JMP	LBFB0			; Set movement handler = R3, Ninja sprite = R2
 
-LC154:	BIT	#1, R0			; bit 0 - right
+LC154:	BIT	#PKEYRT, R0		; check RIGHT bit
 	BEQ	LC16E			; no =>
 ; RIGHT pressed
 	MOV	#NJADIR, R3		; Ninja direction address
@@ -2912,8 +2962,8 @@ LC1BE:	MOV	NJAPOS, R3		; get Ninja position in tilemap
 LC1DA:	ADD	#-29., R3
 	CMPB	#144, (R3)		; $64
 	BHIS	LC1EE
-	CALL	LBBDF			; Read Input
-	BIT	#1, R0			; check RIGHT bit
+	MOV	PPUKEY, R0		; Read Input
+	BIT	#PKEYRT, R0		; check RIGHT bit
 	BEQ	LC226			; => Ninja standing
 	JMP	LB8D0			; => Update Ninja on tilemap
 LC1EE:	ADD	#59., R3
@@ -2933,8 +2983,8 @@ LC20D:	INCB	NJAX			; move one tile to right
 	CALL	LC5A3			; Check for falling
 	BNE	LC21E			; not falling =>
 	JMP	LC643			; => Ninja falling
-LC21E:	CALL	LBBDF			; Read Input
-	BIT	#1, R0			; check RIGHT bit
+LC21E:	MOV	PPUKEY, R0		; Read Input
+	BIT	#PKEYRT, R0		; check RIGHT bit
 	BNE	LC2BB			; RIGHT pressed =>
 
 ; Switch Ninja to standing
@@ -2945,8 +2995,8 @@ LC226:	MOV	#LBC55, R3		; Movement handler: Ninja standing
 	JMP	LBFB0			; Set movement handler = R3, Ninja sprite = R2
 
 ; Movement handler (B8CE handler): Ninja sitting
-LC22F:	CALL	LBBDF			; Read input
-	BIT	#4, R0			; check DOWN bit
+LC22F:	MOV	PPUKEY, R0		; Read input
+	BIT	#PKEYDN, R0		; check DOWN bit
 	BEQ	LC226			; DOWN key released => stand up
 ; DOWN still pressed
 LC239:	MOV	NJAPOS, R3		; get Ninja position in tilemap
@@ -2970,8 +3020,8 @@ LC253:	MOV	NJAPOS, R3		; get Ninja position in tilemap
 LC26F:	ADD	#-31., R3
 	CMPB	#144, (R3)		; $64
 	BHIS	LC283
-	CALL	LBBDF			; Read Input
-	BIT	#2, R0			; check LEFT bit
+	MOV	PPUKEY, R0		; Read Input
+	BIT	#PKEYLT, R0		; check LEFT bit
 	BEQ	LC226			; => Ninja standing
 	JMP	LB8D0			; => Update Ninja on tilemap
 LC283:	ADD	#61., R3
@@ -2991,13 +3041,13 @@ LC2A2:	DECB	NJAX			; move one tile to left
 	CALL	LC5A3			; Check for falling
 	BNE	LC2B3			; not falling =>
 	JMP	LC643			; => Ninja falling
-LC2B3:	CALL	LBBDF			; Read Input
-	BIT	#2, R0			; check LEFT bit
+LC2B3:	MOV	PPUKEY, R0		; Read Input
+	BIT	#PKEYLT, R0		; check LEFT bit
 	BEQ	LC226			; => Ninja standing
 
 ; LEFT or RIGHT key pressed
 LC2BB:	MOVB	#7, L7343		; set counter = 7
-	BIT	#10, R0			; check for UP bit
+	BIT	#PKEYUP, R0		; check for UP bit
 	BEQ	LC2C5
 	CALL	LC4E8
 LC2C5:	MOV	NJAWLK, R0
@@ -3121,8 +3171,8 @@ LC3D9:	MOV	NJAPOS, R3		; get Ninja position in tilemap
 	BEQ	LC3EC			; yes => Read and process Input
 	JMP	LC226			; => Ninja standing
 ; Read and process Input
-LC3EC:	CALL	LBBDF			; Read Input
-	BIT	#1, R0			; check RIGHT bit
+LC3EC:	MOV	PPUKEY, R0		; Read Input
+	BIT	#PKEYRT, R0		; check RIGHT bit
 	BEQ	LC40E
 ; Pressed RIGHT
 	MOV	NJAPOS, R3		; get Ninja position in tilemap
@@ -3135,7 +3185,7 @@ LC3EC:	CALL	LBBDF			; Read Input
 	MOVB	#1, NJADIR		; set direction = right
 	JMP	LC162
 ; Check if LEFT pressed
-LC40E:	BIT	#2, R0			; check LEFT bit
+LC40E:	BIT	#PKEYLT, R0		; check LEFT bit
 	BEQ	LC42C
 ; Pressed LEFT
 	MOV	NJAPOS, R3		; get Ninja position in tilemap
@@ -3149,7 +3199,7 @@ LC40E:	BIT	#2, R0			; check LEFT bit
 	JMP	LC14B
 ; Check if UP pressed
 LC42C:	MOVB	INPUTB, R0		; get Input bits
-	BIT	#10, R0			; check UP bit
+	BIT	#PKEYUP, R0		; check UP bit
 	BEQ	LC477
 ; Pressed UP
 	MOV	NJAPOS, R3		; get Ninja position in tilemap
@@ -3174,7 +3224,7 @@ LC467:	MOV	#1, R0
 	JMP	LB8D0			; => Update Ninja on tilemap
 
 ; Check if DOWN pressed
-LC477:	BIT	#4, R0			; check DOWN bit
+LC477:	BIT	#PKEYDN, R0		; check DOWN bit
 	BEQ	LC495
 ; Pressed DOWN
 	CMPB	#10., NJAY		; Ninja Y at the room bottom?
@@ -3460,7 +3510,7 @@ LDF37:
 	MOV	#220, @#177716		; sound off
 
 ; Menu
-LDF60:	CALL	WAITUP			; clear keyboard buffer
+LDF60:
 	;CALL	LDEC1			; Clear strings on the screen
 
 	MOV	#10., R1
@@ -3496,8 +3546,10 @@ LDF8E:	MOV	#LC082, R3		; "LEVEL X"
 	CALL	PRSTR			; Print string
 
 ; Menu loop starts here
-10$:
-	CALL	WTKEY
+10$:	CLR	KEYCUR
+12$:	TST	KEYCUR
+	BEQ	12$			; wait for a key
+	MOV	KEYCUR, R0
 	CMPB	R0, #140
 	BLO	20$			; upper/lower?
 	SUB	#040, R0		; to upper
@@ -3528,38 +3580,18 @@ LE2A7:
 ;NOTE: in the original game, here we ask for Skill Level, moved to the Menu, see LEVSEL
 
 	MOVB	#TIMERI, TIMECN		; set initial value for the fast timer
-
-	CALL	WAITUP			; clear keyboard buffer
-
-	;CALL	RUNPPU			; Start PPU procedure, clear the screen
+	CLR	KEYCUR
+	;CLR	PPUKEY
 	;BR	LF913
 LF913:
 	JMP	LB3B0
 
-; Noise sound using program code for pseudo-random delays
-; R1 = how long
-LF9A1:	ASL	R1
-	ASL	R1
-	ASL	R1
-	MOV	#001600, R3		; адрес откуда брать данные
-	MOV	#220, R0		; значение для порта 177716
-	MOV	#100, R5
-10$:	MOV	R0, @#177716
-	XOR	R5, R0
-	CLR	R4
-	BISB	(R3)+, R4		; get delay value
-	INC	R4
-20$:	DEC	R4			; delay
-	BNE	20$
-	SOB	R1, 10$
-	MOV	#220, @#177716		; sound off
-	RETURN
-
 ; Pause, then wait for any key pressed
 LF9B9:
 	CALL	PAUSE
-	CALL	WAITUP			; Clear key buffer
-	CALL	WTKEY
+	CLR	KEYCUR
+12$:	TST	KEYCUR
+	BEQ	12$			; wait for a key
 	RETURN
 
 LF9F9:	MOV	#264, R3		; $00B4
@@ -3574,8 +3606,7 @@ LFA11:
 
 LFA31:	CALL	NRJDEC			; Decrease Energy by R1
 	MOV	#1, R1
-	CALL	LF9A1			; Noise sound
-	RETURN
+	JMP	LF9A1			; Noise sound
 
 ;------------------------------------------------------------------------------
 	.EVEN
@@ -3600,6 +3631,8 @@ PXCONH = L33124 + <128.*2.>	; Середина таблицы конвертац
 .INCLUDE /S1FONT.MAC/
 
 .INCLUDE /S1INDS.MAC/
+
+FREE0 = 040000 - .
 
 ;------------------------------------------------------------------------------
 ; Блок кода и данных под экраном, 040000-100000
@@ -4278,46 +4311,10 @@ RANDOM:	MOV	RNDSED, R2	; A270	LD DE,($5C76)	; Read RND SEED variable
 	RETURN			; A28C	RET
 RNDSED:	.WORD	123456	; Pseudo-random seed
 
-; Procedure: Read Input
-LBBDF:	PUSH	R3
-	PUSH	R1
-; If we have a key pressed, go through key mapping table
-	TSTB	@#177660	;БК	; do we have an unprocessed key?
-	BPL	K41276		;БК	; no => jump
-	MOVB	@#177662, R0	;БК	; get the key
-	MOV	#K41305, R3
-	MOV	#9., R1
-K41256:	CMPB	(R3)+, R0		; <  matches the key?
-	BNE	K41270			; |  no => jump
-	INC	R3			; |
-	MOVB	(R3), R0		; |  get the result byte
-	BR	K41300			; |  break the loop
-K41270:	ADD	#000002, R3		; |  to next key probe
-	SOB	R1, K41256		; repeat
-K41276:	CLR	R0			; not found - result is empty
-K41300:	POP	R1
-	POP	R3
-	MOV	R0, INPUTB
-	RETURN
-;
-; BK Joystick - port 177714
-;  7   6   5   4   3   2   1   0
-;  B  Fr2  Fr  A   Lt  Dn  Rt  Up
-;
-; Game controls
-;  7   6   5   4   3   2   1   0
-;              Fr  Up  Dn  Lt  Rt
-; Key mappings
-K41305:	.BYTE	070, 001, 010		; '8' - up
-	.BYTE	062, 004, 004		; '2' - down
-	.BYTE	064, 010, 002		; '4' - left
-	.BYTE	066, 002, 001		; '6' - right
-	.BYTE	065, 140, 020		; '5' - fire
-	.BYTE	061, 000, 012		; '1' - up + left
-	.BYTE	063, 000, 011		; '3' - up + right
-	.BYTE	067, 000, 024		; '7' - down + fire
-	.BYTE	071, 000, 024		; '9' - down + fire
-	.EVEN
+; ; Procedure: Read Input
+; LBBDF:	MOV	PPUKEY, R0
+; 	MOV	R0, INPUTB
+; 	RETURN
 
 ; Procedure: Apply level variables
 LEVSEL:	MOVB	LEVED, R0		; get current level digit 1..9.
@@ -4381,6 +4378,25 @@ LF94D:
 	MOVB	R5, <L8A00+1>		; D - patch length
 	MOVB	R2, <L88EB+1>		; E - patch length
 	MOVB	R3, <L8D45+3>		; L - patch offset low byte
+	RETURN
+
+; Noise sound using program code for pseudo-random delays
+; R1 = how long
+LF9A1:	ASL	R1
+	ASL	R1
+	ASL	R1
+	MOV	#001600, R3		; адрес откуда брать данные
+	MOV	#220, R0		; значение для порта 177716
+	MOV	#100, R5
+10$:	MOV	R0, @#177716
+	XOR	R5, R0
+	CLR	R4
+	BISB	(R3)+, R4		; get delay value
+	INC	R4
+20$:	DEC	R4			; delay
+	BNE	20$
+	SOB	R1, 10$
+	MOV	#220, @#177716		; sound off
 	RETURN
 
 ;------------------------------------------------------------------------------
