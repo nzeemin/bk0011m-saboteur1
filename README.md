@@ -1,7 +1,7 @@
 # bk0011m-saboteur1
 Porting Saboteur 1 game from ZX Spectrum to BK-0011M.
 
-Porting status: Work In Progress.
+Porting status: Work In Progress, playable demo.
 
 Screenshots of the ported version:
 

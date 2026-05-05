@@ -34,14 +34,14 @@ SCREEN = 040000			; Screen start
 SCRTOP = SCREEN + 1000		; Where the game screen starts
 SCRIND = SCRTOP + 1200*19.	; Screen address for first indicators line
 
-; PPUKEY bits
+; INPUTB bits
 PKEYUP = 001	; UP
 PKEYRT = 002	; RIGHT
 PKEYDN = 004	; DOWN
 PKEYLT = 010	; LEFT
 PKEYFR = 060	; FIRE key
 
-; Bank 2 to convert byte + attributes (ink paper) -> color word
+; Page 2: tables to convert byte + attributes (ink paper) -> color word
 Byte2Word00 = 100400
 Byte2Word01 = 101400
 Byte2Word02 = 102400
@@ -58,6 +58,15 @@ Byte2Word30 = 114400
 Byte2Word31 = 115400
 Byte2Word32 = 116400
 Byte2Word33 = 117400
+; Таблица под расширение байта в слово для вывода на экран, 512. bytes
+L33124 = 120000
+PXCONH = L33124 + <128.*2.>	; Середина таблицы конвертации
+
+; Page 6: tiles - see S1TILE.MAC
+LD600 = 100306
+LE700 = 104642
+LF0F0 = 111622
+LF700 = 117242
 
 ;------------------------------------------------------------------------------
 
@@ -119,6 +128,7 @@ INTBCK:	.BLKW	5		; Interrupt vectors backup
 
 PREPARE:
 ; Prepare PXCONV table, used to convert pixels BYTE -> BK WORD
+ 	MOV	#MMOD52, @#177716	; Set memory mode
 	MOV	#L33124, R2
 	MOV	#-128., R3		; R3 бежит от -128. до +127.
 1$:	CLR	R5			; в R5 будет готовое слово
@@ -138,7 +148,6 @@ PREPARE:
 	CMP	R3, #128.
 	BLT	1$
 ; Prepare byte -> word tables, 16 tables by 512 bytes, see Byte2Word00
-	MOV	#MMOD52, @#177716	; Set memory mode
 	CLR	R5			; xxxxPPII (P-paper, I-ink)
 	MOV	#100000, R4
 10$:	MOV	R5, 40$+2
@@ -171,7 +180,7 @@ PREPARE:
 
 ; Randomly clear tiles on the screen // by BlaireCas
 FadeScreen:
-	MOV	#MMODE5, @#177716	; Включаем режим памяти 5
+	MOV	#MMODE5, @#177716	; Set memory mode 5
 	MOV	#255., R4
 ; LFSR 8-bit random (Galois), 2^8-1 cycle
 ; cycle xor: 8-bit [10111000] 9-bit [110110000]
@@ -210,7 +219,6 @@ FadeScreen1:
 	RETURN
 
 ; Keyboard interrupt handler  // by BlaireCas
-PPUKEY = INPUTB
 KEYINT:	PUSH	R0
 	MOV	@#177662, R0		; get the key
 	MOV	R0, (PC)+
@@ -219,23 +227,23 @@ KEYCUR:	.WORD	0
 	;BNE	90$
 	CMP	R0, #10			; key left
 	BNE	10$
-	BIS	#PKEYLT, PPUKEY
+	BIS	#PKEYLT, INPUTB
 	BR	90$
 10$:	CMP	R0, #31			; key right
 	BNE	20$
-	BIS	#PKEYRT, PPUKEY
+	BIS	#PKEYRT, INPUTB
 	BR	90$
 20$:	CMP	R0, #32			; key up
 	BNE	30$
-	BIS	#PKEYUP, PPUKEY
+	BIS	#PKEYUP, INPUTB
 	BR	90$
 30$:	CMP	R0, #33			; key down
 	BNE	40$
-	BIS	#PKEYDN, PPUKEY
+	BIS	#PKEYDN, INPUTB
 	BR	90$
 40$:	CMP	R0, #40			; key space
 	BNE	90$
-	BIS	#PKEYFR, PPUKEY
+	BIS	#PKEYFR, INPUTB
 90$:	POP	R0
 	RTI
 ;
@@ -247,12 +255,12 @@ KEYIN2:
 	;BNE	90$
 	CMP	R0, #10			; key left
 	BNE	10$
-	BIS	#PKEYLT, PPUKEY
+	BIS	#PKEYLT, INPUTB
 	BR	80$
 10$:	CMP	R0, #31			; key right
 	BNE	90$
-	BIS	#PKEYRT, PPUKEY
-80$:	BIS	#PKEYUP, PPUKEY
+	BIS	#PKEYRT, INPUTB
+80$:	BIS	#PKEYUP, INPUTB
 90$:	POP	R0
 	RTI
 
@@ -268,11 +276,11 @@ CLS:	CLR	R0
 CLSRNM:	MOV	#52525, R0
 	MOV	#SCRTOP, R2
 	MOV	#16.*240., R4
-CLSRN1:	MOV	#MMODE5, @#177716	; Включаем режим памяти 5
+CLSRN1:	MOV	#MMODE5, @#177716	; Set memory mode 5
 10$:	MOV	R0, (R2)+
 	MOV	R0, (R2)+
 	SOB	R4, 10$
-	MOV	#MMODE1, @#177716	; Включаем режим памяти 1
+	MOV	#MMODE1, @#177716	; Set memory mode 1
 	RETURN
 
 PAUSE:
@@ -619,7 +627,7 @@ L62A2:	MOVB	R0, (R2)+		; store repeated byte in buffer
 	SOB	R1, L62A2		; repeat
 	BR	L628F
 ; Buffer is ready, copy to screen
-L62A9:	MOV	#MMODE5, @#177716	; Включаем режим памяти 5
+L62A9:	MOV	#MMOD52, @#177716	; Set memory mode 5:2
 	MOV	#<SCRTOP+1200*2>, R3	; Screen address
 	MOV	#TLSCR0, R2		; Tile screens address, used as a buffer
 	MOV	#12., R4		; Number of columns = 12.
@@ -634,13 +642,13 @@ L62B4:	MOVB	(R2)+, R0
 	INC	R3			; next column
 	INC	R3
 	SOB	R4, L62B1		; continue loop for columns
-	MOV	#MMODE1, @#177716	; Включаем режим памяти 1
+	MOV	#MMODE1, @#177716	; Set memory mode 1
 	RETURN
 
 ;------------------------------------------------------------------------------
 
 ; Initial Energy fill
-L7472:	MOV	#MMODE5, @#177716	; Включаем режим памяти 5
+L7472:	MOV	#MMODE5, @#177716	; Set memory mode 5
 	MOV	#<SCRIND+1200*2.+100+6*2>, R2	; screen address
 	MOV	#15., R1
 10$:	MOV	#18., R4
@@ -649,7 +657,7 @@ L7472:	MOV	#MMODE5, @#177716	; Включаем режим памяти 5
 	SOB	R4, 20$
 	ADD	#<2-100*18.>, R2	; next column
 	SOB	R1, 10$
-	MOV	#MMODE1, @#177716	; Включаем режим памяти 1
+	MOV	#MMODE1, @#177716	; Set memory mode 1
 	MOV	#14., NRJ		; set Energy = MAX
 	CLR	NRJLO
 	RETURN
@@ -681,7 +689,7 @@ DRNRJC:	MOV	NRJ, R2			; 0..14.
 ; R3 = address on the screen; R0 = item number 0..9.
 DRITEM:	ASL	R0
 L74D3:	MOV	LB5B0(R0), R2		; !!MUT-ARG!! get item address from the table
-	MOV	#MMOD52, @#177716	; Включаем режим памяти 5:2
+	MOV	#MMOD52, @#177716	; Set memory mode 5:2
 	MOV	#3, R1			; 3 rows
 L74E4:	MOV	#4, R4			; 4 columns
 30$:	MOVB	(R2)+, R5		; get color attributes
@@ -724,7 +732,7 @@ L74E4:	MOV	#4, R4			; 4 columns
 	SOB	R4, 30$
 	ADD	#<1200-8.>, R3		; next row
 	SOB	R1, L74E4		; repeat
-	MOV	#MMODE1, @#177716	; Включаем режим памяти 1
+	MOV	#MMODE1, @#177716	; Set memory mode 1
 	RETURN
 
 ; Process a dog
@@ -1330,7 +1338,7 @@ LAC6E:	SOB	R1, LAC5C
 	RETURN
 
 ; Draw game screen frames and indicator text
-DRINDS:	MOV	#MMOD52, @#177716	; Включаем режим памяти 5:2
+DRINDS:	MOV	#MMOD52, @#177716	; Set memory mode 5:2
 	MOV	#SCRTOP, R3		; Screen start address
 	MOV	#LAD65, R2		; Game screen frames/indicators RLE encoded sequence
 	CLR	R5			; counter up to 32.
@@ -1387,7 +1395,7 @@ DRINDS:	MOV	#MMOD52, @#177716	; Включаем режим памяти 5:2
 	SOB	R1, 27$
 	POP	R2
 	BR	10$
-LAD1D:	MOV	#MMODE1, @#177716	; Включаем режим памяти 1
+LAD1D:	MOV	#MMODE1, @#177716	; Set memory mode 1
 	MOV	#<SCRIND+7.*2>, R2
 	MOV	#13., R1
 	MOV	#LAD4A, R3		; Indicator messages start address
@@ -1417,7 +1425,7 @@ LB16D:	MOV	#30., LB2C7+2		; 30. columns
 LB16F:	TSTB	(R3)			; check "need update" flag in Tile screen 1
 	BEQ	LB2A9			; zero => next column
 ; Start tile drawing
-	MOV	#MMOD56, @#177716	; Включаем режим памяти 5:6 для доступа к тайлам
+	MOV	#MMOD56, @#177716	; Set memory mode 5:6 для доступа к тайлам
 	CLRB	(R3)			; clear "need to update" flag
 	MOVB	<-510.>(R3), R0		; get tile from Tile screen 0
 	INC	R0			; $FF - "earth" background?
@@ -1446,7 +1454,7 @@ LB2C7:	DEC	#30.			; !!MUT-ARG!! decrease column counter
 	ADD	#<1200-30.*2>, SCRADR	; screen address to next row
 LB2E3:	DEC	#17.			; !!MUT-ARG!! decrease rows counter
 	BNE	LB16D			; continue loop by rows
-	MOV	#MMODE1, @#177716	; Включаем режим памяти 1
+	MOV	#MMODE1, @#177716	; Set memory mode 1
 	RETURN
 
 ; Do the tile rendering; returns to LB2A9 after that
@@ -1654,7 +1662,7 @@ LB263:	MOVB	<510.*4>(R3), R0	; get tile from Tile screen 5
 30$:
 ; Draw prepared Tile Buffer on the screen
 ; R3 = current address in Tile screen 1, SP = tile buffer address
-LB293:	MOV	#MMOD52, @#177716	; Включаем режим памяти 5:2
+LB293:	MOV	#MMOD52, @#177716	; Set memory mode 5:2
 	MOVB	8.(SP), R2		; get color attributes
 	MOV	Byte2WordTbl(R2), R2	; get Byte2Word table address
 	MOV	SCRADR, R5
@@ -1730,21 +1738,19 @@ LB34B:	MOVB	(R1), R5
 	XOR	R0, R5
 	MOVB	R5, (R1)
 ; Change Console color in NEAR, so we see that console action worked
-LB350:	MOV	#<SCRIND+27.>, R3	; screen address for NEAR item
-	MOV	#24., R1		; 24. rows
-	MOV	#177400, R0		; value for XOR
-10$:	;MOV	R3, @#176640 ;TODO
-	MOV	#4, R4
-20$:	;XOR	R0, @#176642
-	;INC	@#176640
-	SOB	R4, 20$
-	ADD	#120, R3		; next line
+LB350:	MOV	#MMODE5, @#177716	; Set memory mode 5
+	MOV	#<SCRIND+27.*2>, R3	; screen address for NEAR item
+	MOV	#30., R1		; 24. lines
+	MOV	#177777, R0 	; value for XOR
+10$:	XOR	R0, (R3)+
+	XOR	R0, (R3)+
+	XOR	R0, (R3)+
+	XOR	R0, (R3)
+	ADD	#<100-6>, R3		; next line
 	SOB	R1, 10$
+	MOV	#MMODE1, @#177716	; Set memory mode 1
+;TODO: Sound
 LB365:	JMP	@#LB8D0			; => Update Ninja on tilemap
-
-; Play melody ??; HL = melody address
-LB371:
-	RETURN	;STUB
 
 LB3B0:	;MOV	#LC681, <RM982B+2>	; set Room 982B initialization, NO NEED
 	;MOV	#LB674, <L9DD0+2>	; current dog data address, NO NEED
@@ -1777,7 +1783,7 @@ LB425:	MOV	#LC66B, R3		; Guard data address
 ; Room B513/791E procedure (initial room / room with pier)
 LB446:
 ; Make moving waves
-	MOV	#MMOD56, @#177716	; Включаем режим памяти 5:6 для доступа к тайлам
+	MOV	#MMOD56, @#177716	; Set memory mode 5:6 для доступа к тайлам
 	MOV	#6, R1
 	MOV	#<LD600+18.*11.>, R3	; address for tile $0B = water surface
 LB4FF:	MOVB	(R3), R0
@@ -1788,7 +1794,7 @@ LB4FF:	MOVB	(R3), R0
 	MOV	#30., R1
 10$:	MOVB	#1, (R3)+		; put "need update" mark
 	SOB	R1, 10$
-	MOV	#MMODE1, @#177716	; Включаем режим памяти 1
+	MOV	#MMODE1, @#177716	; Set memory mode 1
 	JMP	LB937			; Standard room procedure
 
 ; Room procedure (for 5 rooms with a guard and a dog)
@@ -1882,7 +1888,7 @@ LB4ED:	SOB	R1, INCPAY
 
 ; Print string on the screen
 ; Input: R1 = length, R2 = screen address, R3 = string address
-PRSTR:	MOV	#MMODE5, @#177716	; Включаем режим памяти 5
+PRSTR:	MOV	#MMOD52, @#177716	; Set memory mode 5:2
 1$:	CLR	R0
 	BISB	(R3)+, R0		; get symbol byte
 	ASL	R0
@@ -1900,7 +1906,7 @@ PRSTR:	MOV	#MMODE5, @#177716	; Включаем режим памяти 5
 	MOV	#^B0101010101010101, (R2)
 	ADD	#<2-1100>, R2		; one column right
 	SOB	R1, 1$
-	MOV	#MMODE1, @#177716	; Включаем режим памяти 1
+	MOV	#MMODE1, @#177716	; Set memory mode 1
 	RETURN
 
 ; Movement handler for initial room (B8CE handler)
@@ -1938,13 +1944,6 @@ LB577:	INCB	NJAX			; increrase Ninja X
 	MOV	#LC4F6, R3		; Movement handler address
 	MOVB	#4, L7343		; set counter = 4
 	JMP	LBFB0			; Set movement handler = R3, Ninja sprite = R2
-
-; Play some noise
-LB596:	MOV	#14., R1
-LB598:	JMP	LF9A1
-
-; Sound ??
-LB59E:	JMP	LF9A1
 
 LB5C7:	CALL	LAC44			; Reset Guard data and Dog data
 	;MOV	LB7CB, <LBC3B+2>	; NO NEED: the only assignment for <LBC3B+2>
@@ -2114,7 +2113,7 @@ LB77B:
 	CLR	KEYCUR			; Clear last key pressed
 	BIT	#100, @#177716		; any key pressed?
 	BEQ	20$			; yes => skip
-	CLR	PPUKEY			; else clear keys variable
+	CLR	INPUTB			; else clear keys variable
 20$:
 	CMPB	#1, TIMODE		; Time mode = stopped ?
 	BEQ	LB7AF			; yes =>
@@ -2511,7 +2510,7 @@ LBBAE:	MOV	2(R4), R3		; get object position
 	RETURN
 
 ; Movement handler: Ninja punching
-LBBD4:	MOV	PPUKEY, R0		; Read input
+LBBD4:	MOV	INPUTB, R0		; Read input
 	BIT	#PKEYFR, R0		; check FIRE bit
 	BEQ	LBBDC
 	JMP	LB8D0			; => Update Ninja on tilemap
@@ -2562,7 +2561,7 @@ LBC7E:	MOV	#<LD486+8.>, R2		; head tile address
 LBC98:	;CMPB	#210., (R3)
 	;BEQ	LBC7E
 ; Check for suicide key combination, LBC9D
-	;MOV	PPUKEY, R0 ;TODO		; Read Input
+	;MOV	INPUTB, R0 ;TODO		; Read Input
 	;BIT	#PKEYST, R0		; check for STOP key
 	;BEQ	LBCB6			; not pressed => skip suicide
 	;MOV	#LBEEF, LBEB4		; "SEPUKU" / "MISSION ABORTED"
@@ -2574,7 +2573,7 @@ LBCBC:	MOV	#LB595, R3
 	TSTB	(R3)
 	BEQ	LBCC4
 	DECB	(R3)
-LBCC4:	MOV	PPUKEY, R0		; Read Input
+LBCC4:	MOV	INPUTB, R0		; Read Input
 	BIT	#PKEYFR, R0		; check FIRE bit
 	BNE	LBCCC			; FIRE =>
 	JMP	LBDDD
@@ -2670,8 +2669,11 @@ LBD9B:	BIT	#PKEYDN, R0		; check DOWN bit
 	BEQ	LBDA2
 	ADD	#3, R1
 LBDA2:	MOVB	R1, LA3A2
-	CALL	LF9F9
-	;PPUCMD	#1			; Sound
+	;CALL	LF9F9
+LF9F9:	MOV	#264, R3		; $00B4
+	MOV	#1, R1
+	CALL	LFA11			; Sound
+	MOV	#LBDAF, R3		; Switch Ninja to standing - movement handler address
 	MOV	#LD504, R2		; Sprite Ninja/Guard punching
 	JMP	LBFB0			; Set movement handler = R3, Ninja sprite = R2
 
@@ -2902,7 +2904,7 @@ LC056:	MOV	#LBF12, LBEB4		; "ESCAPE" / "MISSION SUCCESSFUL"
 LC094:	DECB	L7343			; decrease counter
 	BEQ	LBFD5			; => zero => Escaped; final messages, then Game Over
 	MOV	#320, @#177716		; sound on
-	MOV	#MMODE5, @#177716	; Включаем режим памяти 5
+	MOV	#MMODE5, @#177716	; Set memory mode 5
 	MOV	#<SCRTOP+1200+500+7*2>, R3	; from
 	MOV	#<SCRTOP+1200+7*2>, R2	; to
 	MOV	#150., R1		; lines count
@@ -2914,7 +2916,7 @@ LC094:	DECB	L7343			; decrease counter
 	ADD	R0, R3			; next line from
 	ADD	R0, R2			; next line to
 	SOB	R1, 10$			; loop by lines
-	MOV	#MMODE1, @#177716	; Включаем режим памяти 1
+	MOV	#MMODE1, @#177716	; Set memory mode 1
 	MOV	#220, @#177716		; sound off
 	JMP	LB8D0			; => Update Ninja on tilemap
 
@@ -2962,7 +2964,7 @@ LC1BE:	MOV	NJAPOS, R3		; get Ninja position in tilemap
 LC1DA:	ADD	#-29., R3
 	CMPB	#144, (R3)		; $64
 	BHIS	LC1EE
-	MOV	PPUKEY, R0		; Read Input
+	MOV	INPUTB, R0		; Read Input
 	BIT	#PKEYRT, R0		; check RIGHT bit
 	BEQ	LC226			; => Ninja standing
 	JMP	LB8D0			; => Update Ninja on tilemap
@@ -2983,7 +2985,7 @@ LC20D:	INCB	NJAX			; move one tile to right
 	CALL	LC5A3			; Check for falling
 	BNE	LC21E			; not falling =>
 	JMP	LC643			; => Ninja falling
-LC21E:	MOV	PPUKEY, R0		; Read Input
+LC21E:	MOV	INPUTB, R0		; Read Input
 	BIT	#PKEYRT, R0		; check RIGHT bit
 	BNE	LC2BB			; RIGHT pressed =>
 
@@ -2995,7 +2997,7 @@ LC226:	MOV	#LBC55, R3		; Movement handler: Ninja standing
 	JMP	LBFB0			; Set movement handler = R3, Ninja sprite = R2
 
 ; Movement handler (B8CE handler): Ninja sitting
-LC22F:	MOV	PPUKEY, R0		; Read input
+LC22F:	MOV	INPUTB, R0		; Read input
 	BIT	#PKEYDN, R0		; check DOWN bit
 	BEQ	LC226			; DOWN key released => stand up
 ; DOWN still pressed
@@ -3020,7 +3022,7 @@ LC253:	MOV	NJAPOS, R3		; get Ninja position in tilemap
 LC26F:	ADD	#-31., R3
 	CMPB	#144, (R3)		; $64
 	BHIS	LC283
-	MOV	PPUKEY, R0		; Read Input
+	MOV	INPUTB, R0		; Read Input
 	BIT	#PKEYLT, R0		; check LEFT bit
 	BEQ	LC226			; => Ninja standing
 	JMP	LB8D0			; => Update Ninja on tilemap
@@ -3041,7 +3043,7 @@ LC2A2:	DECB	NJAX			; move one tile to left
 	CALL	LC5A3			; Check for falling
 	BNE	LC2B3			; not falling =>
 	JMP	LC643			; => Ninja falling
-LC2B3:	MOV	PPUKEY, R0		; Read Input
+LC2B3:	MOV	INPUTB, R0		; Read Input
 	BIT	#PKEYLT, R0		; check LEFT bit
 	BEQ	LC226			; => Ninja standing
 
@@ -3171,7 +3173,7 @@ LC3D9:	MOV	NJAPOS, R3		; get Ninja position in tilemap
 	BEQ	LC3EC			; yes => Read and process Input
 	JMP	LC226			; => Ninja standing
 ; Read and process Input
-LC3EC:	MOV	PPUKEY, R0		; Read Input
+LC3EC:	MOV	INPUTB, R0		; Read Input
 	BIT	#PKEYRT, R0		; check RIGHT bit
 	BEQ	LC40E
 ; Pressed RIGHT
@@ -3517,7 +3519,7 @@ LDF60:
 	MOV	#TITLE, R3
 	MOV	#<SCRTOP+<1200*1.>+13.*2>, R2
 	CALL	PRSTR			; Print string - title
-	MOV	#17., R1
+	MOV	#14., R1
 	;MOV	#VERSIO, R3
 	MOV	#<SCRTOP+<1200*2.>+13.*2>, R2
 	CALL	PRSTR			; Print string - version
@@ -3581,7 +3583,7 @@ LE2A7:
 
 	MOVB	#TIMERI, TIMECN		; set initial value for the fast timer
 	CLR	KEYCUR
-	;CLR	PPUKEY
+	;CLR	INPUTB
 	;BR	LF913
 LF913:
 	JMP	LB3B0
@@ -3593,16 +3595,6 @@ LF9B9:
 12$:	TST	KEYCUR
 	BEQ	12$			; wait for a key
 	RETURN
-
-LF9F9:	MOV	#264, R3		; $00B4
-	MOV	#1, R1
-	CALL	LFA11
-	MOV	#LBDAF, R3		; Ninja standing
-	RETURN
-
-LFA11:
-	;TODO: Sound??
-	RETURN	;STUB
 
 LFA31:	CALL	NRJDEC			; Decrease Energy by R1
 	MOV	#1, R1
@@ -3623,10 +3615,6 @@ TLSCR3:	.BLKB	510.
 TLSCR4:	.BLKB	510.
 ; Tile screen 5 30x17 tiles, 510 bytes - front
 TLSCR5:	.BLKB	510.
-
-; Таблица под расширение байта в слово для вывода на экран, 512. bytes
-L33124:	.BLKW	256.
-PXCONH = L33124 + <128.*2.>	; Середина таблицы конвертации
 
 .INCLUDE /S1FONT.MAC/
 
@@ -4311,11 +4299,6 @@ RANDOM:	MOV	RNDSED, R2	; A270	LD DE,($5C76)	; Read RND SEED variable
 	RETURN			; A28C	RET
 RNDSED:	.WORD	123456	; Pseudo-random seed
 
-; ; Procedure: Read Input
-; LBBDF:	MOV	PPUKEY, R0
-; 	MOV	R0, INPUTB
-; 	RETURN
-
 ; Procedure: Apply level variables
 LEVSEL:	MOVB	LEVED, R0		; get current level digit 1..9.
 	SUB	#061, R0		; 0..8.
@@ -4380,6 +4363,20 @@ LF94D:
 	MOVB	R3, <L8D45+3>		; L - patch offset low byte
 	RETURN
 
+;------------------------------------------------------------------------------
+; Sound / Melody
+
+; Play melody ??; HL = melody address
+LB371:
+	RETURN	;STUB
+
+; Play some noise
+LB596:	MOV	#14., R1
+LB598:	;BR	LF9A1
+
+; Sound ??
+LB59E:	;BR	LF9A1
+
 ; Noise sound using program code for pseudo-random delays
 ; R1 = how long
 LF9A1:	ASL	R1
@@ -4399,6 +4396,10 @@ LF9A1:	ASL	R1
 	MOV	#220, @#177716		; sound off
 	RETURN
 
+LFA11:
+	;TODO: Sound??
+	RETURN	;STUB
+
 ;------------------------------------------------------------------------------
 STARTD:
 
@@ -4410,13 +4411,8 @@ SIZER = . - STARTR
 
 .INCLUDE /S1SPRT.MAC/
 
-;.INCLUDE /S1TILE.MAC/
-LD600 = 100306
-LE700 = 104642
-LF0F0 = 111622
-LF700 = 117242
-
 ENDD:
+FREE3 = 100000 - .
 
 ;------------------------------------------------------------------------------
 

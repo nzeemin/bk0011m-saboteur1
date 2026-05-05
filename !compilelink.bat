@@ -8,9 +8,9 @@ for /f "tokens=2 delims==" %%a in ('wmic OS Get localdatetime /value') do set "d
 set "YY=%dt:~2,2%" & set "YYYY=%dt:~0,4%" & set "MM=%dt:~4,2%" & set "DD=%dt:~6,2%"
 set "DATESTAMP=%YYYY%-%MM%-%DD%"
 for /f %%i in ('git rev-list HEAD --count') do (set REVISION=%%i)
-echo REV.%REVISION% %DATESTAMP%
+echo V%REVISION% %DATESTAMP%
 
-echo 	.ASCII /REV.%REVISION% %DATESTAMP%/ > VERSIO.MAC
+echo 	.ASCII /V%REVISION% %DATESTAMP%/ > VERSIO.MAC
 
 @if exist _errors.txt del _errors.txt
 @if exist S1CORE.out del S1CORE.out
@@ -83,7 +83,10 @@ tools\BKTurbo8_x64.exe -ik -s001000 -lS1BOOT.lst CO S1BOOT.MAC >S1BOOT.out
 dir /-c SABOT1.BIN|findstr /R /C:"SABOT1.BIN"
 
 findstr /R /C:"BOOTP1:" S1BOOT.lst
+findstr /R /C:"START:" S1CORE.lst
 findstr /R /C:"FREE0 =" S1CORE.lst
+findstr /R /C:"FREE3 =" S1CORE.lst
+findstr /R /C:"SCRIPT:: PROBLEM:" S1CORE.out
 
 echo %ESCchar%[92mSUCCESS%ESCchar%[0m
 exit
