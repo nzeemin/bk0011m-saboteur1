@@ -5,15 +5,14 @@
 ; !!MUT-ARG!! - the command argument is mutable
 
 ;------------------------------------------------------------------------------
-; Memory usage
-; 000000-040000 16K - code
+; MEMORY USAGE:
+; 000000-040000 16K - page 0 - code
 ; 040000-100000 16K
+;   page 3 code, rooms, sprites, and other data
 ;   page 5 screen
-;   page 3 rooms, sprites and other data
 ; 100000-140000 16K
-;   page 6 tiles - see S1TILE.MAC
 ;   page 2 Byte2Word00 tables etc.
-;------------------------------------------------------------------------------
+;   page 6 tiles - see S1TILE.MAC
 
 ; Memory mode register values
 ;          .___1___...00.00	Pages
@@ -23,6 +22,7 @@ MMODE1 = ^B0011100000000000	; 3:1  -  main program, no screen
 MMODE5 = ^B0001100000000000	; 5:1  -  to draw on the screen
 MMOD56 = ^B0001111100000000	; 5:6  -  to draw tiles on the screen
 MMOD52 = ^B0001101000000000	; 5:2  -  to draw using Byte2Word tables
+;------------------------------------------------------------------------------
 
 ;CHELTH=1		; Cheat code for no damage
 ;CVERT =0		; Cheat code for short route to Helicopter
@@ -58,9 +58,9 @@ Byte2Word30 = 114400
 Byte2Word31 = 115400
 Byte2Word32 = 116400
 Byte2Word33 = 117400
-; Таблица под расширение байта в слово для вывода на экран, 512. bytes
+; Table used to extend byte to word, used to screen output, 512. bytes
 L33124 = 120000
-PXCONH = L33124 + <128.*2.>	; Середина таблицы конвертации
+PXCONH = L33124 + <128.*2.>	; Half of the convertion table
 
 ; Page 6: tiles - see S1TILE.MAC
 LD600 = 100306
@@ -128,22 +128,22 @@ INTBCK:	.BLKW	5		; Interrupt vectors backup
 
 PREPARE:
 ; Prepare PXCONV table, used to convert pixels BYTE -> BK WORD
- 	MOV	#MMOD52, @#177716	; Set memory mode
+	MOV	#MMOD52, @#177716	; Set memory mode
 	MOV	#L33124, R2
-	MOV	#-128., R3		; R3 бежит от -128. до +127.
-1$:	CLR	R5			; в R5 будет готовое слово
-	MOV	#8., R4			; в R4 счётчик по разрядам
+	MOV	#-128., R3		; R3 runs from -128. to +127.
+1$:	CLR	R5			; in R5 will be the word
+	MOV	#8., R4			; R4 = bits counter
 	MOV	R3, R1
-2$:	ASR	R1			; 0-й бит идёт в C
+2$:	ASR	R1			; bit 0 goes into C flag
 	BCC	5$
-	ROL	R5			; забираем 1 из C
+	ROL	R5			; get from C flag
 	ROL	R5
 	BR	8$
-5$:	ROL	R5			; забираем 0 из C
+5$:	ROL	R5			; get 0 from C flag
 	SEC
 	ROL	R5
 8$:	SOB	R4, 2$			; repeat
-	MOV	R5, (R2)+		; записываем результат
+	MOV	R5, (R2)+		; write the result
 	INC	R3
 	CMP	R3, #128.
 	BLT	1$
@@ -152,7 +152,7 @@ PREPARE:
 	MOV	#100000, R4
 10$:	MOV	R5, 40$+2
 	MOV	R5, 50$+2
-	BIC	#^B1111111111111100, 40$+2	; modify bis for 'ink'
+	BIC	#^B1111111111111100, 40$+2 ; modify bis for 'ink'
 	ASR	50$+2			; modify bis for 'paper'
 	ASR	50$+2
 	MOV	#200, R0		; (!) start conversion from -0 (signed byte)
@@ -324,7 +324,7 @@ NJADIR:	.BYTE	0	; Ninja direction: 0 = left, 1 = right
 NJAWLK:	.BYTE	0	; Ninja walking phase
 	.EVEN
 
-L7343:	.BYTE	7	; Counter used in movement handlers
+MVTCN:	.BYTE	7	; Counter used in movement handlers
 	.EVEN
 DOGNOL:	.BYTE	0	; Dog's flag: 1 = ignore left/right limit
 	.EVEN
@@ -370,7 +370,7 @@ LA3B1:	.BYTE	6
 TURGY:	.BYTE	3	; Turret Y
 TURGX:	.BYTE	15.	; Turret X
 
-LA3B4:	.BYTE	1	; ?? Guard counter
+GARDCN:	.BYTE	1	; ?? Guard counter
 	.EVEN
 
 LB2FD:	.BYTE	195.	; Counter for Ninja/Guard head tile change
@@ -649,7 +649,7 @@ L62B4:	MOVB	(R2)+, R0
 
 ; Initial Energy fill
 L7472:	MOV	#MMODE5, @#177716	; Set memory mode 5
-	MOV	#<SCRIND+1200*2.+100+6*2>, R2	; screen address
+	MOV	#<SCRIND+1200*2.+100+6*2>, R2 ; screen address
 	MOV	#15., R1
 10$:	MOV	#18., R4
 20$:	MOV	#177777, (R2)
@@ -677,7 +677,7 @@ L749E:	TST	NRJLO
 
 ; Draw Energy column
 DRNRJC:	MOV	NRJ, R2			; 0..14.
-	ADD	#<SCRIND+1200*2+100+6*2>, R2	; screen address
+	ADD	#<SCRIND+1200*2+100+6*2>, R2 ; screen address
 	MOV	NRJLO, R1
 	MOV	#16., R4
 10$:	MOV	R1, (R2)
@@ -912,7 +912,7 @@ L9DF1:	SOB	R1, NRJDEC
 	RETURN
 
 ; Room 97A6 initialization (reduced)
-LB368:	MOVB	L97D0, <TLSCR0+357.>	; copy trigger "E" value
+LB368:	MOVB	TRIGE, <TLSCR0+357.>	; copy trigger "E" value
 	JMP	LB422			; Standard room initialization
 
 ; Ninja and Guard in 12. tiles by X
@@ -922,7 +922,7 @@ LA3B5:	CMPB	NJAY, GARDY		; compare Ninja Y to Guard Y
 10$:	POP	R3
 LA3BE:	MOV	#20., R0
 LA3BF = LA3BE + 2
-	MOVB	R0, LA3B4
+	MOVB	R0, GARDCN
 	MOVB	#11., GARDST		; set Guard state = $0B = auto-gun
 	MOV	#LD504, LA70F		; set Sprite Ninja/Guard punching
 	JMP	DRGARD			; => Draw Guard on tilemap
@@ -952,7 +952,7 @@ LA3EE:	CMPB	NJAY, GARDY		; compare Ninja Y to Guard Y
 	BLO	99$
 	POP	R3
 	MOVB	#5, GARDST		; set Guard state = $05
-	MOVB	#2, LA3B4
+	MOVB	#2, GARDCN
 	MOV	#LD4B0, LA70F		; set Sprite Ninja/Guard jumping
 	JMP	DRGARD			; => Draw Guard on tilemap
 
@@ -962,7 +962,7 @@ LA418:	CMPB	NJAY, GARDY		; compare Ninja Y to Guard Y
 	RETURN
 10$:	POP	R3
 	MOVB	#8., GARDST		; set Guard state = $08
-	MOVB	#3, LA3B4		; set Guard counter = 3
+	MOVB	#3, GARDCN		; set Guard counter = 3
 	MOV	#LD504, LA70F		; set Sprite Ninja/Guard punching
 	JMP	DRGARD			; => Draw Guard on tilemap
 
@@ -998,7 +998,7 @@ TGARDS:	.WORD	GAROTH			; $00
 	.WORD	GARS14			; $14 - throwing a knife
 
 ; Guard state = $0B = auto-gun
-GARS0B:	MOV	#LA3B4, R3		; Guard counter address
+GARS0B:	MOV	#GARDCN, R3		; Guard counter address
 	DECB	(R3)			; decrease Guard counter
 	CMPB	(R3), #6
 	BLO	LA44A
@@ -1040,7 +1040,7 @@ LA4D0:	INC	R3			; !!MUT-CMD!! "DEC R3" or "INC R3" instruction
 LA4D1:	INC	R2			; !!MUT-CMD!! "DEC R2" or "INC R2" instruction
 	SOB	R1, LA4A2
 LA4D4:	MOV	#220, @#177716		; sound off
-	TSTB	LA3B4			; check Guard counter
+	TSTB	GARDCN			; check Guard counter
 	BNE	LA4E4			; => Draw Guard on tilemap
 	MOVB	#4., GARDST		; set Guard state = $04
 LA4E4:	JMP	DRGARD			; => Draw Guard on tilemap
@@ -1102,7 +1102,7 @@ GARS09:	MOV	#LA0B5, LA70F		; set Sprite Ninja/Guard dead
 	JMP	DRGARD			; => Draw Guard on tilemap
 
 ; Guard state = $08 - Punching ?
-GARS08:	DECB	LA3B4			; decrease Guard counter
+GARS08:	DECB	GARDCN			; decrease Guard counter
 	BEQ	LA587
 	JMP	DRGARD			; => Draw Guard on tilemap
 LA587:	MOVB	#3, (R3)		; set Guard state = walking state 3
@@ -1120,17 +1120,17 @@ LA5A1:	MOV	#LD486, LA70F		; set Sprite Ninja/Guard standing
 	JMP	DRGARD			; => Draw Guard on tilemap
 
 ; Guard state = $05 - jump
-GARS05:	DECB	LA3B4			; decrement Guard counter
+GARS05:	DECB	GARDCN			; decrement Guard counter
 	BNE	90$
-	MOVB	#3, LA3B4		; set Guard counter = 3
+	MOVB	#3, GARDCN		; set Guard counter = 3
 	MOVB	#6, (R3)		; set Guard state = $06: jump-kick
 	MOV	#LD4DA, LA70F		; set Sprite Ninja/Guard jump-kick
 90$:	JMP	DRGARD			; => Draw Guard on tilemap
 
 ; Guard state = $06 - jump-kick
-GARS06:	DECB	LA3B4			; decrement Guard counter
+GARS06:	DECB	GARDCN			; decrement Guard counter
 	BNE	90$
-	MOVB	#1, LA3B4		; set Guard counter = 1
+	MOVB	#1, GARDCN		; set Guard counter = 1
 	MOVB	#7, (R3)		; set Guard state = $07: back to standing
 	MOV	#LD4B0, LA70F		; set Sprite Ninja/Guard jumping
 	MOV	GARDPO, R3		; get Guard position in tilemap
@@ -1146,7 +1146,7 @@ GARS06:	DECB	LA3B4			; decrement Guard counter
 90$:	JMP	DRGARD			; => Draw Guard on tilemap
 
 ; Guard state = $07 - back to standing
-GARS07:	DECB	LA3B4			; decrement Guard counter
+GARS07:	DECB	GARDCN			; decrement Guard counter
 	BNE	90$
 	MOVB	#3, (R3)		; set Guard state = walking phase 3
 	MOV	#LD486, LA70F		; set Sprite Ninja/Guard standing
@@ -1400,7 +1400,7 @@ LAD1D:	MOV	#MMODE1, @#177716	; Set memory mode 1
 	MOV	#13., R1
 	MOV	#LAD4A, R3		; Indicator messages start address
 	CALL	PRSTR			; Print string "PAY : $ 00000"
-	MOV	#<SCRIND+1200+23.*2>, R2	; screen address for timer value
+	MOV	#<SCRIND+1200+23.*2>, R2 ; screen address for timer value
 	MOV	#2, R1
 	CALL	PRSTR			; Print string "99"
 	MOV	#<SCRIND+3600+1.*2>, R2
@@ -1417,7 +1417,7 @@ LAD1D:	MOV	#MMODE1, @#177716	; Set memory mode 1
 
 ; Draw tile map on the screen
 DRALL:	MOV	#17., LB2E3+2		; 17. rows
-	MOV	#<SCRTOP+1200+2>, SCRADR	; screen address
+	MOV	#<SCRTOP+1200+2>, SCRADR ; screen address
 	MOV	#TLSCR1, R3		; start address in Tile screen 1
 ; Loop start
 ; R3 = current address in Tile screen 1
@@ -1425,7 +1425,7 @@ LB16D:	MOV	#30., LB2C7+2		; 30. columns
 LB16F:	TSTB	(R3)			; check "need update" flag in Tile screen 1
 	BEQ	LB2A9			; zero => next column
 ; Start tile drawing
-	MOV	#MMOD56, @#177716	; Set memory mode 5:6 для доступа к тайлам
+	MOV	#MMOD56, @#177716	; Set memory mode 5:6 for tiles
 	CLRB	(R3)			; clear "need to update" flag
 	MOVB	<-510.>(R3), R0		; get tile from Tile screen 0
 	INC	R0			; $FF - "earth" background?
@@ -1717,23 +1717,23 @@ LB293:	MOV	#MMOD52, @#177716	; Set memory mode 5:2
 
 ; Object procedure: flip trigger "D": set/remove wall in room 9739
 LB320:	MOV	#050, R0		; value for XOR, to switch token $0E/$26
-	MOV	#L9755, R1		; address for XOR
+	MOV	#TRIGD, R1		; address for XOR
 	BR	LB34B			; XOR and => Change Console color in NEAR
 ; Object procedure: flip trigger "E": set/remove wall in room 97A6
 LB32A:	MOV	#377, R0		; value for XOR, to switch tile $00/$FF
-	MOV	#L97D0, R1		; address for XOR
+	MOV	#TRIGE, R1		; address for XOR
 	BR	LB34B			; XOR and => Change Console color in NEAR
 ; Object procedure: flip trigger "C": set/remove wall in room 8D5C
 LB334:	MOV	#050, R0		; value for XOR, to switch token $0E/$26
-	MOV	#L8DBB, R1		; address for XOR
+	MOV	#TRIGC, R1		; address for XOR
 	BR	LB34B			; XOR and => Change Console color in NEAR
 ; Object procedure: flip trigger "B": set/remove wall in room 8F20
 LB33E:	MOV	#046., R0		; value for XOR, to switch token $0E/$28
-	MOV	#L8F31, R1		; address for XOR
+	MOV	#TRIGB, R1		; address for XOR
 	BR	LB34B			; XOR and => Change Console color in NEAR
 ; Object procedure: flip trigger "A": set/remove wall in room 7F48
 LB348:	MOV	#051., R0		; value for XOR, to switch token $0E/$27
-	MOV	#L7F7A, R1		; address for XOR
+	MOV	#TRIGA, R1		; address for XOR
 LB34B:	MOVB	(R1), R5
 	XOR	R0, R5
 	MOVB	R5, (R1)
@@ -1741,7 +1741,7 @@ LB34B:	MOVB	(R1), R5
 LB350:	MOV	#MMODE5, @#177716	; Set memory mode 5
 	MOV	#<SCRIND+27.*2>, R3	; screen address for NEAR item
 	MOV	#30., R1		; 24. lines
-	MOV	#177777, R0 	; value for XOR
+	MOV	#177777, R0		; value for XOR
 10$:	XOR	R0, (R3)+
 	XOR	R0, (R3)+
 	XOR	R0, (R3)+
@@ -1761,7 +1761,6 @@ LB3B0:	;MOV	#LC681, <RM982B+2>	; set Room 982B initialization, NO NEED
 	;MOV	#LB422, <RM7BD2+2>	; NO NEED: the only assignment for this address
 	;MOV	#LC64C, <RM791E+2>	; NO NEED: the only assignment for this address
 	;MOV	#LB702, <L734A+2>	; NO NEED: the only assignment for this address
-	;NOTE: Mirror table preparation was here
 	JMP	LB5C7
 
 ; Initialize a Guard
@@ -1783,7 +1782,7 @@ LB425:	MOV	#LC66B, R3		; Guard data address
 ; Room B513/791E procedure (initial room / room with pier)
 LB446:
 ; Make moving waves
-	MOV	#MMOD56, @#177716	; Set memory mode 5:6 для доступа к тайлам
+	MOV	#MMOD56, @#177716	; Set memory mode 5:6 for tiles
 	MOV	#6, R1
 	MOV	#<LD600+18.*11.>, R3	; address for tile $0B = water surface
 LB4FF:	MOVB	(R3), R0
@@ -1883,7 +1882,7 @@ LB4E3:	INCB	(R3)
 LB4ED:	SOB	R1, INCPAY
 	MOV	#LAD52, R3		; Pay value text address
 	MOV	#5, R1			; five digits
-	MOV	#<SCRTOP+<1200*19.>+15.*2>, R2	; Screen address
+	MOV	#<SCRTOP+<1200*19.>+15.*2>, R2 ; Screen address
 	;JMP	PRSTR			; => Print string, and RET
 
 ; Print string on the screen
@@ -1934,7 +1933,7 @@ LB53E = LB53D + 2	; Boat position
 	BNE	30$
 	MOV	#320, @#177716
 ;
-	DECB	L7343			; decrease counter
+	DECB	MVTCN			; decrease counter
 	BEQ	LB577
 	JMP	LB8D0			; => Update Ninja on tilemap
 LB577:	INCB	NJAX			; increrase Ninja X
@@ -1942,7 +1941,7 @@ LB577:	INCB	NJAX			; increrase Ninja X
 	MOVB	#377, <TLSCR5+349.>
 	MOV	#LD5AC, R2		; Sprite Ninja jumping 3
 	MOV	#LC4F6, R3		; Movement handler address
-	MOVB	#4, L7343		; set counter = 4
+	MOVB	#4, MVTCN		; set counter = 4
 	JMP	LBFB0			; Set movement handler = R3, Ninja sprite = R2
 
 LB5C7:	CALL	LAC44			; Reset Guard data and Dog data
@@ -1980,12 +1979,12 @@ LB5C7:	CALL	LAC44			; Reset Guard data and Dog data
 	CALL	L7472			; Initial Energy fill
 	;DI
 	MOV	#RMB513, ROOM		; set Current Room = Initial room
-	MOV	#LB532, LB8CE		; set movement handler = movement handler for initial room
+	MOV	#LB532, MVTHDR		; set movement handler = movement handler for initial room
 	MOV	#LD558, NJASPR		; set Ninja sprite = Ninja sitting
 	MOVB	#1, NJAX		; set Ninja X = 1
 	MOVB	#5, NJAY		; set Ninja Y = 5
 	MOV	#151., NJAPOS		; set Ninja position in tilemap = Y * 30. + X
-	MOVB	#19., L7343		; set counter = 19.
+	MOVB	#19., MVTCN		; set counter = 19.
 ;.IF NE CVERT		; Cheat code for short route to Helicopter
 ;	MOVB	#324, LBD7A		; Diskette -> HELD
 ;	MOV	#RM8D5C, <RM791E+6>	; Right from room 791E -> room 8D5C
@@ -2061,12 +2060,14 @@ LB6EE:	CLR	R0
 	CMPB	R0, #041		; compare to $21
 	BHIS	_RTOK2X			; => process token #21..#30
 	JMP	RTOK1X			; => process token #10..#21
-_RTOK2X: JMP	RTOK2X
+_RTOK2X:
+	JMP	RTOK2X
 ; Process tokens #40..#FF
 LB6F2:	CMPB	R0, #200
 	BHIS	_RTOK80			; => token #80..#BF
 	JMP	RTOK40			; => token #40..#7F
-_RTOK80: JMP	RTOK80
+_RTOK80:
+	JMP	RTOK80
 ; Process token #00..#0F
 LB6F4:	PUSH	R3			; Save address in the room sequence
 	ASL	R0			; * 2
@@ -2102,7 +2103,7 @@ LB768:	POP	R3			; restore address in Table of objects
 	ADD	#6, R3			; next object
 	SOB	R1, LB753
 ;
-	CMPB	#9., GARDST 		; Guard state = 9. dead ?
+	CMPB	#9., GARDST		; Guard state = 9. dead ?
 	BEQ	LB77B			; no => skip
 	MOVB	#10., GARDST		; set Guard state = $0A
 ;
@@ -2132,13 +2133,13 @@ LB77B:
 	CMPB	#057, (R3)		; $2F = '0' - 1
 	BNE	LB7A4
 	JMP	LBE71
-LB7A4:	MOV	#<SCRIND+1200+23.*2>, R2	; screen address for timer value
+LB7A4:	MOV	#<SCRIND+1200+23.*2>, R2 ; screen address for timer value
 	MOV	#LAD57, R3		; Indicator Time value address
 	MOV	#2, R1			; Two digits
 	CALL	PRSTR			; Print string
 ;
 ; Check for BOMB
-LB7AF:	CMPB	#326, @#<LD256+<8.*7>+4>	; check Object #7 in Table of objects D256
+LB7AF:	CMPB	#326, @#<LD256+<8.*7>+4> ; check Object #7 in Table of objects D256
 	BNE	LB7ED			; BOMB tile in the place of Diskette? no =>
 ; BOMB ticking mode
 LB7B6:	MOV	#TIMODE, R3		; Time mode address
@@ -2147,7 +2148,7 @@ LB7B6:	MOV	#TIMODE, R3		; Time mode address
 ; Set up BOMB ticking mode
 	MOVB	#2, (R3)		; set Time mode = BOMB ticking mode
 	MOV	#LBD2F, R3		; "BOMB"
-	MOV	#<SCRIND+3600+22.*2>, R2	; screen address under timer value
+	MOV	#<SCRIND+3600+22.*2>, R2 ; screen address under timer value
 	MOV	#4, R1
 	CALL	PRSTR			; Print string "BOMB"
 LB7CA:	MOV	#34471, R3		; !!MUT-ARG!! "99" bomb timer initial value
@@ -2207,7 +2208,7 @@ LB8C2:	MOVB	R0, R0			; HELD item to draw
 	;DI
 LB8C9:	CLR	LA39E
 LB8CD:	JMP	@#LBEB3			; !!MUT-ARG!! => run handler
-LB8CE = LB8CD + 2	; Movement handler address
+MVTHDR = LB8CD + 2	; Movement handler address
 
 ; Increase Energy a bit
 LB83C:	CMP	#177777, NRJLO
@@ -2221,7 +2222,7 @@ LB83C:	CMP	#177777, NRJLO
 	ROL	NRJLO
 	SEC
 	ROL	NRJLO
-20$:	CALL	DRNRJC			; Draw Energy column
+20$:	JMP	DRNRJC			; Draw Energy column, and RETURN
 99$:	RETURN
 
 ; Set initial data in Table of Objects LD256
@@ -2669,10 +2670,7 @@ LBD9B:	BIT	#PKEYDN, R0		; check DOWN bit
 	BEQ	LBDA2
 	ADD	#3, R1
 LBDA2:	MOVB	R1, LA3A2
-	;CALL	LF9F9
-LF9F9:	MOV	#264, R3		; $00B4
-	MOV	#1, R1
-	CALL	LFA11			; Sound
+	CALL	LF9F9			; Sound
 	MOV	#LBDAF, R3		; Switch Ninja to standing - movement handler address
 	MOV	#LD504, R2		; Sprite Ninja/Guard punching
 	JMP	LBFB0			; Set movement handler = R3, Ninja sprite = R2
@@ -2704,11 +2702,11 @@ LBDE2:	MOV	NJAPOS, R2		; get Ninja position in tilemap
 	CMPB	#332, (R3)		; = $DA ?
 	BEQ	LBDF0
 	JMP	LBF7B
-LBDF0:	MOVB	#11., L7343		; set counter = 11.
+LBDF0:	MOVB	#11., MVTCN		; set counter = 11.
 	MOV	#<TLSCR0+44.>, R3	; Tile screen 0 + 1 row + 14.
 	MOV	R3, LBE0E
 	MOV	R3, LBE1D
-	MOV	#<TLSCR1+302.>, <LBA2A+2>	; Tile screen 1 + 10. rows + 2
+	MOV	#<TLSCR1+302.>, <LBA2A+2> ; Tile screen 1 + 10. rows + 2
 	MOV	#LBE0D, R3		; Movement handler
 	MOV	#LD486, R2		; Sprite Ninja/Guard standing
 	JMP	LBFB0			; Set movement handler = R3, Ninja sprite = R2
@@ -2728,7 +2726,7 @@ LBE1D = LBE1C + 2
 	MOV	R3, LBE1D
 	ADD	#509., R3		; R3 = address in Tile screen 1
 	MOVB	R0, (R3)		; put "need to update" flag
-	MOV	#L7343, R3		; counter address
+	MOV	#MVTCN, R3		; counter address
 	DECB	(R3)			; decrease counter
 	BEQ	LBE30
 	JMP	LB8D0			; => Update Ninja on tilemap
@@ -2827,7 +2825,7 @@ LBF85:	INC	R3
 	CMPB	#144, (R3)		; $64 ?
 	BHIS	LBF8A
 	JMP	LB8D0			; => Update Ninja on tilemap
-LBF8A:	MOVB	#3, L7343		; set counter = 3
+LBF8A:	MOVB	#3, MVTCN		; set counter = 3
 	MOVB	INPUTB, R0		; get Input bits
 	TSTB	NJADIR			; check Ninja direction
 	BEQ	LBFA0			; left =>
@@ -2839,11 +2837,11 @@ LBFA0:	BIT	#PKEYLT, R0		; check LEFT bit
 	BEQ	LBFA5
 	CALL	LC4E8
 LBFA5:	MOV	#LC339, R3		; Movement handler: Ninja jumping
-	MOVB	#2, L7343		; set counter = 2
+	MOVB	#2, MVTCN		; set counter = 2
 	MOV	#LD4B0, R2		; Sprite Ninja/Guard jumping
 ;
 ; Set movement handler = R3, set Ninja sprite = R2
-LBFB0:	MOV	R3, LB8CE		; set movement handler
+LBFB0:	MOV	R3, MVTHDR		; set movement handler
 	MOV	R2, NJASPR		; set Ninja sprite address
 	JMP	LB8D0			; => Update Ninja on tilemap
 
@@ -2901,11 +2899,11 @@ LC056:	MOV	#LBF12, LBEB4		; "ESCAPE" / "MISSION SUCCESSFUL"
 
 ; Movement handler: helicopter moving up
 ; Scrolling block of 17x15 tiles, scroll 4 lines up
-LC094:	DECB	L7343			; decrease counter
+LC094:	DECB	MVTCN			; decrease counter
 	BEQ	LBFD5			; => zero => Escaped; final messages, then Game Over
 	MOV	#320, @#177716		; sound on
 	MOV	#MMODE5, @#177716	; Set memory mode 5
-	MOV	#<SCRTOP+1200+500+7*2>, R3	; from
+	MOV	#<SCRTOP+1200+500+7*2>, R3 ; from
 	MOV	#<SCRTOP+1200+7*2>, R2	; to
 	MOV	#150., R1		; lines count
 10$:	MOV	#17., R4		; horz tiles count
@@ -2921,7 +2919,7 @@ LC094:	DECB	L7343			; decrease counter
 	JMP	LB8D0			; => Update Ninja on tilemap
 
 ; Ninja on ladder
-LC12E:	MOV	#LC3D9, LB8CE		; Movement handler for Ninja on ladder
+LC12E:	MOV	#LC3D9, MVTHDR		; Movement handler for Ninja on ladder
 	MOV	#LD52E, NJASPR		; Sprite Ninja on ladder
 	JMP	LC498			; => Move down one tile
 
@@ -2945,7 +2943,7 @@ LC154:	BIT	#PKEYRT, R0		; check RIGHT bit
 	BNE	LC162			; no =>
 	INCB	(R3)			; change direction to right
 	BR	LC16E			; => Update Ninja on tilemap
-LC162:	MOV	#LC1B6, LB8CE		; set Movement handler address
+LC162:	MOV	#LC1B6, MVTHDR		; set Movement handler address
 	MOV	#LD3DE, NJASPR		; Sprite Ninja/Guard walking 1
 LC16E:	JMP	LB8D0			; => Update Ninja on tilemap
 
@@ -3048,7 +3046,7 @@ LC2B3:	MOV	INPUTB, R0		; Read Input
 	BEQ	LC226			; => Ninja standing
 
 ; LEFT or RIGHT key pressed
-LC2BB:	MOVB	#7, L7343		; set counter = 7
+LC2BB:	MOVB	#7, MVTCN		; set counter = 7
 	BIT	#PKEYUP, R0		; check for UP bit
 	BEQ	LC2C5
 	CALL	LC4E8
@@ -3089,7 +3087,7 @@ LC319:	MOVB	#24., NJAX		; set Ninja X = 24.
 	JMP	LB66A			; => Current Room changed
 
 ; Movement handler: Ninja jumping
-LC339:	DECB	L7343			; decrease counter
+LC339:	DECB	MVTCN			; decrease counter
 	BEQ	LC340
 	JMP	LB8D0			; => Update Ninja on tilemap
 LC340:	MOV	NJAPOS, R3		; get Ninja position in tilemap
@@ -3123,7 +3121,7 @@ LC37D:	ADD	R2, R3
 	JMP	LC4D0			; => finalize the jump
 LC384:	MOV	#LC4A7, R3		; Movement handler
 	MOV	#LD4DA, R2		; Sprite Ninja/Guard jump-kick
-	MOVB	#3, L7343		; set counter = 3
+	MOVB	#3, MVTCN		; set counter = 3
 	JMP	LBFB0			; Set movement handler = R3, Ninja sprite = R2
 
 ; Check if tile is a ladder
@@ -3247,7 +3245,7 @@ LC498:	INCB	NJAY			; increment Ninja Y
 	BR	LC467			; => invert direction, update Ninja
 
 ; Movement handler: jump-kick
-LC4A7:	DECB	L7343			; decrease counter
+LC4A7:	DECB	MVTCN			; decrease counter
 	BEQ	LC4AE
 	JMP	LB8D0			; => Update Ninja on tilemap
 LC4AE:	MOV	NJAPOS, R3		; get Ninja position in tilemap
@@ -3265,11 +3263,11 @@ LC4BE:	ADD	R2, R3			; now R3 = address in Tile screen 4
 ; Finalize the jump
 LC4D0:	MOV	#LC4DE, R3		; Movement handler address
 	MOV	#LD4B0, R2		; Sprite Ninja/Guard jumping
-	MOVB	#1, L7343		; set counter = 1
+	MOVB	#1, MVTCN		; set counter = 1
 	JMP	LBFB0			; Set movement handler = R3, Ninja sprite = R2
 
 ; Movement handler: finishing the jump
-LC4DE:	DECB	L7343			; decrease counter
+LC4DE:	DECB	MVTCN			; decrease counter
 	BEQ	LC4E5
 	JMP	LB8D0			; => Update Ninja on tilemap
 LC4E5:	JMP	LC226			; => Ninja standing
@@ -3303,7 +3301,7 @@ LC51D:	DECB	(R3)			; decrease Ninja X
 	DEC	NJAPOS			; decrease Ninja position in tilemap
 LC525:	CALL	LC57B			; Check if we have empty space
 	BNE	LC533			; impediment =>
-	DECB	L7343			; decrease counter
+	DECB	MVTCN			; decrease counter
 	BEQ	LC538
 	JMP	LB8D0			; => Update Ninja on tilemap
 LC533:	MOV	#4, R1
@@ -3439,7 +3437,7 @@ LC697:	MOVB	R0, (R3)+
 ; Room 7C9C procedure (tunnel Train)
 LC6A5:	CMPB	#12., NJAX		; Ninja X = 12 ?
 	BNE	LC6DF			; => Standard room procedure
-	MOVB	#75., L7343		; set counter = 75.
+	MOVB	#75., MVTCN		; set counter = 75.
 	MOV	NJAPOS, R2		; get Ninja position in tilemap
 	MOVB	NJAX, R1		; get Ninja X
 	INC	R1
@@ -3455,7 +3453,7 @@ LC6A5:	CMPB	#12., NJAX		; Ninja X = 12 ?
 LC6CD:	MOVB	R1, NJAX		; set Ninja X
 	MOV	R2, NJAPOS		; set Ninja position in tilemap
 	MOV	#LD486, NJASPR		; Sprite Ninja/Guard standing
-	MOV	R3, LB8CE		; set Movement handler
+	MOV	R3, MVTHDR		; set Movement handler
 LC6DF:	JMP	LB937			; => Standard room procedure
 
 ; Movement handler (B8CE handler): Train moving left
@@ -3473,7 +3471,7 @@ LC6F5:	MOV	#<TLSCR1+450.>, R3
 	MOV	#15., R1
 30$:	MOV	#000401, (R3)+		; two bytes 001
 	SOB	R1, 30$
-	DECB	L7343			; decrease counter
+	DECB	MVTCN			; decrease counter
 	BNE	LC709
 	JMP	LC226			; => Ninja standing
 LC709:	JMP	LB8D0			; => Update Ninja on tilemap
@@ -3621,9 +3619,15 @@ TLSCR5:	.BLKB	510.
 .INCLUDE /S1INDS.MAC/
 
 FREE0 = 040000 - .
+.SCRIPT "Check FREE0"
+	MOV	#FREE0, R0
+	BPL	1$
+	$type	"PROBLEM: page 0 overflow!"
+1$:
+.ENDS
 
 ;------------------------------------------------------------------------------
-; Блок кода и данных под экраном, 040000-100000
+; Code/data block under the screen, 040000-100000
 
 	.ORG	040000
 
@@ -4278,25 +4282,25 @@ LDE84:	.WORD	RM79C6
 ; Procedure: Get pseudo-random number, result in R3
 ; Uses: R0, R2, R3
 ; From Highway Encounter game code
-RANDOM:	MOV	RNDSED, R2	; A270	LD DE,($5C76)	; Read RND SEED variable
-	MOV	R2, R3		; A274	LD H,E
+RANDOM:	MOV	RNDSED, R2		; A270	LD DE,($5C76)	; Read RND SEED variable
+	MOV	R2, R3			; A274	LD H,E
 	SWAB	R3
 	CLRB	R3
-	ADD	#375, R3	; A275	LD L,$FD
-	MOV	R2, R0		; A277	LD A,D
+	ADD	#375, R3		; A275	LD L,$FD
+	MOV	R2, R0			; A277	LD A,D
 	SWAB	R0
-	BIC	#177400, R0	; A278	OR A
-	SUB	R2, R3		; A279	SBC HL,DE
-	SBCB	R0		; A27B	SBC A,$00
-	SUB	R2, R3		; A27D	SBC HL,DE
-	SBCB	R0		; A27F	SBC A,$00
-				; A281	LD E,A
-	BIC	#177400, R0	; A282	LD D,$00
-	SUB	R0, R3		; A284	SBC HL,DE
-	BHIS	89$		; A286	JR NC,$A289
-	INC	R3		; A288	INC HL
-89$:	MOV	R3, RNDSED	; A289	LD ($5C76),HL	; Write RND SEED variable
-	RETURN			; A28C	RET
+	BIC	#177400, R0		; A278	OR A
+	SUB	R2, R3			; A279	SBC HL,DE
+	SBCB	R0			; A27B	SBC A,$00
+	SUB	R2, R3			; A27D	SBC HL,DE
+	SBCB	R0			; A27F	SBC A,$00
+	; A281	LD E,A
+	BIC	#177400, R0		; A282	LD D,$00
+	SUB	R0, R3			; A284	SBC HL,DE
+	BHIS	89$			; A286	JR NC,$A289
+	INC	R3			; A288	INC HL
+89$:	MOV	R3, RNDSED		; A289	LD ($5C76),HL	; Write RND SEED variable
+	RETURN				; A28C	RET
 RNDSED:	.WORD	123456	; Pseudo-random seed
 
 ; Procedure: Apply level variables
@@ -4320,11 +4324,11 @@ LEVSEL:	MOVB	LEVED, R0		; get current level digit 1..9.
 	MOV	#<LB7CA+2>, R1		; address for Time value for BOMB
 	MOVB	(R3)+, (R1)+		; +$05: set Time value for BOMB, lower digit
 	MOVB	(R3)+, (R1)		; +$06: set Time value for BOMB, higher digit
-	MOVB	(R3)+, L97D0		; +$07: set flag for wall in room RM97A6
-	MOVB	(R3)+, L9755		; +$08: set flag for wall in room RM9739
-	MOVB	(R3)+, L7F7A		; +$09: set flag for wall in room RM7F48
-	MOVB	(R3)+, L8DBB		; +$0A: set flag for wall in room RM8D5C
-	MOVB	(R3)+, L8F31		; +$0B: set flag for wall in room RM8F20
+	MOVB	(R3)+, TRIGE		; +$07: set flag for wall in room RM97A6
+	MOVB	(R3)+, TRIGD		; +$08: set flag for wall in room RM9739
+	MOVB	(R3)+, TRIGA		; +$09: set flag for wall in room RM7F48
+	MOVB	(R3)+, TRIGC		; +$0A: set flag for wall in room RM8D5C
+	MOVB	(R3)+, TRIGB		; +$0B: set flag for wall in room RM8F20
 	MOV	#LE388, R1
 	MOV	(R3)+, (R1)+
 	MOV	(R3)+, (R1)
@@ -4382,8 +4386,8 @@ LB59E:	;BR	LF9A1
 LF9A1:	ASL	R1
 	ASL	R1
 	ASL	R1
-	MOV	#001600, R3		; адрес откуда брать данные
-	MOV	#220, R0		; значение для порта 177716
+	MOV	#001600, R3		; address from
+	MOV	#220, R0		; value for 177716 register
 	MOV	#100, R5
 10$:	MOV	R0, @#177716
 	XOR	R5, R0
@@ -4396,9 +4400,23 @@ LF9A1:	ASL	R1
 	MOV	#220, @#177716		; sound off
 	RETURN
 
-LFA11:
-	;TODO: Sound??
-	RETURN	;STUB
+LF9F9:	MOV	#264, R3		; $00B4
+	MOV	#1, R1
+	;CALL	LFA11			; Sound
+; Sound??
+LFA11:	MOV	#320, R0
+	MOV	R0, @#177716
+	MOV	R1, R0
+LFA16:	DEC	R0			; delay
+	BNE	LFA16
+	INC	R1
+	MOV	#220, R0
+	MOV	R0, @#177716
+	BIT	#20, R3
+	BEQ	20$
+	MOV	#330, @#177716
+20$:	SOB	R3, LFA11
+	RETURN
 
 ;------------------------------------------------------------------------------
 STARTD:
@@ -4411,8 +4429,13 @@ SIZER = . - STARTR
 
 .INCLUDE /S1SPRT.MAC/
 
-ENDD:
 FREE3 = 100000 - .
+.SCRIPT "Check FREE3"
+	MOV	#FREE3, R0
+	BPL	1$
+	$type	"PROBLEM: page 3 overflow!"
+1$:
+.ENDS
 
 ;------------------------------------------------------------------------------
 

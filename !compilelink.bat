@@ -26,7 +26,7 @@ echo 	.ASCII /V%REVISION% %DATESTAMP%/ > VERSIO.MAC
 @if exist S1BOOT.bin del S1BOOT.bin
 @if exist SABOT1.BIN del SABOT1.BIN
 
-tools\BKTurbo8_x64.exe -ik --raw -s0100000 -lS1TILE.lst CO S1TILE.MAC >S1TILE.out
+tools\BKTurbo8.exe -ik --raw -s0100000 -lS1TILE.lst CO S1TILE.MAC >S1TILE.out
 @if exist S1TILE.MAC.raw rename S1TILE.MAC.raw S1TILE.raw
 @if exist _errors.txt (
   @echo %ESCchar%[91mFAILED S1TILE, see _errors.txt%ESCchar%[0m
@@ -45,7 +45,7 @@ set "tilelzsize=%fsize%"
 rem Reuse VERSIO.MAC to pass parameters into S1BOOT.MAC
 echo S1TZSZ = %tilelzsize%. >> VERSIO.MAC
 
-tools\BKTurbo8_x64.exe -ik --raw -s001400 -lS1CORE.lst CO S1CORE.MAC >S1CORE.out
+tools\BKTurbo8.exe -ik --raw -s001400 -lS1CORE.lst CO S1CORE.MAC >S1CORE.out
 @if exist S1CORE.MAC.raw rename S1CORE.MAC.raw S1CORE.raw
 @if exist _errors.txt (
   @echo %ESCchar%[91mFAILED S1CORE, see _errors.txt%ESCchar%[0m
@@ -70,7 +70,7 @@ tools\lzsa3.exe S1SCRN.DAT S1SCRN.LZS
 
 dir /-c S1SCRN.LZS|findstr /R /C:"S1SCRN.LZS"
 
-tools\BKTurbo8_x64.exe -ik -s001000 -lS1BOOT.lst CO S1BOOT.MAC >S1BOOT.out
+tools\BKTurbo8.exe -ik -s001000 -lS1BOOT.lst CO S1BOOT.MAC >S1BOOT.out
 @if exist S1BOOT.bin rename S1BOOT.bin SABOT1.BIN
 @if exist _errors.txt (
   @echo %ESCchar%[91mFAILED S1BOOT, see _errors.txt%ESCchar%[0m
@@ -86,7 +86,17 @@ findstr /R /C:"BOOTP1:" S1BOOT.lst
 findstr /R /C:"START:" S1CORE.lst
 findstr /R /C:"FREE0 =" S1CORE.lst
 findstr /R /C:"FREE3 =" S1CORE.lst
-findstr /R /C:"SCRIPT:: PROBLEM:" S1CORE.out
+findstr /R /C:"PROBLEM:" S1BOOT.out
+findstr /R /C:"PROBLEM:" S1CORE.out
+
+>nul findstr "PROBLEM:" S1BOOT.out && (
+  @echo %ESCchar%[91mPROBLEMS in S1BOOT.out%ESCchar%[0m
+  @exit /b
+)
+>nul findstr "PROBLEM:" S1CORE.out && (
+  @echo %ESCchar%[91mPROBLEMS in S1CORE.out%ESCchar%[0m
+  @exit /b
+)
 
 echo %ESCchar%[92mSUCCESS%ESCchar%[0m
 exit
