@@ -248,8 +248,7 @@ KEYCUR:	.WORD	0
 	RTI
 ;
 ; Keyboard interrupt second handler  // by BlaireCas
-KEYIN2:
-	PUSH	R0
+KEYIN2:	PUSH	R0
 	MOV	@#177662, R0		; get the key
 	;TST	JoyUsed			; do not use keyboard if we already used joystick
 	;BNE	90$
@@ -283,8 +282,9 @@ CLSRN1:	MOV	#MMODE5, @#177716	; Set memory mode 5
 	MOV	#MMODE1, @#177716	; Set memory mode 1
 	RETURN
 
-PAUSE:
-	;TODO
+PAUSE:	MOV	#177777, R5
+1$:	NOP
+	SOB	R5, 1$
 	RETURN
 
 ;------------------------------------------------------------------------------
@@ -293,8 +293,7 @@ PAUSE:
 ; Game controls
 ;   7   6   5   4   3   2   1   0
 ;           Fr  Fr  Lt  Dn  Rt  Up
-INPUTB:	.BYTE	0	; Input bits: 00FFLDRU
-	.EVEN
+INPUTB:	.WORD	0	; Input bits: 00FFLDRU
 
 ROOM:	.WORD	RM791E	; Current Room address
 NJASPR:	.WORD	LA0B5	; Ninja sprite address
@@ -318,9 +317,7 @@ L71D5:	.BYTE	1
 L71D6:	.BYTE	172,000,000,002,000,001,026,000,375	; Room 79C6 dog data
 	.EVEN
 
-NJADIR:	.BYTE	0	; Ninja direction: 0 = left, 1 = right
-	.EVEN
-
+NJADIR:	.WORD	0	; Ninja direction: 0 = left, 1 = right
 NJAWLK:	.BYTE	0	; Ninja walking phase
 	.EVEN
 
@@ -330,20 +327,15 @@ DOGNOL:	.BYTE	0	; Dog's flag: 1 = ignore left/right limit
 	.EVEN
 L7345:	.BYTE	20.	; Dog ??
 	.EVEN
-GARDST:	.BYTE	10.	; Guard walking phase $00..$03 or other state: $09 = dead; $0A = standing; ...
-GARDDI:	.BYTE	1	; Guard direction
-	.EVEN
+GARDST:	.WORD	10.	; Guard walking phase $00..$03 or other state: $09 = dead; $0A = standing; ...
+GARDDI:	.WORD	1	; Guard direction
 
-NRJ:	.BYTE	19.	; Energy 0..14.
-	.EVEN
+NRJ:	.WORD	14.	; Energy 0..14.
 NRJLO:	.WORD	177777	; Energy lower, running bit 0,1..377
 
-NJAFAL:	.BYTE	0	; Ninja falling count, to decrease Energy on hit
-	.EVEN
-NJAY:	.BYTE	8.	; Ninja Y within the room, 0 at the top
-	.EVEN
-NJAX:	.BYTE	6	; Ninja X within the room
-	.EVEN
+NJAFAL:	.WORD	0	; Ninja falling count, to decrease Energy on hit
+NJAY:	.WORD	8.	; Ninja Y within the room, 0 at the top
+NJAX:	.WORD	6	; Ninja X within the room
 NJAPOS:	.WORD	246.	; Ninja position in tilemap: Y * 30. + X
 
 LA39E:	.BYTE	0	; ?? 0 / 1
@@ -651,7 +643,7 @@ L62B4:	MOVB	(R2)+, R0
 L7472:	MOV	#MMODE5, @#177716	; Set memory mode 5
 	MOV	#<SCRIND+1200*2.+100+6*2>, R2 ; screen address
 	MOV	#15., R1
-10$:	MOV	#18., R4
+10$:	MOV	#18., R4		; energy block height
 20$:	MOV	#177777, (R2)
 	ADD	#100, R2		; next line
 	SOB	R4, 20$
@@ -659,30 +651,32 @@ L7472:	MOV	#MMODE5, @#177716	; Set memory mode 5
 	SOB	R1, 10$
 	MOV	#MMODE1, @#177716	; Set memory mode 1
 	MOV	#14., NRJ		; set Energy = MAX
-	CLR	NRJLO
+	MOV	#177777, NRJLO
 	RETURN
 
 ; Decreasing Energy
 L749E:	TST	NRJLO
 	BNE	10$
-	DECB	NRJ
+	DEC	NRJ
 	MOV	#177777, NRJLO
 	BR	20$
 10$:	CLC
 	ROR	NRJLO
 	CLC
 	ROR	NRJLO
-20$:	;CALL	DRNRJC			; Draw Energy column
-	;RETURN
+20$:	;JMP	DRNRJC			; Draw Energy column
 
 ; Draw Energy column
 DRNRJC:	MOV	NRJ, R2			; 0..14.
+	ASL	R2
 	ADD	#<SCRIND+1200*2+100+6*2>, R2 ; screen address
 	MOV	NRJLO, R1
-	MOV	#16., R4
+	MOV	#MMODE5, @#177716	; Set memory mode 5
+	MOV	#18., R4
 10$:	MOV	R1, (R2)
 	ADD	#100, R2		; next line
 	SOB	R4, 10$
+	MOV	#MMODE1, @#177716	; Set memory mode 1
 	RETURN
 
 ; Draw NEAR/HELD item
@@ -737,7 +731,7 @@ L74E4:	MOV	#4, R4			; 4 columns
 
 ; Process a dog
 L9C44:	MOV	#DOGY, R3		; Dog Y position address
-	MOVB	NJAY, R0		; get Ninja Y
+	MOV	NJAY, R0		; get Ninja Y
 	MOVB	(R3), R1		; get Dog Y
 	SUB	R1, R0			; R0 = Ninja Y - Dog Y
 	CMPB	R0, #7
@@ -751,12 +745,12 @@ L9C5A:	DECB	(R3)
 	BNE	L9C80
 	TSTB	DOGDIR			; check Dog direction
 	BNE	L9C71			; right =>
-	MOVB	NJAX, R0		; get Ninja X
+	MOV	NJAX, R0		; get Ninja X
 	INC	R0
 	CMPB	R0, DOGX		; compare to Dog X position
 	BLO	L9C80			; Ninja X + 1 < Dog X =>
 	BR	L9C7B
-L9C71:	MOVB	NJAX, R0		; get Ninja X
+L9C71:	MOV	NJAX, R0		; get Ninja X
 	INC	R0
 	CMPB	R0, DOGX		; compare to Dog X position
 	BHIS	L9C80			; Ninja X + 1 >= Dog X =>
@@ -899,7 +893,7 @@ L9DD0:	MOV	R3, @#LB674		; save current Dog data address
 ; Decrease Energy by R1
 NRJDEC:	RETURN				; !!MUT-CMD!! "PUSH R1" or "RETURN"
 ;.IF EQ CHELTH		; Cheat code for no damage
-;	CALL	L749E			; Decrease Energy
+	CALL	L749E			; Decrease Energy
 ;.ENDC
 	POP	R1
 	TST	NRJ			; Energy = 0 ?
@@ -923,7 +917,7 @@ LA3B5:	CMPB	NJAY, GARDY		; compare Ninja Y to Guard Y
 LA3BE:	MOV	#20., R0
 LA3BF = LA3BE + 2
 	MOVB	R0, GARDCN
-	MOVB	#11., GARDST		; set Guard state = $0B = auto-gun
+	MOV	#11., GARDST		; set Guard state = $0B = auto-gun
 	MOV	#LD504, LA70F		; set Sprite Ninja/Guard punching
 	JMP	DRGARD			; => Draw Guard on tilemap
 
@@ -934,7 +928,7 @@ LA3D1:	CMPB	NJAY, GARDY		; compare Ninja Y to Guard Y
 10$:	TSTB	LA3A6			; Object #2 active?
 	BNE	99$			; yes => return
 	POP	R3
-	MOVB	#20., GARDST		; set Guard state = $14 = throwing a knife
+	MOV	#20., GARDST		; set Guard state = $14 = throwing a knife
 	MOV	#LD504, LA70F		; set Sprite Ninja/Guard punching
 	JMP	DRGARD			; => Draw Guard on tilemap
 
@@ -951,7 +945,7 @@ LA3EE:	CMPB	NJAY, GARDY		; compare Ninja Y to Guard Y
 	CMPB	R0, (R3)
 	BLO	99$
 	POP	R3
-	MOVB	#5, GARDST		; set Guard state = $05
+	MOV	#5, GARDST		; set Guard state = $05
 	MOVB	#2, GARDCN
 	MOV	#LD4B0, LA70F		; set Sprite Ninja/Guard jumping
 	JMP	DRGARD			; => Draw Guard on tilemap
@@ -961,7 +955,7 @@ LA418:	CMPB	NJAY, GARDY		; compare Ninja Y to Guard Y
 	BEQ	10$			; same Y =>
 	RETURN
 10$:	POP	R3
-	MOVB	#8., GARDST		; set Guard state = $08
+	MOV	#8., GARDST		; set Guard state = $08
 	MOVB	#3, GARDCN		; set Guard counter = 3
 	MOV	#LD504, LA70F		; set Sprite Ninja/Guard punching
 	JMP	DRGARD			; => Draw Guard on tilemap
@@ -969,7 +963,7 @@ LA418:	CMPB	NJAY, GARDY		; compare Ninja Y to Guard Y
 ; Process a Guard
 LA434:	CALL	UPGARD			; Set update flags for Guard, 6x7 tiles
 	MOV	#GARDST, R3		; Guard state address
-	MOVB	(R3), R0		; get Guard state
+	MOV	(R3), R0		; get Guard state
 	CMPB	R0, #21.		; < $15 ?
 	BLO	10$
 	CLR	R0			; => GAROTH
@@ -1013,36 +1007,38 @@ LA44A:	MOV	#320, @#177716		; sound on
 	ADD	#60., R2		; 2 rows down
 	MOVB	GARDX, R1		; get Guard X
 	INC	R1
-	MOV	#005303, LA4D0		; "DEC R3" instruction
+	MOV	#-2, LA4D0+2		; "ADD #-2,R3" instruction
 	MOV	#005302, LA4D1		; "DEC R2" instruction
-	TSTB	GARDDI			; check Guard direction
+	TST	GARDDI			; check Guard direction
 	BEQ	LA4A2			; left =>
 	NEG	R1
 	ADD	#26., R1
 	ADD	#5, R2
 	ADD	#5, R3
-	MOV	#005203, LA4D0		; "INC R3" instruction
+	MOV	#2, LA4D0+2		; "ADD #2,R3" instruction
 	MOV	#005202, LA4D1		; "INC R2" instruction
 LA4A2:	CMPB	#144, TLSCR0(R2)	; $64, in Tile screen 0
 	BLO	LA4D4			; => exit the loop
 	CMPB	#377, TLSCR5(R2)	; $FF, in Tile screen 5
 	BNE	LA4C0			; no => skip draw on this tile
 	MOVB	#1, TLSCR1(R2)		; set "need update" marker in Tile screen 1
-	MOV	#73567, R5		; $7777
+	MOV	#MMODE5, @#177716	; Set memory mode 5
+	MOV	#052525, R5		; $5555
 	XOR	R5, (R3)		; write to screen
+	MOV	#MMODE1, @#177716	; Set memory mode 1
 LA4C0:	CMPB	#377, TLSCR2(R2)	; $FF, in Tile screen 2
 	BEQ	LA4CF			; yes =>
 	MOV	#4, R1			; Ninja hit
 	CALL	NRJDEC			; Decrease Energy by B = 4
 	BR	LA4D4			; => exit the loop
 LA4CF:
-LA4D0:	INC	R3			; !!MUT-CMD!! "DEC R3" or "INC R3" instruction
+LA4D0:	ADD	#2, R3			; !!MUT-ARG!! "ADD #2,R3" or "ADD #-2,R3"
 LA4D1:	INC	R2			; !!MUT-CMD!! "DEC R2" or "INC R2" instruction
 	SOB	R1, LA4A2
 LA4D4:	MOV	#220, @#177716		; sound off
 	TSTB	GARDCN			; check Guard counter
 	BNE	LA4E4			; => Draw Guard on tilemap
-	MOVB	#4., GARDST		; set Guard state = $04
+	MOV	#4., GARDST		; set Guard state = $04
 LA4E4:	JMP	DRGARD			; => Draw Guard on tilemap
 
 ; Guard state = $14 = throwing a knife
@@ -1051,7 +1047,7 @@ GARS14:	MOVB	#4, (R3)		; set Guard state = $04
 	MOV	#60., R2
 	CLR	R4			; B = 0
 	MOV	#3, R1			; C = 3
-	TSTB	GARDDI			; check Guard direction
+	TST	GARDDI			; check Guard direction
 	BEQ	LA50B
 	MOV	#65., R2
 	MOV	#5, R4			; B = 5
@@ -1082,7 +1078,7 @@ GARS0A:	MOV	#LD486, LA70F		; set Sprite Ninja/Guard standing
 LA545:	CMPB	LA39E, #1
 	BEQ	LA565
 	MOVB	GARDX, R0		; get Guard X
-	TSTB	GARDDI			; check Guard direction
+	TST	GARDDI			; check Guard direction
 	BNE	LA55F			; right =>
 	MOV	#NJAX, R3		; Ninja X address
 	ADD	#2, R0			; for left, Guard X + 2
@@ -1094,7 +1090,7 @@ LA55F:	SUB	#3, R0			; for right, Guard X - 3
 	CMPB	R0, (R3)		; compare with Ninja X
 	BHIS	LA565
 	JMP	DRGARD			; Guard not reached Ninja => Draw Guard on tilemap
-LA565:	MOVB	#4, GARDST		; set Guard state = $04
+LA565:	MOV	#4, GARDST		; set Guard state = $04
 	JMP	DRGARD			; => Draw Guard on tilemap
 
 ; Guard state = $09 - Guard is dead
@@ -1108,14 +1104,14 @@ GARS08:	DECB	GARDCN			; decrease Guard counter
 LA587:	MOVB	#3, (R3)		; set Guard state = walking state 3
 	MOV	GARDPO, R3		; get Guard position in tilemap
 	MOV	#<TLSCR2+64.>, R2	; Tile screen 2 + 2 rows + 4
-	TSTB	GARDDI			; check Guard direction
+	TST	GARDDI			; check Guard direction
 	BNE	LA599			; right =>
 	MOV	#<TLSCR2+61.>, R2	; Tile screen 2 + 2 rows + 1
 LA599:	ADD	R2, R3
 	CMPB	#377, (R3)
 	BEQ	LA5A1
 	MOV	#6, R1
-	CALL	LFA31			; => Decrease Energy by B + Sound
+	CALL	LFA31			; => Decrease Energy by 6 + Sound
 LA5A1:	MOV	#LD486, LA70F		; set Sprite Ninja/Guard standing
 	JMP	DRGARD			; => Draw Guard on tilemap
 
@@ -1135,14 +1131,14 @@ GARS06:	DECB	GARDCN			; decrement Guard counter
 	MOV	#LD4B0, LA70F		; set Sprite Ninja/Guard jumping
 	MOV	GARDPO, R3		; get Guard position in tilemap
 	MOV	#<TLSCR2+65.>, R2	; Tile screen 2 + 2 rows + 5
-	TSTB	GARDDI			; check Guard direction
+	TST	GARDDI			; check Guard direction
 	BNE	10$			; right =>
 	MOV	#<TLSCR2+60.>, R2	; Tile screen 2 + 2 rows
 10$:	ADD	R2, R3
 	CMPB	#377, (R3)
 	BEQ	90$
 	MOV	#10., R1		; 10. damage
-	CALL	LFA31			; Decrease Energy + Sound
+	CALL	LFA31			; Decrease Energy by 10. + Sound
 90$:	JMP	DRGARD			; => Draw Guard on tilemap
 
 ; Guard state = $07 - back to standing
@@ -1153,14 +1149,14 @@ GARS07:	DECB	GARDCN			; decrement Guard counter
 90$:	JMP	DRGARD			; => Draw Guard on tilemap
 
 ; Guard state is none of the above
-GAROTH:	MOVB	NJAX, R1		; get Ninja X
+GAROTH:	MOV	NJAX, R1		; get Ninja X
 	MOVB	GARDX, R0		; get Guard X
 	SUB	R1, R0			; now R0 = Guard X - Ninja X
 	BNE	LA635
 ; Guard X == Ninja X
 	CALL	LA418
 	MOV	#GARDST, R3		; Guard state address
-	CMPB	#10., (R3)		; Guard state = $0A ?
+	CMP	#10., (R3)		; Guard state = $0A ?
 	BNE	LA629
 	JMP	DRGARD			; yes => Draw Guard on tilemap
 LA629:	MOVB	#4, (R3)		; set Guard state = $04
@@ -1170,14 +1166,14 @@ LA629:	MOVB	#4, (R3)		; set Guard state = $04
 LA635:	BLO	LA68C			; Guard X < Ninja X =>
 ; Ninja X < Guard X
 	MOV	R0, R1			; save value "Guard X - Ninja X"
-	TSTB	GARDDI			; check Guard direction
+	TST	GARDDI			; check Guard direction
 	BEQ	LA65B			; left =>
-	CMPB	#4, GARDST		; Guard state = $04 ?
+	CMP	#4, GARDST		; Guard state = $04 ?
 	BEQ	LA654			; yes =>
-	MOVB	#4, GARDST		; set Guard state = $04
+	MOV	#4, GARDST		; set Guard state = $04
 	MOV	#LD486, LA70F		; set Sprite Ninja/Guard standing
 	BR	DRGARD			; => Draw Guard on tilemap
-LA654:	CLRB	GARDDI			; set Guard direction = left
+LA654:	CLR	GARDDI			; set Guard direction = left
 	BR	DRGARD			; => Draw Guard on tilemap
 LA65B:	MOV	R1, R0			; restore value "Guard X - Ninja X"
 	CMPB	#3, R0
@@ -1192,25 +1188,25 @@ LA666:	CMPB	#9., R0
 LA66B:	CMPB	#12., R0
 	BNE	LA670
 	CALL	LA3B5			; Process Ninja and Guard in 12. tiles
-LA670:	CMPB	#4, GARDST		; Guard state = $04 ?
+LA670:	CMP	#4, GARDST		; Guard state = $04 ?
 	BNE	LA67F			; no =>
-	MOVB	#3, GARDST		; set Guard state = walking phase 3
+	MOV	#3, GARDST		; set Guard state = walking phase 3
 	BR	DRGARD			; => Draw Guard on tilemap
 LA67F:	DEC	GARDX			; decrement Guard X - move one tile left
-	CLRB	GARDDI			; set Guard direction = left
+	CLR	GARDDI			; set Guard direction = left
 	MOV	#-1, R2
 	BR	LA6DE
 ;
 ; Guard X < Ninja X
 LA68C:	MOV	R0, R1			; save value "Guard X - Ninja X"
-	TSTB	GARDDI			; check Guard direction
+	TST	GARDDI			; check Guard direction
 	BNE	LA6AF			; right =>
-	CMPB	#4, GARDST		; Guard state = $04 ?
+	CMP	#4, GARDST		; Guard state = $04 ?
 	BEQ	LA6A8			; yes =>
-	MOVB	#4, GARDST		; set Guard state = $04
+	MOV	#4, GARDST		; set Guard state = $04
 	MOV	#LD486, LA70F		; set Sprite Ninja/Guard standing
 	BR	DRGARD			; => Draw Guard on tilemap
-LA6A8:	MOVB	#1, GARDDI		; set Guard direction = right
+LA6A8:	MOV	#1, GARDDI		; set Guard direction = right
 	BR	DRGARD			; => Draw Guard on tilemap
 LA6AF:	MOV	R1, R0			; restore value "Guard X - Ninja X"
 	CMPB	#-3, R0
@@ -1225,25 +1221,25 @@ LA6BA:	CMPB	#-9., R0
 LA6BF:	CMPB	#-12., R0
 	BNE	LA6C4
 	CALL	LA3B5			; Process Ninja and Guard in 12. tiles
-LA6C4:	CMPB	#4, GARDST		; Guard state = $04 ?
+LA6C4:	CMP	#4, GARDST		; Guard state = $04 ?
 	BNE	LA6D2
-	MOVB	#3, GARDST		; set Guard state = walking phase 3
+	MOV	#3, GARDST		; set Guard state = walking phase 3
 	BR	DRGARD			; => Draw Guard on tilemap
 LA6D2:	INC	GARDX			; increment Guard X - move one tile right
-	MOVB	#1, GARDDI		; set Guard direction = right
+	MOV	#1, GARDDI		; set Guard direction = right
 	MOV	#1, R2
 ;
 LA6DE:	ADD	R2, GARDPO		; Guard position in tilemap +1 / -1
-	MOVB	GARDST, R0		; get Guard state
+	MOV	GARDST, R0		; get Guard state
 	INC	R0
 	BIC	#177774, R0		; 0..3
-	MOVB	R0, GARDST		; set Guard state
+	MOV	R0, GARDST		; set Guard state
 	ADD	R0, R0			; * 2
 	MOV	L733B(R0), LA70F	; sprite from table -> set Guard sprite
 ;
 ; Draw Guard on tilemap
 DRGARD:	MOV	GARDPO, R3		; get Guard position in tilemap
-	TSTB	GARDDI			; check Guard direction
+	TST	GARDDI			; check Guard direction
 	BNE	LA728			; right =>
 	ADD	#<TLSCR4+6>, R3		; Tile screen 4 + 6
 LA70E:	MOV	#LD432, R2		; !!MUT-ARG!! current Ninja/Guard sprite address
@@ -1487,7 +1483,7 @@ LB1A3:	MOVB	510.(R3), R0		; get tile from Tile screen 2
 	MOV	R0, R4			; now HL = tile data address
 	MOV	#2., R1			; 8 bytes
 	MOV	SP, R2			; tile buffer address
-LB1E4:	TSTB	NJADIR			; check direction
+LB1E4:	TST	NJADIR			; check direction
 	BEQ	20$			; left =>
 ; Ninja tile, direction right
 10$:	MOVB	(R2), R0		; get byte from the buffer
@@ -1596,7 +1592,7 @@ LB230:	MOVB	<510.*3>(R3), R0	; get tile from Tile screen 4
 	MOV	R0, R4			; now HL = tile data address
 	MOV	#4., R1
 	MOV	SP, R2			; tile buffer address
-	TSTB	GARDDI			; check direction
+	TST	GARDDI			; check direction
 	BEQ	20$			; left =>
 ; Guard tile, direction right
 10$:	MOVB	(R2), R0		; get byte from the buffer
@@ -1859,7 +1855,7 @@ LB4C6:	MOVB	R0, LB4DD		; update Turret counter
 LB4CB:	MOVB	#1, @#<TLSCR1+47.>	; !!MUT-ARG!! set "need update" mark for Turret on Tile Screen 1
 LB4CC = LB4CB + 4	; Turret address on Tile Screen 1
 	MOVB	#055, (R3)		; $2D = Turret looking down
-	MOVB	NJAX, R0		; get Ninja X
+	MOV	NJAX, R0		; get Ninja X
 LB4D3:	MOV	#15., R1		; !!MUT-ARG!! Turret X value
 LB4D4 = LB4D3 + 2	; Turret X value
 	CMPB	R0, R1
@@ -1910,7 +1906,7 @@ PRSTR:	MOV	#MMOD52, @#177716	; Set memory mode 5:2
 
 ; Movement handler for initial room (B8CE handler)
 LB532:	INC	NJAPOS			; increase Ninja position in tilemap
-	INCB	NJAX			; increase Ninja X
+	INC	NJAX			; increase Ninja X
 LB53D:	MOV	#<TLSCR5+349.>, R2	; !!MUT-ARG!! address in Tile screen 5 (front)
 LB53E = LB53D + 2	; Boat position
 	MOV	#LB5A7, R3		; Boat sprite address
@@ -1936,7 +1932,7 @@ LB53E = LB53D + 2	; Boat position
 	DECB	MVTCN			; decrease counter
 	BEQ	LB577
 	JMP	LB8D0			; => Update Ninja on tilemap
-LB577:	INCB	NJAX			; increrase Ninja X
+LB577:	INC	NJAX			; increrase Ninja X
 	INC	NJAPOS			; increase Ninja position in tilemap
 	MOVB	#377, <TLSCR5+349.>
 	MOV	#LD5AC, R2		; Sprite Ninja jumping 3
@@ -1964,7 +1960,7 @@ LB5C7:	CALL	LAC44			; Reset Guard data and Dog data
 	CLRB	<LD486+8.>		; set head tile in Ninja/Guard standing sprite
 	MOV	#220, @#177716		; sound off
 	MOVB	#1, <LD486+9.>		; set head tile for Ninja/Guard standing sprite
-	MOVB	#1, NJADIR		; set Ninja direction = 1 = right
+	MOV	#1, NJADIR		; set Ninja direction = 1 = right
 	MOVB	#1, LB84F		; set NEAR item = 1
 	MOV	#<TLSCR5+330.>, @#LB53E	; set initial position for boat
 	;MOV	#LB5B0, L74D4		; NO NEED: the only place we set L74D4
@@ -1981,8 +1977,8 @@ LB5C7:	CALL	LAC44			; Reset Guard data and Dog data
 	MOV	#RMB513, ROOM		; set Current Room = Initial room
 	MOV	#LB532, MVTHDR		; set movement handler = movement handler for initial room
 	MOV	#LD558, NJASPR		; set Ninja sprite = Ninja sitting
-	MOVB	#1, NJAX		; set Ninja X = 1
-	MOVB	#5, NJAY		; set Ninja Y = 5
+	MOV	#1, NJAX		; set Ninja X = 1
+	MOV	#5, NJAY		; set Ninja Y = 5
 	MOV	#151., NJAPOS		; set Ninja position in tilemap = Y * 30. + X
 	MOVB	#19., MVTCN		; set counter = 19.
 ;.IF NE CVERT		; Cheat code for short route to Helicopter
@@ -2213,10 +2209,10 @@ MVTHDR = LB8CD + 2	; Movement handler address
 ; Increase Energy a bit
 LB83C:	CMP	#177777, NRJLO
 	BNE	10$
-	CMPB	#14., NRJ		; Energy at MAX?
+	CMP	#14., NRJ		; Energy at MAX?
 	BEQ	99$			; yes => return
 	CLR	NRJLO
-	INCB	NRJ
+	INC	NRJ
 	BR	20$
 10$:	SEC
 	ROL	NRJLO
@@ -2247,7 +2243,7 @@ LB8D0:
 	MOV	NJASPR, R2		; get Ninja sprite address
 	MOV	#7, R1			; 7 rows
 	MOV	#1, R0			; "need to update" flag
-	TSTB	NJADIR			; get Ninja direction
+	TST	NJADIR			; get Ninja direction
 	BNE	20$			; right =>
 ; Draw Ninja on tilemap, direction left
 	ADD	#<TLSCR2+6>, R3		; Tile screen 2 start address + 6
@@ -2642,15 +2638,15 @@ LBD37:	MOV	#LA39F, R3
 	MOVB	R0, (R3)
 	MOV	NJAPOS, R3		; get Ninja position in tilemap
 	ADD	#61., R3		; + 2 rows + 1
-	MOVB	NJAX, R1		; get Ninja X
+	MOV	NJAX, R1		; get Ninja X
 	INC	R1
-	TSTB	NJADIR			; check Ninja direction
+	TST	NJADIR			; check Ninja direction
 	BEQ	LBD6A			; left =>
 	ADD	#3, R1			; Ninja X + 1 + 3
 	ADD	#3, R3			; Ninja position + 3
 LBD6A:	MOVB	R1, LA3A5		; set thrown object X
 	MOV	R3, LA3A0		; set thrown object position
-	MOVB	NJAY, R0		; get Ninja Y
+	MOV	NJAY, R0		; get Ninja Y
 	ADD	#2, R0
 	MOVB	R0, LA3A4		; set thrown object Y
 LBD79:	MOV	#310, R0		; !!MUT-ARG!! $C8
@@ -2658,11 +2654,11 @@ LBD7A = LBD79 + 2	; HELD tile
 	MOVB	R0, LA39F
 	CLRB	LBD7A
 	MOV	#3, R1
-	TSTB	NJADIR			; check Ninja direction
+	TST	NJADIR			; check Ninja direction
 	BEQ	LBD8D			; left =>
 	ADD	#2, R1
 LBD8D:	MOVB	R1, LA3A3
-	MOVB	INPUTB, R0		; get Input bits
+	MOV	INPUTB, R0		; get Input bits
 	BIT	#PKEYUP, R0		; check UP bit
 	BEQ	LBD9B
 	ADD	#-3, R1
@@ -2678,7 +2674,7 @@ LBDA2:	MOVB	R1, LA3A2
 ; ?? Ninja action?
 LBDB2:	MOV	NJAPOS, R3		; get Ninja position in tilemap
 	MOV	#<TLSCR4+34.>, R2	; Tile screen 4 + 34., for right
-	TSTB	NJADIR			; check Ninja direction
+	TST	NJADIR			; check Ninja direction
 	BNE	LBDC2			; right =>
 	MOV	#<TLSCR4+31.>, R2	; Tile screen 4 + 31., for left
 LBDC2:	ADD	R2, R3			; now R3 = address in Guard tilemap
@@ -2756,7 +2752,7 @@ LBEAA:	POP	R3
 	MOV	#LBF58, LBEB4		; set two-line Game Over message = "SABOTEUR DEAD" / "MISSION FAILURE"
 ;	BR	LBE63			; => Ninja dead
 ;
-; Movement handler (B8CE handler): Ninja dead
+; Movement handler: Ninja dead
 LBE63:	MOV	#000207, NRJDEC		; set instruction = RETURN
 	MOV	#LBEB3, R3		; Movement handler: Game Over
 	MOV	#LA0B5, R2		; Sprite Ninja dead
@@ -2826,8 +2822,8 @@ LBF85:	INC	R3
 	BHIS	LBF8A
 	JMP	LB8D0			; => Update Ninja on tilemap
 LBF8A:	MOVB	#3, MVTCN		; set counter = 3
-	MOVB	INPUTB, R0		; get Input bits
-	TSTB	NJADIR			; check Ninja direction
+	MOV	INPUTB, R0		; get Input bits
+	TST	NJADIR			; check Ninja direction
 	BEQ	LBFA0			; left =>
 	BIT	#PKEYRT, R0		; check RIGHT bit
 	BEQ	LBF9E
@@ -2948,7 +2944,7 @@ LC162:	MOV	#LC1B6, MVTHDR		; set Movement handler address
 LC16E:	JMP	LB8D0			; => Update Ninja on tilemap
 
 ; Movement handler - Ninja walking right
-LC1B6:	MOVB	NJAX, R0		; get Ninja X
+LC1B6:	MOV	NJAX, R0		; get Ninja X
 	CMPB	#24., R0		; near right edge?
 	BNE	LC1BE
 	JMP	LC2FA			; => Going to room at Right
@@ -2956,7 +2952,7 @@ LC1BE:	MOV	NJAPOS, R3		; get Ninja position in tilemap
 	ADD	#<TLSCR0+184.>, R3	; + Tile screen 0 + 6 rows + 4
 	CMPB	#144, (R3)		; $64
 	BHIS	LC1DA
-	DECB	NJAY			; decrement Ninja Y - one row up
+	DEC	NJAY			; decrement Ninja Y - one row up
 	ADD	#-30., NJAPOS		; Ninja position in tilemap -30.
 	BR	LC20D
 LC1DA:	ADD	#-29., R3
@@ -2978,7 +2974,7 @@ LC1EE:	ADD	#59., R3
 	CMPB	#10., (R3)		; at the room bottom?
 	BNE	LC20D			; no =>
 	JMP	LC604			; => Going to room Down from current
-LC20D:	INCB	NJAX			; move one tile to right
+LC20D:	INC	NJAX			; move one tile to right
 	INC	NJAPOS			; increment Ninja position in tilemap
 	CALL	LC5A3			; Check for falling
 	BNE	LC21E			; not falling =>
@@ -3008,13 +3004,13 @@ LC239:	MOV	NJAPOS, R3		; get Ninja position in tilemap
 LC248:	BR	LC16E			; => Object procedure
 
 ; Movement handler - Ninja walking left
-LC24B:	TSTB	NJAX			; Ninja X at very left?
+LC24B:	TST	NJAX			; Ninja X at very left?
 	BEQ	LC319			; yes => Going to room at Left
 LC253:	MOV	NJAPOS, R3		; get Ninja position in tilemap
 	ADD	#<TLSCR0+181.>, R3	; + Tile screen 0 + 6 rows + 1
 	CMPB	#144, (R3)		; $64
 	BHIS	LC26F
-	DECB	NJAY			; moving one row up
+	DEC	NJAY			; moving one row up
 	ADD	#-30., NJAPOS		; Ninja position in tilemap -30.
 	BR	LC2A2
 LC26F:	ADD	#-31., R3
@@ -3036,7 +3032,7 @@ LC283:	ADD	#61., R3
 	CMPB	#10., (R3)		; at the room bottom?
 	BNE	LC2A2			; no =>
 	JMP	LC604			; => Going to room Down from current
-LC2A2:	DECB	NJAX			; move one tile to left
+LC2A2:	DEC	NJAX			; move one tile to left
 	DEC	NJAPOS			; decrement Ninja position in tilemap
 	CALL	LC5A3			; Check for falling
 	BNE	LC2B3			; not falling =>
@@ -3071,7 +3067,7 @@ LC2E8:	MOV	L733B(R3), NJASPR	; sprite address from table -> Ninja sprite
 	JMP	LB8D0			; => Update Ninja on tilemap
 
 ; Going to room at Right
-LC2FA:	CLRB	NJAX			; set Ninja X = 0
+LC2FA:	CLR	NJAX			; set Ninja X = 0
 	ADD	#-24., NJAPOS		; update Ninja position in tilemap
 	MOV	ROOM, R3		; get Current Room address
 	MOV	6(R3), R3		; get Room Right address
@@ -3079,7 +3075,7 @@ LC2FA:	CLRB	NJAX			; set Ninja X = 0
 	JMP	LB66A			; => Current Room changed
 
 ; Going to room at Left
-LC319:	MOVB	#24., NJAX		; set Ninja X = 24.
+LC319:	MOV	#24., NJAX		; set Ninja X = 24.
 	ADD	#24., NJAPOS		; update Ninja position in tilemap
 	MOV	ROOM, R3		; get Current Room address
 	MOV	4(R3), R3		; get Room Left address
@@ -3092,7 +3088,7 @@ LC339:	DECB	MVTCN			; decrease counter
 	JMP	LB8D0			; => Update Ninja on tilemap
 LC340:	MOV	NJAPOS, R3		; get Ninja position in tilemap
 	ADD	#<TLSCR0+2>, R3		; + Tile screen 0 + 2
-	TSTB	NJADIR			; check Ninja direction
+	TST	NJADIR			; check Ninja direction
 	BNE	LC361			; right =>
 	MOVB	(R3), R0
 	CMPB	#014, R0		; $0C
@@ -3112,7 +3108,7 @@ LC368:	CALL	LC392			; Check if tile is a ladder
 	BEQ	LC3C6			; ladder => Ninja on ladder
 	MOV	#<TLSCR0+60.>, R2	; Tile screen 0 + 2 rows
 	MOV	NJAPOS, R3		; get Ninja position in tilemap
-	TSTB	NJADIR			; check Ninja direction
+	TST	NJADIR			; check Ninja direction
 	BEQ	LC37D			; left =>
 	MOV	#<TLSCR0+65.>, R2	; Tile screen 0 + 2 rows + 5
 LC37D:	ADD	R2, R3
@@ -3148,7 +3144,7 @@ LC3B7:	CMPB	#1, R1			; Z = ladder
 	RETURN
 
 ; Move LEFT one tile, Ninja on ladder
-LC3BB:	DECB	NJAX			; decrease Ninja X
+LC3BB:	DEC	NJAX			; decrease Ninja X
 	DEC	NJAPOS			; move one tile left
 
 ; Ninja on ladder now
@@ -3157,7 +3153,7 @@ LC3C6:	MOV	#LC3D9, R3		; Movement handler for Ninja on ladder
 	JMP	LBFB0			; Set movement handler = R3, Ninja sprite = R2
 
 ; Move RIGHT one tile, Ninja on ladder
-LC3CF:	INCB	NJAX			; increase Ninja X
+LC3CF:	INC	NJAX			; increase Ninja X
 	INC	NJAPOS			; increase Ninja position in tilemap
 	BR	LC3C6			; => Ninja on ladder
 
@@ -3182,7 +3178,7 @@ LC3EC:	MOV	INPUTB, R0		; Read Input
 	ADD	#30., R3		; next row
 	CMPB	#144, (R3)		; $64
 	BHIS	LC42C
-	MOVB	#1, NJADIR		; set direction = right
+	MOV	#1, NJADIR		; set direction = right
 	JMP	LC162
 ; Check if LEFT pressed
 LC40E:	BIT	#PKEYLT, R0		; check LEFT bit
@@ -3195,10 +3191,10 @@ LC40E:	BIT	#PKEYLT, R0		; check LEFT bit
 	ADD	#30., R3		; next row
 	CMPB	#144, (R3)		; $64
 	BHIS	LC42C
-	CLRB	NJADIR			; set direction = left
+	CLR	NJADIR			; set direction = left
 	JMP	LC14B
 ; Check if UP pressed
-LC42C:	MOVB	INPUTB, R0		; get Input bits
+LC42C:	MOV	INPUTB, R0		; get Input bits
 	BIT	#PKEYUP, R0		; check UP bit
 	BEQ	LC477
 ; Pressed UP
@@ -3209,7 +3205,7 @@ LC42C:	MOVB	INPUTB, R0		; get Input bits
 	DEC	R3
 	CALL	LC392
 	BNE	LC495			; => Update Ninja on tilemap
-LC447:	TSTB	NJAY			; check Ninja Y
+LC447:	TST	NJAY			; check Ninja Y
 	BNE	LC44F			; top row?
 	JMP	LC623			; => Going to room Up
 LC44F:	ADD	#-210., R3
@@ -3217,7 +3213,7 @@ LC44F:	ADD	#-210., R3
 	BEQ	LC495			; => Update Ninja on tilemap
 	CMPB	#377, (R3)
 	BEQ	LC495			; => Update Ninja on tilemap
-	DECB	NJAY			; decrement Ninja Y - one row up
+	DEC	NJAY			; decrement Ninja Y - one row up
 	ADD	#-30., NJAPOS		; Ninja position in tilemap -30.
 LC467:	MOV	#1, R0
 	XOR	R0, NJADIR		; invert Ninja direction
@@ -3227,7 +3223,7 @@ LC467:	MOV	#1, R0
 LC477:	BIT	#PKEYDN, R0		; check DOWN bit
 	BEQ	LC495
 ; Pressed DOWN
-	CMPB	#10., NJAY		; Ninja Y at the room bottom?
+	CMP	#10., NJAY		; Ninja Y at the room bottom?
 	BNE	LC483
 	JMP	LC604			; => Going to room Down from current
 LC483:	MOV	NJAPOS, R3		; get Ninja position in tilemap
@@ -3240,7 +3236,7 @@ LC483:	MOV	NJAPOS, R3		; get Ninja position in tilemap
 LC495:	JMP	LB8D0			; => Update Ninja on tilemap
 
 ; Move DOWN one tile
-LC498:	INCB	NJAY			; increment Ninja Y
+LC498:	INC	NJAY			; increment Ninja Y
 	ADD	#30., NJAPOS		; Ninja position in tilemap +30.
 	BR	LC467			; => invert direction, update Ninja
 
@@ -3250,7 +3246,7 @@ LC4A7:	DECB	MVTCN			; decrease counter
 	JMP	LB8D0			; => Update Ninja on tilemap
 LC4AE:	MOV	NJAPOS, R3		; get Ninja position in tilemap
 	MOV	#<TLSCR4+65.>, R2	; Tile screen 4 + 2 rows + 5
-	TSTB	NJADIR			; check Ninja direction
+	TST	NJADIR			; check Ninja direction
 	BNE	LC4BE			; right =>
 	MOV	#<TLSCR4+60.>, R2	; Tile screen 4 + 2 rows
 LC4BE:	ADD	R2, R3			; now R3 = address in Tile screen 4
@@ -3292,7 +3288,7 @@ LC504:	MOV	#LC50D, R3		; Movement handler address
 
 ; Movement handler: Ninja in jumping 4
 LC50D:	MOV	#NJAX, R3		; Ninja X address
-	TSTB	NJADIR			; check Ninja direction
+	TST	NJADIR			; check Ninja direction
 	BNE	LC56C			; right =>
 	TSTB	(R3)			; Ninja X = 0 ?
 	BNE	LC51D			; no =>
@@ -3305,14 +3301,14 @@ LC525:	CALL	LC57B			; Check if we have empty space
 	BEQ	LC538
 	JMP	LB8D0			; => Update Ninja on tilemap
 LC533:	MOV	#4, R1
-	CALL	NRJDEC			; Decrease Energy by B = 4
+	CALL	NRJDEC			; Decrease Energy by 4
 LC538:	MOV	#<TLSCR0+122.>, R2	; Tile screen 0 + 4 rows + 2
 	MOV	#3, R1			; loop counter
 LC53D:	MOV	NJAPOS, R3		; get Ninja position in tilemap
 	ADD	R2, R3
 	CMPB	#144, (R3)		; $64 ?
 	BHIS	LC558
-LC546:	DECB	NJAY			; decrease Ninja Y
+LC546:	DEC	NJAY			; decrease Ninja Y
 	ADD	#-30., NJAPOS		; Ninja position in tilemap -30
 	BR	LC53D
 LC558:	INC	R3
@@ -3332,7 +3328,7 @@ LC571:	INCB	(R3)			; increase Ninja X
 	BR	LC525
 
 ; Procedure: Check if we have empty space to continue the jump
-LC57B:	MOVB	NJADIR, R0		; get Ninja direction: 0/1
+LC57B:	MOV	NJADIR, R0		; get Ninja direction: 0/1
 	MOVB	DIR05(R0), R3		; 0/5
 	ADD	NJAPOS, R3		; + Ninja position in tilemap
 	ADD	#TLSCR0, R3		; + Tile screen 0 start address
@@ -3352,7 +3348,7 @@ DIR05:	.BYTE	0, 5
 LC5A3:	MOV	NJAPOS, R3		; get Ninja position in tilemap
 	ADD	#211., R3		; + 7 rows + 1
 	ADD	#TLSCR0, R3		; Tile screen 0 start address
-	MOVB	NJADIR, R2		; get Ninja direction: 0/1
+	MOV	NJADIR, R2		; get Ninja direction: 0/1
 	ADD	R2, R3
 	MOV	#3, R1
 	CLR	R2
@@ -3366,7 +3362,7 @@ LC5C0:	INC	R3
 
 ; Movement handler: Ninja falling down
 LC5C6:	ADD	#30., NJAPOS		; Ninja position in tilemap +30.
-	INCB	NJAFAL			; increase falling counter
+	INC	NJAFAL			; increase falling counter
 	MOV	#NJAY, R3		; Ninja Y address
 	INCB	(R3)			; increase Ninja Y
 	CMPB	#10., (R3)		; at room bottom?
@@ -3391,7 +3387,7 @@ LC5EE:	MOV	#1, LA39E
 	JMP	LBFCC			; => Ninja sitting now
 
 ; Going to room Down from current
-LC604:	CLRB	NJAY			; set Ninja Y = 0
+LC604:	CLR	NJAY			; set Ninja Y = 0
 	ADD	#-300., NJAPOS		; Ninja position in tilemap -10 rows
 	MOV	ROOM, R3		; get Current Room address
 	MOV	12(R3), R3		; get Room Down address
@@ -3399,7 +3395,7 @@ LC604:	CLRB	NJAY			; set Ninja Y = 0
 	JMP	LB66A			; => Current Room changed
 
 ; Going to room Up from current
-LC623:	MOVB	#10., NJAY		; set Ninja Y = 10
+LC623:	MOV	#10., NJAY		; set Ninja Y = 10
 	ADD	#300., NJAPOS		; Ninja position in tilemap +10 rows
 	MOV	ROOM, R3		; get Current Room address
 	MOV	10(R3), R3		; get Room Up address
@@ -3435,22 +3431,22 @@ LC697:	MOVB	R0, (R3)+
 	JMP	LB724			; => Finish room initialization
 
 ; Room 7C9C procedure (tunnel Train)
-LC6A5:	CMPB	#12., NJAX		; Ninja X = 12 ?
+LC6A5:	CMP	#12., NJAX		; Ninja X = 12 ?
 	BNE	LC6DF			; => Standard room procedure
 	MOVB	#75., MVTCN		; set counter = 75.
 	MOV	NJAPOS, R2		; get Ninja position in tilemap
-	MOVB	NJAX, R1		; get Ninja X
+	MOV	NJAX, R1		; get Ninja X
 	INC	R1
 	INC	R2
 	MOV	#LC70C, R3		; Movement handler: Train moving right
-	TSTB	NJADIR			; check Ninja direction
+	TST	NJADIR			; check Ninja direction
 	BNE	LC6CD			; right =>
 	MOV	#LC6E2, R3		; Movement handler: Train moving left
 	DEC	R1
 	DEC	R1
 	DEC	R2
 	DEC	R2
-LC6CD:	MOVB	R1, NJAX		; set Ninja X
+LC6CD:	MOV	R1, NJAX		; set Ninja X
 	MOV	R2, NJAPOS		; set Ninja position in tilemap
 	MOV	#LD486, NJASPR		; Sprite Ninja/Guard standing
 	MOV	R3, MVTHDR		; set Movement handler
