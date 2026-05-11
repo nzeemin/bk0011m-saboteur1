@@ -24,9 +24,9 @@ MMOD56 = ^B0001111100000000	; 5:6  -  to draw tiles on the screen
 MMOD52 = ^B0001101000000000	; 5:2  -  to draw using Byte2Word tables
 ;------------------------------------------------------------------------------
 
-;CHELTH=1		; Cheat code for no damage
-;CVERT =0		; Cheat code for short route to Helicopter
-;CBOMB =0		; Cheat code for carrying BOMB
+CHELTH == 1		; Cheat code for NRJ change; 0 = normal, 1 = no damage
+;CVERT = 0		; Cheat code for short route to Helicopter
+;CBOMB = 0		; Cheat code for carrying BOMB
 
 TIMERI = 200.		; Fast timer reset value, see TIMECN
 
@@ -58,7 +58,7 @@ Byte2Word30 = 114400
 Byte2Word31 = 115400
 Byte2Word32 = 116400
 Byte2Word33 = 117400
-; Table used to extend byte to word, used to screen output, 512. bytes
+; Page 2: Table used to extend byte to word, used to screen output, 512. bytes
 L33124 = 120000
 PXCONH = L33124 + <128.*2.>	; Half of the convertion table
 
@@ -72,38 +72,39 @@ LF700 = 117242
 
 ;	.=001400
 ; Coming here from S1BOOT code
-; Initialization
 ; Main memory mode MMODE1 already set
+; Interrupts disabled
 START:
-	MTPS	#000340			; Disable interrupts
+; Prepare interrupt handlers
+	;MTPS	#000340			; Disable interrupts
 	MOV	SP, OSTACK		; Save initial SP value
 	MOV	#INTBCK, R0
 	MOV	@#000004, (R0)+		; save current interrupt vectors
 	MOV	@#000060, (R0)+
 	MOV	@#000274, (R0)+
-	MOV	@#000100, (R0)+
-	MOV	@#000102, (R0)+
-	MOV	#000004, R0
-	MOV	#VSYINT, @#000100	; VSync interrupt
-	MOV	#200, @#000102		; VSync interrupt PSW
+	MOV	#000100, R1
+	MOV	(R1), (R0)+		; backup VSync interrupt address
+	MOV	#VSYINT, (R1)+		; VSync interrupt
+	MOV	(R1), (R0)+		; backup VSync interrupt PSW
+	MOV	#200, (R1)		; VSync interrupt PSW
 	MOV	#KEYINT, @#000060	; keyboard interrupt
 	MOV	#KEYIN2, @#000274	; keyboard interrupt
-	MOV	#STOP, (R0)+		; STOP key handler vector
-	MOV	#340, (R0)
-	CALL	PREPARE			; Prepare tables
+	MOV	#000004, R0
+	MOV	#STOP, (R0)+		; STOP interrupt address
+	MOV	#340, (R0)		; STOP interrupt PSW
 	CLR	@#177660		; allow keyboard interrupts
 ; Message and wait for a key
 	MOV	#13., R1
 	MOV	#ANYKEY, R3		; "PRESS ANY KEY"
-	MOV	#<SCRTOP+30200+9.*2>, R2
-	CALL	PRSTR			; Print string - title
+	MOV	#<SCRTOP+30200+9.*2>, R2 ; screen address
+	CALL	PRSTR			; Print string
 	MTPS	#0			; enable interrupts
 	CLR	KEYCUR
 12$:	TST	KEYCUR
 	BEQ	12$			; wait for a key
-; STOP key handler starts here
+; STOP key interrupt handler starts here
 STOP:	MOV	#1000, SP
-	MOV	#1330, @#177664		; Set standard scroll value
+	;MOV	#1330, @#177664		; Set standard scroll value
 	MOV	#MMODE1, @#177716	; Set the main memory mode
 	CALL	FadeScreen		; Clear the screen
 	MTPS	#0			; enable interrupts
@@ -120,63 +121,12 @@ FNCORE:	MTPS	#000340			; Disable interrupts
 	MOV	(R0)+, @#000100
 	MOV	(R0)+, @#000102
 	MOV	#016000, @#177716	; restore standard memory register value
-	MOV	OSTACK, SP		; restore stack
+	MOV	#001000, SP		; restore stack
+OSTACK = . - 2		; Saved SP value
+	MOV	#MMODE0, @#177716	; restore system mode
 	JMP	@#100000		; return to ANDOS
 ;
-OSTACK:	.WORD	01000		; Saved SP value
 INTBCK:	.BLKW	5		; Interrupt vectors backup
-
-PREPARE:
-; Prepare PXCONV table, used to convert pixels BYTE -> BK WORD
-	MOV	#MMOD52, @#177716	; Set memory mode
-	MOV	#L33124, R2
-	MOV	#-128., R3		; R3 runs from -128. to +127.
-1$:	CLR	R5			; in R5 will be the word
-	MOV	#8., R4			; R4 = bits counter
-	MOV	R3, R1
-2$:	ASR	R1			; bit 0 goes into C flag
-	BCC	5$
-	ROL	R5			; get from C flag
-	ROL	R5
-	BR	8$
-5$:	ROL	R5			; get 0 from C flag
-	SEC
-	ROL	R5
-8$:	SOB	R4, 2$			; repeat
-	MOV	R5, (R2)+		; write the result
-	INC	R3
-	CMP	R3, #128.
-	BLT	1$
-; Prepare byte -> word tables, 16 tables by 512 bytes, see Byte2Word00
-	CLR	R5			; xxxxPPII (P-paper, I-ink)
-	MOV	#100000, R4
-10$:	MOV	R5, 40$+2
-	MOV	R5, 50$+2
-	BIC	#^B1111111111111100, 40$+2 ; modify bis for 'ink'
-	ASR	50$+2			; modify bis for 'paper'
-	ASR	50$+2
-	MOV	#200, R0		; (!) start conversion from -0 (signed byte)
-20$:	CLR	(R4)			; cycle 256 bytes
-	MOV	R0, R1
-	MOV	#8., R3
-30$:	ASL	(R4)			; cycle 8 bits
-	ASL	(R4)
-	ASLB	R1
-	BCC	50$
-40$:	BIS	#000000, (R4)		; set 'ink'
-	BR	60$
-50$:	BIS	#000000, (R4)		; set 'paper'
-60$:	SOB	R3, 30$
-	INC	R4
-	INC	R4
-	INCB	R0
-	CMPB	#200, R0
-	BNE	20$
-	INC	R5
-	CMP	R5, #16.
-	BLO	10$
-;
-	RETURN
 
 ; Randomly clear tiles on the screen // by BlaireCas
 FadeScreen:
@@ -303,14 +253,13 @@ GARDX:	.BYTE	17.	; Guard X position
 GARDY:	.BYTE	8.	; Guard Y position
 
 DOGPOS:	.WORD	398.	; Dog position in tilemap
-DOGDIR:	.BYTE	0	; Dog direction
+DOGDIR:	.BYTE	0	; Dog direction: 0 = left, 1 = right
 DOGX:	.BYTE	8.	; Dog X position
 DOGST:	.BYTE	0	; Dog state: 0 = run, 1 = changing direction, >= $42 is dead
 DOGLTL:	.BYTE	7	; Dog's left limit
 DOGRTL:	.BYTE	23.	; Dog's right limit
 DOGDIX:	.BYTE	0	; Dog changing direction: 0 = right to left, 1 = left to right
-DOGY:	.BYTE	6	; Dog Y position
-	.EVEN
+DOGY:	.WORD	6	; Dog Y position
 
 L71D4:	.BYTE	0
 L71D5:	.BYTE	1
@@ -328,7 +277,7 @@ DOGNOL:	.BYTE	0	; Dog's flag: 1 = ignore left/right limit
 L7345:	.BYTE	20.	; Dog ??
 	.EVEN
 GARDST:	.WORD	10.	; Guard walking phase $00..$03 or other state: $09 = dead; $0A = standing; ...
-GARDDI:	.WORD	1	; Guard direction
+GARDDI:	.WORD	1	; Guard direction: 0 = left, 1 = right
 
 NRJ:	.WORD	14.	; Energy 0..14.
 NRJLO:	.WORD	177777	; Energy lower, running bit 0,1..377
@@ -665,6 +614,13 @@ L749E:	TST	NRJLO
 	CLC
 	ROR	NRJLO
 20$:	;JMP	DRNRJC			; Draw Energy column
+.SCRIPT "Cheat CHELTH"
+	MOV	#CHELTH, R0
+	BEQ	1$
+	MOV	#000207, L749E		; "RETURN" instruction
+	$type "CHELTH cheat applyed"
+1$:
+.ENDS
 
 ; Draw Energy column
 DRNRJC:	MOV	NRJ, R2			; 0..14.
@@ -892,9 +848,7 @@ L9DD0:	MOV	R3, @#LB674		; save current Dog data address
 
 ; Decrease Energy by R1
 NRJDEC:	RETURN				; !!MUT-CMD!! "PUSH R1" or "RETURN"
-;.IF EQ CHELTH		; Cheat code for no damage
 	CALL	L749E			; Decrease Energy
-;.ENDC
 	POP	R1
 	TST	NRJ			; Energy = 0 ?
 	BNE	L9DF1
@@ -1144,7 +1098,7 @@ GARS06:	DECB	GARDCN			; decrement Guard counter
 ; Guard state = $07 - back to standing
 GARS07:	DECB	GARDCN			; decrement Guard counter
 	BNE	90$
-	MOVB	#3, (R3)		; set Guard state = walking phase 3
+	MOV	#3, (R3)		; set Guard state = walking phase 3
 	MOV	#LD486, LA70F		; set Sprite Ninja/Guard standing
 90$:	JMP	DRGARD			; => Draw Guard on tilemap
 
@@ -1159,7 +1113,7 @@ GAROTH:	MOV	NJAX, R1		; get Ninja X
 	CMP	#10., (R3)		; Guard state = $0A ?
 	BNE	LA629
 	JMP	DRGARD			; yes => Draw Guard on tilemap
-LA629:	MOVB	#4, (R3)		; set Guard state = $04
+LA629:	MOV	#4, (R3)		; set Guard state = $04
 	MOV	#LD486, LA70F		; set Sprite Ninja/Guard standing
 	BR	DRGARD			; => Draw Guard on tilemap
 ; Guard X != Ninja X
@@ -2006,8 +1960,6 @@ LB674 = LB673 + 2	; current Dog data address
 LB679:	MOVB	(R3)+, (R2)+
 	SOB	R1, LB679
 LB67B:
-	;TODO: For first drawing entering the room, skip Dog and Guard tiles drawing
-
 	CALL	LDE68			; Find record for the current room in DE84 table
 	BNE	LB68B			; found =>
 	CLR	R3
@@ -2065,10 +2017,9 @@ LB6F2:	CMPB	R0, #200
 _RTOK80:
 	JMP	RTOK80
 ; Process token #00..#0F
-LB6F4:	PUSH	R3			; Save address in the room sequence
+LB6F4:	PUSH	R3			; Save current room sequence address
 	ASL	R0			; * 2
-	MOV	LB706(R0), R0		; get token procedure address
-	JMP	@R0			; => run token procedure
+	JMP	@LB706(R0)		; => run token procedure
 ;NOTE: Room token procedures return to LB702 to continue the loop
 
 ; Finish room initialization
@@ -2288,30 +2239,29 @@ LB8D0:
 	MOV	#<512./2>, R1
 32$:	MOV	#177777, (R3)+		; put two bytes $FF
 	SOB	R1, 32$
-	MOV	ROOM, R3		; get Current Room address
-	MOV	(R3), R3
+	MOV	@ROOM, R3		; get current room procedure address
 	JMP	@R3			; execute room procedure
 
 ; Standard room procedure (for 63 rooms)
 LB41F:	; (redirect)
 LB937:	MOV	#LA39F, R4		; Three objects start address
-	MOV	#3, R1
+	MOV	#3, LBA26+2		; set loop counter
 LB93D:	MOVB	#4, LB951
 	TSTB	(R4)			; have an object here?
 	BEQ	LBA21			; no => skip to end of loop
-	PUSH	R1
-	CALL	LBBAE			; set "need update" mark for object
-	MOV	#2, R1
-LB94F:	MOVB	4(R4), R0
+	MOV	2(R4), R3		; get object position
+	MOVB	#1, TLSCR1(R3)		; set "need to update" flag
+	MOV	#2, R1			; loop counter
+LB94F:	MOVB	4(R4), R0		; !!MUT-ARG!!
 LB951 = LB94F + 2
-	CLR	R2
+	CLR	R2			; delta = 0
 	CMPB	R0, #3
 	BHIS	LB95F
-	MOV	#-30., R2
+	MOV	#-30., R2		; one row up
 	DECB	6(R4)			; decrement object Y
 LB95F:	CMPB	R0, #6
 	BLO	LB969
-	MOV	#30., R2
+	MOV	#30., R2		; one row down
 	INCB	6(R4)			; increment object Y
 LB969:	CMPB	R0, #1
 	BEQ	LB98D
@@ -2319,7 +2269,7 @@ LB969:	CMPB	R0, #1
 	BEQ	LB98D
 	CMPB	R0, #7
 	BEQ	LB98D
-	DEC	R2
+	DEC	R2			; one left
 	DECB	7(R4)			; decrement object X
 	CMPB	R0, #3
 	BEQ	LB98D
@@ -2328,55 +2278,48 @@ LB969:	CMPB	R0, #1
 	CMPB	R0, #6
 	BEQ	LB98D
 	INC	R2
-	INC	R2
+	INC	R2			; one right
 	INCB	7(R4)			; increment object X
 	INCB	7(R4)
-LB98D:	MOV	2(R4), R3
+; R2 = position delta
+; Check object X,Y for screen bounds
+LB98D:	MOV	2(R4), R3		; get object position
 	ADD	R2, R3
-	MOV	R3, 2(R4)
+	MOV	R3, 2(R4)		; update object position
 	MOVB	6(R4), R0		; get object Y
-	CMPB	R0, #377
-	BNE	LB9A2
-	JMP	LBBA7
-LB9A2:	CMPB	R0, #17.
-	BNE	LB9A7
-	JMP	LBBA7
+	BMI	LB9B2			; Y < 0 => delete the object
+LB9A2:	CMPB	R0, #17.		; Y = 17. ?
+	BEQ	LB9B2			; yes => delete the object
 LB9A7:	MOVB	7(R4), R0		; get object X
-	CMPB	R0, #30.
-	BNE	LB9AF
-	JMP	LBBA7
-LB9AF:	CMPB	R0, #377
+	BMI	LB9B2			; X < 0 => delete the object
+LB9AF:	CMPB	R0, #30.		; X = 30. ?
 	BNE	LB9B4
-	JMP	LBBA7
-LB9B4:	MOV	R3, R5
-	ADD	#TLSCR0, R5		; Tile screen 0 start address
-	CMPB	#144, (R5)		; $64
-	BLO	LBAD5
-	MOV	R3, R5
-	ADD	#TLSCR3, R5		; Tile screen 3 start address
-	CMPB	#377, (R5)
+; Delete the object, continue the loop
+LB9B2:	CLR	(R4)			; delete the object
+	BR	LBA20			; => next object
+; Check for collisions; R3 = object position in tilemap
+LB9B4:	CMPB	#144, TLSCR0(R3)	; check tile in Tile screen 0 < $64
+	BLO	LBAD5			; yes => delete the object
+	CMPB	#377, TLSCR3(R3)	; check tile in Tile screen 3
 	BNE	LB9CA			; => Dog hit by the object
-LB9DA:	MOV	R3, R5
-	ADD	#TLSCR4, R5		; + Tile screen 4 start address
-	CMPB	#377, (R5)
+LB9DA:	CMPB	#377, TLSCR4(R3)	; check tile in Tile screen 4
 	BNE	LB9E4			; => Guard hit by the object
 LB9F9:	INCB	LB951
 	DEC	R1
-	BNE	LB94F
-	ADD	#TLSCR2, R3		; Tile screen 2 start address
+	BNE	LB94F			; continue the loop
+	ADD	#TLSCR2, R3		; now R3 = address in Tile screen 2
 	CMPB	(R3), #310		; $C8
 	BLO	LBA0C			; => Ninja hit by the object
-LBA14:	MOVB	(R4), R0
-	MOVB	R0, (R3)
+	MOVB	(R4), (R3)		; put object tile on Tile screen 2
 	MOV	#1, R5
-	XOR	R5, R0
-	MOVB	R0, (R4)
-	CALL	LBBAE			; set "need update" mark for object
+	XOR	R5, (R4)		; change tile odd/even
+	MOVB	R5, <-510.>(R3)		; set "need to update" flag in Tile screen 1
 ;
-LBA20:	POP	R1
+LBA20:
 LBA21:	ADD	#8., R4			; next object record
-	DEC	R1
-	BNE	LB93D
+LBA26:	DEC	#000003			; !!MUT-ARG!!
+	BNE	LB93D			; continue the loop
+;
 	CALL	DRALL			; Draw tile map on the screen
 ;
 	TSTB	LBAB2
@@ -2413,16 +2356,16 @@ LBAD5:	PUSH	R4
 	CALL	LF9A1			; Noise sound
 	POP	R4
 	CMP	#RM8DCA, ROOM		; current room = 8DCA (room with helicopter) ?
-	BEQ	LBBA7			; yes => delete the object
+	BEQ	LB9B2			; yes => delete the object
 ;
 LBAE4:	MOVB	(R4), R0
 	BIC	#1, R0
 	CMPB	#322, R0		; $D2/$D3 ? Granade
-	BNE	LBBA7			; no => delete the object
+	BNE	LB9B2			; no => delete the object
 ; Granade; R4 = LA39F
 LBAF0:	MOV	#LBAB2, R3		; Explosion counter address
 	TSTB	(R3)			; have Explosion already?
-	BNE	LBBA7			; yes => delete the object
+	BNE	LB9B2			; yes => delete the object
 	MOV	#6., (R3)		; set Explosion counter
 	MOV	2(R4), R3		; get object offset
 	ADD	#<TLSCR1-31.>, R3	; + Tile screen 1 - 31.
@@ -2454,16 +2397,14 @@ LBB72:	TSTB	7(R4)			; object X = 0 ?
 	INC	R3			; screen address + 1
 	INC	R5			; Explosion image address + 1
 	INC	<LBA2A+2>		; Tile screen 1 address + 1
-LBB7C:
-	MOV	R3, <LBA57+2>		; set screen address
+LBB7C:	MOV	R3, <LBA57+2>		; set screen address
 	MOV	R5, <LBA5A+2>		; set Explosion image address
 	MOV	R1, <LBA5D+2>		; set width
 	MOV	R1, <LBA2F+2>		; set width
 	MOV	R0, <LBA5F+2>		; set height
 	MOV	R0, <LBA2D+2>		; set height
-
-LBBA7:	CLR	(R4)			; delete the object
-	BR	LBA20
+;
+	JMP	LB9B2			; => delete the object, continue the loop
 
 ; Procedure: Draw Explosion image on the screen and make some noise
 LBA52:	;TODO: Sound
@@ -2499,11 +2440,6 @@ LBA32:	MOVB	#1, (R5)+
 	ADD	#30., R3
 	SOB	R1, LBA2F
 ;
-	RETURN
-
-; Set "need update" mark for object R4
-LBBAE:	MOV	2(R4), R3		; get object position
-	MOVB	#1, TLSCR1(R3)		; set flag in Tile screen 1
 	RETURN
 
 ; Movement handler: Ninja punching
@@ -3614,7 +3550,7 @@ TLSCR5:	.BLKB	510.
 
 .INCLUDE /S1INDS.MAC/
 
-FREE0 = 040000 - .
+FREE0 == 040000 - .
 .SCRIPT "Check FREE0"
 	MOV	#FREE0, R0
 	BPL	1$
@@ -4425,7 +4361,7 @@ SIZER = . - STARTR
 
 .INCLUDE /S1SPRT.MAC/
 
-FREE3 = 100000 - .
+FREE3 == 100000 - .
 .SCRIPT "Check FREE3"
 	MOV	#FREE3, R0
 	BPL	1$

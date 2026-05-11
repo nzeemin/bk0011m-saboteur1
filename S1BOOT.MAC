@@ -1,12 +1,13 @@
 ;------------------------------------------------------------------------------
 
-; Режимы для регистра управления памятью
-;          .___1___...00.00	Стр.	Назначение
-MMODE0 = ^B0001110000000000	; 5:4  -  системный
-MMOD34 = ^B0011110000000000	; 3:4  -  для загрузки
-MMOD36 = ^B0011111100000000	; 3:6  -  для S2TILE
-MMODE1 = ^B0011100000000000	; 3:1  -  основной
-MMODE5 = ^B0001100000000000	; 5:1  -  для рисования на экране
+; Memory mode register values
+;          .___1___...00.00	Page	Purpose
+MMODE0 = ^B0001110000000000	; 5:4  -  system
+MMOD34 = ^B0011110000000000	; 3:4  -  for loading
+MMOD36 = ^B0011111100000000	; 3:6  -  for S1TILE
+MMODE1 = ^B0011100000000000	; 3:1  -  main program, no screen
+MMODE5 = ^B0001100000000000	; 5:1  -  to draw on the screen
+MMOD52 = ^B0001101000000000	; 5:2  -  to draw using Byte2Word tables
 
 ; Значение регистра управления палитрами для заставки
 ;          ST..____........
@@ -14,6 +15,8 @@ MMODE5 = ^B0001100000000000	; 5:1  -  для рисования на экран�
 
 S1LZS2 = <<S1LZSZ + 1> / 2> * 2		; S2LZSZ но выровненный до слова
 START = 001400				; Start address of the main code block
+
+L33124 = 120000				; Table used to extend byte to word
 
 STBOOT:
 	MTPS	#340			; disable all interruptions
@@ -159,6 +162,8 @@ BOOTP1:
 	MOV	#LZTILE, R1		; address from
 	MOV	#100000, R2		; address to
 	CALL	UNLZSA
+; Pre-calculate data
+	CALL	PREPARE			; Prepare tables in page 2
 ; Load the compressed code block
 	MOV	#MMOD34, @#177716	; Включаем режим памяти 3:4, для загрузки кода
 	MOV	#PBLK1, R1
@@ -201,6 +206,58 @@ SLoading:
 .INCLUDE /VERSIO.MAC/
 	.BYTE	0
 	.EVEN
+
+PREPARE:
+; Prepare PXCONV table, used to convert pixels BYTE -> BK WORD
+	MOV	#MMOD52, @#177716	; Set memory mode
+	MOV	#L33124, R2
+	MOV	#-128., R3		; R3 runs from -128. to +127.
+1$:	CLR	R5			; in R5 will be the word
+	MOV	#8., R4			; R4 = bits counter
+	MOV	R3, R1
+2$:	ASR	R1			; bit 0 goes into C flag
+	BCC	5$
+	ROL	R5			; get from C flag
+	ROL	R5
+	BR	8$
+5$:	ROL	R5			; get 0 from C flag
+	SEC
+	ROL	R5
+8$:	SOB	R4, 2$			; repeat
+	MOV	R5, (R2)+		; write the result
+	INC	R3
+	CMP	R3, #128.
+	BLT	1$
+; Prepare byte -> word tables, 16 tables by 512 bytes, see Byte2Word00
+	CLR	R5			; xxxxPPII (P-paper, I-ink)
+	MOV	#100000, R4
+10$:	MOV	R5, 40$+2
+	MOV	R5, 50$+2
+	BIC	#^B1111111111111100, 40$+2 ; modify bis for 'ink'
+	ASR	50$+2			; modify bis for 'paper'
+	ASR	50$+2
+	MOV	#200, R0		; (!) start conversion from -0 (signed byte)
+20$:	CLR	(R4)			; cycle 256 bytes
+	MOV	R0, R1
+	MOV	#8., R3
+30$:	ASL	(R4)			; cycle 8 bits
+	ASL	(R4)
+	ASLB	R1
+	BCC	50$
+40$:	BIS	#000000, (R4)		; set 'ink'
+	BR	60$
+50$:	BIS	#000000, (R4)		; set 'paper'
+60$:	SOB	R3, 30$
+	INC	R4
+	INC	R4
+	INCB	R0
+	CMPB	#200, R0
+	BNE	20$
+	INC	R5
+	CMP	R5, #16.
+	BLO	10$
+;
+	RETURN
 
 ; Сжатый экран
 LZSCRN:
