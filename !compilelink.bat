@@ -40,10 +40,6 @@ dir /-c S1TILE.raw|findstr /R /C:"S1TILE.raw"
 
 tools\lzsa3.exe S1TILE.raw S1TILE.LZS
 dir /-c S1TILE.LZS|findstr /R /C:"S1TILE.LZS"
-call :FileSize S1TILE.LZS
-set "tilelzsize=%fsize%"
-rem Reuse VERSIO.MAC to pass parameters into S1BOOT.MAC
-echo S1TZSZ = %tilelzsize%. >> VERSIO.MAC
 
 tools\BKTurbo8.exe -ik --raw -s001400 -lS1CORE.lst CO S1CORE.MAC >S1CORE.out
 @if exist S1CORE.MAC.raw rename S1CORE.MAC.raw S1CORE.raw

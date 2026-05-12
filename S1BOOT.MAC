@@ -1,4 +1,8 @@
 ;------------------------------------------------------------------------------
+; Generates SABOT1.BIN, containing:
+; 1. S1BOOT.MAC - code and data
+; 2. S1SCRN.LZS - compressed title screen
+; 3. S1TILE.LZS - compressed tiles data
 
 ; Memory mode register values
 ;          .___1___...00.00	Page	Purpose
@@ -9,11 +13,11 @@ MMODE1 = ^B0011100000000000	; 3:1  -  main program, no screen
 MMODE5 = ^B0001100000000000	; 5:1  -  to draw on the screen
 MMOD52 = ^B0001101000000000	; 5:2  -  to draw using Byte2Word tables
 
-; Значение регистра управления палитрами для заставки
+; Palette register values
 ;          ST..____........
 ;PMODES = ^B0000000000000000	; Screen page 5, palette 0
 
-S1LZS2 = <<S1LZSZ + 1> / 2> * 2		; S2LZSZ но выровненный до слова
+S1LZS2 = <<S1LZSZ + 1> / 2> * 2		; S2LZSZ aligned to words
 START = 001400				; Start address of the main code block
 
 L33124 = 120000				; Table used to extend byte to word
@@ -153,10 +157,6 @@ BOOTP1:
 	MOV	#LZSCRN, R1		; address from
 	MOV	#040000, R2		; address to: screen
 	CALL	UNLZSA
-;; Загрузить сжатый блок S1TILE
-;	MOV	#MMOD34, @#177716	; Включаем режим памяти 3:4, для загрузки блока
-;	MOV	#PBLK2, R1
-;	CALL	@#120002		; call ANDOS
 ; Unpack the compressed S1TILE block into page 6
 	MOV	#MMOD36, @#177716	; Включаем режим памяти 3:6
 	MOV	#LZTILE, R1		; address from
@@ -165,11 +165,11 @@ BOOTP1:
 ; Pre-calculate data
 	CALL	PREPARE			; Prepare tables in page 2
 ; Load the compressed code block
-	MOV	#MMOD34, @#177716	; Включаем режим памяти 3:4, для загрузки кода
+	MOV	#MMOD34, @#177716	; Set memory mode 3:4, to load the code
 	MOV	#PBLK1, R1
 	CALL	@#120002		; call ANDOS
 ; Move up the compressed main code block
-	MOV	#MMODE1, @#177716	; Включаем режим памяти 1, основной
+	MOV	#MMODE1, @#177716	; Set memory mode 1
 	MOV	#140000, R2		; Адрес ДО которого перемещаем
 	MOV	#<2000+S1LZS2>, R1	; Адрес с которого перемещаем, верхняя граница
 	MOV	#<S1LZS2/2>, R3
@@ -179,31 +179,23 @@ BOOTP1:
 	RETURN
 
 PBLK1:
-	.BYTE	3	; Команда 3 = читать файл
-	.BYTE	0	; Ответ
-	.WORD	2000	; Адрес
-	.WORD	S1LZSZ	; Размер - берём после компиляции S1CORE.MAC
+	.BYTE	3	; Command 3 = read file
+	.BYTE	0	; Answer
+	.WORD	2000	; Address
+	.WORD	S1LZSZ	; Block size after S1CORE.MAC compilation and compression
 	.ASCII	/S1CORE.LZS      /
 	.WORD	0
 	.WORD	0
 	.ASCII	/                /
-;PBLK2:
-;	.BYTE	3	; Команда 3 = читать файл
-;	.BYTE	0	; Ответ
-;	.WORD	3000	; Адрес
-;	.WORD	S1TZSZ	; Размер - берём после сжатия
-;	.ASCII	/S1TILE.LZS      /
-;	.WORD	0
-;	.WORD	0
-;	.ASCII	/                /
 
-; Строка для вывода при загрузке
+; String to show on loading
 SLoading:
 	.BYTE	232	; cursor off
 	.BYTE	233	; 32/64
 	.ASCII	/original 1985 by Clive Townsend/<12>
 	.ASCII	/BK-0011M port by NZeemin/<12>/  /
 .INCLUDE /VERSIO.MAC/
+;NOTE: S1LZSZ value passed with VERSIO.MAC
 	.BYTE	0
 	.EVEN
 
